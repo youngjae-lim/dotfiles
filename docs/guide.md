@@ -311,6 +311,52 @@ chezmoi diff       # shows exactly what apply WOULD change
 
 > **1Password popup:** `apply`, `diff` and `status` ask 1Password to approve because your secrets file is part of the comparison. That's expected.
 
+### Changing any config in `home/`: the routine and its variations
+
+The routine for AeroSpace (§9) works for **most** files: edit the source → `chezmoi diff` → `chezmoi apply` → reload the app → check → commit. Only a few kinds of file differ. Find yours here.
+
+**Same routine, nothing special** (just pick the right reload from the table above):
+
+| Files | Reload |
+|---|---|
+| `dot_config/aerospace/`, `ghostty/`, `herdr/`, `lf/`, `zathura/`, `dot_tmux.conf`, `dot_hammerspoon/` | The app's own reload command |
+| `dot_config/zsh/*.zsh`, `dot_zshrc`, `dot_zshenv`, `dot_zprofile` | New tab, or `exec zsh` |
+| `dot_config/git/ignore` | Next git command |
+| `private_dot_local/bin/executable_notes`, `executable_launcher` | Next time you run them |
+
+**Variation 1: generated files (edit the source of truth, not the output).** One file in the repo produces several files in `~`. Edit only the source.
+
+| You want to change… | Edit this | It generates | Then |
+|---|---|---|---|
+| What agents know about you and how they work | `home/.chezmoitemplates/agents.md` | `~/.claude/CLAUDE.md`, `~/.copilot/copilot-instructions.md`, `~/.gemini/GEMINI.md` | `apply`, start a **new** agent session |
+| What agents may run, and MCP servers | `home/.chezmoidata/agents.yaml` | Claude and Gemini settings, Gemini policy, Copilot MCP config, the `copilot` wrapper in `agents.zsh` | `apply`, `exec zsh`, start a **new** agent session |
+| A skill | `home/dot_agents/skills/<name>/SKILL.md` | `~/.agents/skills/<name>/` | `apply`, new agent session |
+
+**Variation 2: templates (`*.tmpl`).** They contain `{{ … }}` that chezmoi fills in. A typo breaks `apply` with an error naming the file. To test one file without applying anything:
+```sh
+chezmoi execute-template < home/dot_config/git/config.tmpl
+```
+- Your name and email for git come from `home/.chezmoi.toml.tmpl`, not from the git template.
+- `private_secrets.zsh.tmpl` reads 1Password (expect the popup). After a change, open a new shell.
+
+**Variation 3: `modify_` files (Claude and Gemini settings, Copilot MCP config).** The app owns these files and writes to them itself. `apply` only overwrites the keys chezmoi manages and leaves the rest alone. So if you change a *managed* setting from inside the app (for example Claude's default permission mode), the next `apply` puts it back. To make that change stick, change it in `agents.yaml` or the `modify_*.tmpl` file instead.
+
+**Variation 4: files that run scripts.** Three changes make `apply` do extra work, but only when their input changed:
+
+| You change | `apply` also runs | If it fails |
+|---|---|---|
+| `Brewfile` | `brew bundle` (installs new apps) | It prints the exact command to rerun. Casks that need `sudo` (like Tailscale) must be installed by you in a terminal. |
+| `dot_config/mise/config.toml` | `mise install` | `mise doctor` |
+| MCP servers in `agents.yaml` | Registers them with Claude Code | `claude mcp list` |
+
+**Variation 5: chezmoi's own settings.**
+- `home/.chezmoi.toml.tmpl` (your name, email, diff tool): after editing, run `chezmoi init` once to regenerate `~/.config/chezmoi/chezmoi.toml`, then `apply`. If you forget, chezmoi warns: *"config file template has changed, run chezmoi init"*.
+- `home/.chezmoiignore`: takes effect on the next `apply`. No `init` needed.
+
+**Two more things to know:**
+- **Adding a file:** easiest is `chezmoi add ~/.somerc`, which creates the source file with the right name for you. Then commit it.
+- **Deleting or renaming a file in `home/`:** chezmoi does **not** delete the old file from `~`. Remove it yourself (`rm ~/the/old/file`), then commit.
+
 ### The 20% you'll use daily
 
 | Command | Alias | Does |
@@ -450,6 +496,43 @@ To change a **global** version, edit `~/Dotfiles/home/dot_config/mise/config.tom
 **A simple habit:** `1` = terminal (Ghostty), `2` = browser, `3` = VS Code, `4` = chat/mail. Send each app there once with `Alt+Shift+<n>`.
 
 **Try it.** Open Ghostty and Firefox on workspace 1. They split the screen. Press `Alt+H` and `Alt+L` to switch between them, `Alt+Shift+L` to swap them, then `Alt+Shift+2` to send Firefox to workspace 2 and `Alt+2` to follow it.
+
+**Worked example: change a setting, end to end.** This is the routine for almost every config in this repo. Say you want bigger gaps between windows.
+
+1. **Open the source file.** Not `~/.config/aerospace/aerospace.toml`; that's only a copy.
+   ```sh
+   cd ~/Dotfiles
+   nvim home/dot_config/aerospace/aerospace.toml
+   ```
+2. **Edit it.** Change `gaps.inner.horizontal = 8` to `12`, and the other `gaps.*` lines if you like. Save.
+3. **Preview, then apply.**
+   ```sh
+   chezmoi diff      # shows exactly what will change in ~/.config/aerospace
+   chezmoi apply     # approve the 1Password popup if it appears
+   ```
+4. **Reload AeroSpace** so the running app reads the new file.
+   ```sh
+   aerospace reload-config      # or Alt+Shift+; then Esc
+   ```
+   An error message here means a typo in the file. Fix it and reload again.
+5. **Check it.** Look at your windows, or try the new shortcut.
+6. **Save it.**
+   ```sh
+   git add -A
+   git commit -m "style(aerospace): increase window gaps to 12"
+   git push
+   ```
+   Or, in a Claude session in `~/Dotfiles`, say "commit this".
+
+**Faster:** `cze ~/.config/aerospace/aerospace.toml` opens the source file and applies it when you save, so you can skip step 3. Then do steps 4–6.
+
+**To undo a change you haven't committed:**
+```sh
+git checkout -- home/dot_config/aerospace/aerospace.toml
+chezmoi apply && aerospace reload-config
+```
+
+Other tools follow the same six steps. Only the file in step 1 and the reload in step 4 change; see §5 for the exceptions.
 
 **When it breaks**
 - Keys do nothing: grant **Accessibility** permission (System Settings → Privacy & Security → Accessibility → AeroSpace).
