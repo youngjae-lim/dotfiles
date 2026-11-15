@@ -1,0 +1,40 @@
+# Runs scripts/check.sh: agent-config parity, shellcheck, stylua, gitleaks.
+name: check
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # gitleaks scans the full history
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+
+      - name: Install chezmoi, stylua, gitleaks
+        env:
+          CHEZMOI_VERSION: 2.74.1
+          STYLUA_VERSION: 2.6.0
+          GITLEAKS_VERSION: 8.30.1
+        run: |
+          bin="$HOME/.local/bin"
+          mkdir -p "$bin"
+          sh -c "$(curl -fsSL https://get.chezmoi.io)" -- -b "$bin" -t "v$CHEZMOI_VERSION"
+          curl -fsSL -o /tmp/stylua.zip \
+            "https://github.com/JohnnyMorganz/StyLua/releases/download/v$STYLUA_VERSION/stylua-linux-x86_64.zip"
+          unzip -o -q /tmp/stylua.zip -d "$bin"
+          curl -fsSL "https://github.com/gitleaks/gitleaks/releases/download/v$GITLEAKS_VERSION/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" |
+            tar xz -C "$bin" gitleaks
+          echo "$bin" >>"$GITHUB_PATH"
+
+      # shellcheck and jq come preinstalled on ubuntu-latest.
+      - run: scripts/check.sh
