@@ -1,6 +1,9 @@
 # Single source of truth for AI agent policy. Rendered into:
-#   ~/.claude/settings.json, ~/.gemini/policies/dotfiles.toml,
-#   ~/.copilot/settings.json + the `copilot` wrapper in ~/.config/zsh/agents.zsh
+#   ~/.claude/settings.json (+ hooks), ~/.gemini/settings.json,
+#   ~/.gemini/policies/dotfiles.toml, ~/.copilot/mcp-config.json,
+#   VS Code's mcp.json and the `copilot` wrapper in ~/.config/zsh/agents.zsh.
+# After editing, run scripts/check.sh: it renders every agent's config and
+# fails if any of them disagrees with this file.
 # Policy: auto-edit files + run safe local commands; ask for network/destructive; never touch secrets.
 agents:
   # Command prefixes agents may run without asking.
@@ -48,6 +51,8 @@ agents:
     - chezmoi doctor
     - shellcheck
     - stylua
+    - scripts/check.sh
+    - ./scripts/check.sh
   # Always prompt, even if a broader rule would allow it.
   askCommands:
     - git push
@@ -70,7 +75,12 @@ agents:
     - op
     - git push --force
     - git push -f
-  # Files agents must never read or write (globs).
+  # Files agents must never read or write (globs). Supported forms:
+  #   **/<name>     that file name in any directory (may contain *)
+  #   ~/<path>      one file under $HOME
+  #   ~/<dir>/**    everything under a directory in $HOME
+  # Claude, Gemini, Copilot rules and the Claude secret-guard hook are all
+  # derived from this list.
   denyPaths:
     - "**/.env"
     - "**/.env.local"
@@ -108,18 +118,23 @@ agents:
       - shell(ruff)
       - shell(shellcheck)
       - shell(stylua)
-    denyTools:
-      - shell(sudo)
-      - shell(op)
-      - read(.env)
-      - read(.env.local)
-      - read(.env.production)
-      - write(.env)
-      - read(~/.ssh/**)
-      - read(~/.config/zsh/secrets.zsh)
+      - shell(scripts/check.sh)
+      - shell(./scripts/check.sh)
+    # Deny rules are generated from denyCommands (single-word ones) and
+    # denyPaths; list Copilot-only extras here.
+    denyTools: []
 
   # MCP servers shared by Claude Code, Copilot CLI, Gemini CLI and VS Code.
+  # This list is authoritative: a server removed here is removed from every
+  # agent on the next `chezmoi apply`. Two types:
+  #   type: http   + url
+  #   type: stdio  + command (+ args)
+  # Never put secrets here (this repo is public).
   mcpServers:
     context7:
       type: http
       url: https://mcp.context7.com/mcp
+    time:
+      type: stdio
+      command: uvx
+      args: [mcp-server-time, --local-timezone=America/New_York]

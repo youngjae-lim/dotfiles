@@ -1,10 +1,16 @@
 {{- /* MCP servers come from home/.chezmoidata/agents.yaml; command policy lives in policies/dotfiles.toml. */ -}}
 {{- $mcp := dict -}}
 {{- range $name, $s := .agents.mcpServers -}}
-{{-   if eq $s.type "http" }}{{ $_ := set $mcp $name (dict "httpUrl" $s.url) }}{{ end -}}
+{{-   if eq $s.type "http" -}}
+{{-     $_ := set $mcp $name (dict "httpUrl" $s.url) -}}
+{{-   else if eq $s.type "stdio" -}}
+{{-     $_ := set $mcp $name (dict "command" $s.command "args" ($s.args | default (list))) -}}
+{{-   else -}}
+{{-     fail (printf "agents.yaml: mcpServers.%s has unknown type %q" $name $s.type) -}}
+{{-   end -}}
 {{- end -}}
 {{- $managed := dict
       "general" (dict "defaultApprovalMode" "auto_edit")
       "context" (dict "fileName" (list "AGENTS.md" "GEMINI.md"))
       "mcpServers" $mcp -}}
-{{- template "merge-json.sh" $managed -}}
+{{- template "merge-json.sh" (dict "managed" $managed "owned" (list "mcpServers")) -}}
