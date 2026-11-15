@@ -387,6 +387,7 @@ To change a **global** version, edit `~/Dotfiles/home/dot_config/mise/config.tom
 | Action | Keys |
 |---|---|
 | **New Ghostty window** | `Alt+Enter` |
+| **Make this window fill the screen** (press again to go back) | `Alt+Shift+Enter` |
 | Focus window left/down/up/right | `Alt+H` `Alt+J` `Alt+K` `Alt+L` |
 | Move window left/down/up/right | `Alt+Shift+H/J/K/L` |
 | Go to workspace 1–9 / A–Z | `Alt+1` … `Alt+9`, `Alt+<letter>` |
@@ -394,6 +395,7 @@ To change a **global** version, edit `~/Dotfiles/home/dot_config/mise/config.tom
 | Previous workspace (toggle) | `Alt+Tab` |
 | Side by side ↔ stacked (accordion) | `Alt+/` ↔ `Alt+,` |
 | Make window smaller / bigger | `Alt+-` / `Alt+=` |
+| **Make all windows equal size again** | `Alt+Shift+=` |
 | Service mode (then `Esc` reloads config) | `Alt+Shift+;` |
 
 **A simple habit:** `1` = terminal (Ghostty), `2` = browser, `3` = VS Code, `4` = chat/mail. Send each app there once with `Alt+Shift+<n>`.

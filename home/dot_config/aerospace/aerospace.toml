@@ -115,6 +115,12 @@ gaps.outer.right =      8
     # Mine: alt + enter opens a new Ghostty window (replaces the old skhd rctrl+return binding).
     alt-enter = 'exec-and-forget open -n -a Ghostty'
 
+    # Mine: alt + shift + enter toggles the focused window to fill the screen and back.
+    alt-shift-enter = 'fullscreen'
+
+    # Mine: alt + shift + = makes all windows on this workspace equal size again.
+    alt-shift-equal = 'balance-sizes'
+
     # See: https://nikitabobko.github.io/AeroSpace/commands#layout
     alt-slash = 'layout tiles horizontal vertical'
     alt-comma = 'layout accordion horizontal vertical'
