@@ -2,6 +2,8 @@
 
 My macOS setup, built for working with AI coding agents. Managed with [chezmoi](https://chezmoi.io).
 
+> **New to these tools?** Start with the [learning guide](docs/guide.md).
+
 | Layer | Tool |
 |---|---|
 | Terminal | [Ghostty](https://ghostty.org) |

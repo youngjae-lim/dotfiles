@@ -17,6 +17,7 @@ Youngjae's macOS dotfiles, managed by **chezmoi**. The repo lives at `~/Dotfiles
 | `config/` | Configs that apps rewrite themselves (nvim, karabiner, VS Code). `~` symlinks **into** this dir, so in-app edits appear in `git diff`. |
 | `Brewfile` | All Homebrew packages; applied automatically when it changes. |
 | `scripts/` | Manual one-off scripts (macOS defaults). |
+| `docs/guide.md` | Human learning guide for every tool here. Update it when you change a workflow, keybinding or command it documents. |
 | `install.sh` | New-machine bootstrap. |
 
 ## Rules
