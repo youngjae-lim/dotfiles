@@ -262,6 +262,55 @@ git branch -d <branch>         # then delete the merged branch
 - **Rendered** (most of `home/`): edit in `~/Dotfiles`, then apply.
 - **Symlinked** (`config/nvim`, `config/karabiner`, `config/vscode`): the app edits the repo file directly. Changes from LazyVim, Karabiner's UI or VS Code settings show up in `git diff`. No apply needed.
 
+### Do I need to run `chezmoi apply`?
+
+`apply` and `git commit` are **two separate things**:
+
+- **`chezmoi apply`** copies files from `~/Dotfiles` into your home folder, so your Mac *uses* the change.
+- **`git commit` / `git push`** *saves* the change in history and on GitHub.
+
+Neither one needs the other. The only question is whether the file you changed is a **live link** or a **copy**.
+
+**1. Find the file you changed, then follow its row.**
+
+| You changed… | Where it lives | Run `chezmoi apply`? | What makes it take effect |
+|---|---|---|---|
+| Neovim config or plugins (including `lazy-lock.json`, `:Lazy update`) | `config/nvim/` | **No.** Live link. | Restart Neovim |
+| VS Code `settings.json`, `keybindings.json`, `mcp.json` | `config/vscode/` | **No.** Live link. | Saves instantly, or reload the window |
+| Karabiner rules (changed in its app) | `config/karabiner/` | **No.** Live link. | Instant |
+| Anything else in `home/` (zsh, git, ghostty, herdr, aerospace, mise, tmux, agents, skills, `~/.local/bin/notes`) | `home/…` | **Yes.** It's a copy. | `apply`, then reload the app (see below) |
+| `Brewfile` | repo root | **Yes.** `apply` runs `brew bundle` when it changes. | `apply` |
+| `docs/`, `README.md`, `AGENTS.md`, `scripts/`, `install.sh` | repo only | **No.** Nothing is copied. | Nothing to do |
+
+> **Skills note:** `~/.claude/skills` is a link to `~/.agents/skills`, but that folder is a *copy* made from `home/dot_agents/skills/`. So edits to a skill **do** need `apply`.
+
+**2. After `apply`, tell the app to reload.** `apply` only writes the file. A running program still has the old settings in memory.
+
+| App | How to reload |
+|---|---|
+| zsh | Open a new tab, or run `exec zsh` |
+| Ghostty | `Cmd+Shift+,` |
+| herdr | `herdr server reload-config` |
+| AeroSpace | `aerospace reload-config` |
+| tmux | `Ctrl+F` `r` (your tmux prefix is `Ctrl+F`) |
+| git, mise | Takes effect on the next command |
+| Claude / Copilot / Gemini | Start a new session |
+| Hammerspoon | Menu-bar icon → Reload Config |
+
+**3. If you're not sure, ask chezmoi.** It never changes anything:
+```sh
+chezmoi status     # empty = nothing is waiting to be applied
+chezmoi diff       # shows exactly what apply WOULD change
+```
+- Output means the repo and your Mac differ, so `chezmoi apply` will change something.
+- No output means they already match, so you don't need to apply. Running it anyway is harmless.
+
+**4. The safe habit.** When in doubt, run `chezmoi apply`. It only touches files that differ, and `chezmoi diff` shows you first. The risky mistake is the opposite one: editing a rendered file in `~` directly. That edit is overwritten by the next apply.
+
+**Order of a normal change:** edit in `~/Dotfiles` → `chezmoi diff` → `chezmoi apply` → reload the app → check it works → `git commit` → `git push`.
+
+> **1Password popup:** `apply`, `diff` and `status` ask 1Password to approve because your secrets file is part of the comparison. That's expected.
+
 ### The 20% you'll use daily
 
 | Command | Alias | Does |
@@ -517,6 +566,12 @@ CHEZMOI                                  SECRETS
   czd diff → cza apply                     op read "op://Dev/<item>/credential"
   cze <file>   edit source + apply         add line to private_secrets.zsh.tmpl
   chezmoi re-add   keep an in-place edit   leading space = not in history
+
+APPLY OR NOT?   (apply = copy to ~, commit = save in git; independent)
+  config/nvim, config/vscode, config/karabiner → live links, NO apply
+  anything else in home/, plus Brewfile        → chezmoi apply, then reload the app
+  docs/, README, AGENTS.md, scripts/           → NO apply, just commit
+  unsure → chezmoi status (empty = in sync)
 
 WHERE THINGS LIVE (~/Dotfiles)
   home/.chezmoitemplates/agents.md   agent instructions (all agents)
