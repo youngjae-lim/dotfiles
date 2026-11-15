@@ -1,0 +1,10 @@
+# Global runtimes (Herd provides PHP). Per-project versions go in mise.toml /
+# .tool-versions / .nvmrc / .python-version.
+[tools]
+node = "24"
+python = "3.13"
+go = "1.26"
+
+[settings]
+idiomatic_version_file_enable_tools = ["node", "python", "go"]
+experimental = false

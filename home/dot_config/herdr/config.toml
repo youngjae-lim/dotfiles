@@ -1,0 +1,26 @@
+# herdr config. Full reference: `herdr --default-config`.
+# Apply changes to a running server with `herdr server reload-config`.
+onboarding = false
+
+[theme]
+name = "catppuccin"
+
+[terminal]
+new_cwd = "follow"
+
+[ui]
+show_agent_labels_on_pane_borders = true
+prompt_new_tab_name = false
+
+[worktrees]
+directory = "~/.herdr/worktrees"
+
+[keys]
+# prefix = "ctrl+b" (default)
+
+[[keys.command]]
+key = "prefix+alt+g"
+type = "popup"
+command = "lazygit"
+width = "90%"
+height = "90%"

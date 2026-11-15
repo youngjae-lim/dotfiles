@@ -1,0 +1,132 @@
+#!/usr/bin/env bash
+# notes: markdown note workflow (Google Drive + nvim + pandoc + zathura).
+# Replaces note_taker.sh, create_markdown_note.sh, open_markdown_note.sh,
+# note_searcher.sh, most_recent_note.sh, book_searcher.sh, convert_md_note_to_{pdf,ppt}.sh.
+set -euo pipefail
+
+DRIVE="${GOOGLE_DRIVE_DIR:-$HOME/Google Drive/My Drive}"
+DAILY_DIR="$DRIVE/Notes/src"
+MARKDOWN_DIR="$DRIVE/Markdown"
+BOOKS_DIR="$DRIVE/Books"
+PDF_ENGINE_OPTS=(--pdf-engine=xelatex -V "CJKmainfont=Noto Serif KR")
+
+usage() {
+	cat <<'EOF'
+usage: notes <command> [args]
+  today               open today's daily note (Notes/src/note-YYYY-MM-DD.md)
+  new [dir] [name]    create or open <Drive>/<dir>/<name>.md (prompts if omitted)
+  open                fzf-pick a markdown note under Markdown/ and open it
+  pdfs                fzf-pick a PDF under Markdown/ and open it in zathura
+  recent              open the most recent daily-note PDF in zathura
+  books               fzf-pick a book PDF under Books/ and open it in zathura
+  pdf <file.md>       render <file.md> to ./pdf/<name>.pdf
+  ppt <file.md>       render <file.md> to a beamer deck ./presentation/<name>_p.pdf
+EOF
+}
+
+die() { echo "notes: $*" >&2; exit 1; }
+
+pick() { fzf --reverse --border=rounded --height=50% --header="$1"; }
+
+# Open a note at the end with a new timestamped heading, in insert mode.
+# Extra nvim args (e.g. an autocmd) can follow the file.
+edit_with_stamp() {
+	local file=$1
+	shift
+	nvim -c "norm Go" -c "norm Go## $(date '+%m-%d-%Y %H:%M')" -c "norm G2o" -c "norm zz" -c "startinsert" "$@" "$file"
+}
+
+render_pdf() {
+	local src=$1 out_dir out
+	[[ -f $src ]] || die "no such file: $src"
+	out_dir="$(dirname "$src")/pdf"
+	out="$out_dir/$(basename "$src" .md).pdf"
+	mkdir -p "$out_dir"
+	pandoc "$src" "${PDF_ENGINE_OPTS[@]}" -V geometry:letterpaper -V geometry:margin=1in -o "$out"
+	echo "$out"
+}
+
+render_ppt() {
+	local src=$1 out_dir out
+	[[ -f $src ]] || die "no such file: $src"
+	out_dir="$(dirname "$src")/presentation"
+	out="$out_dir/$(basename "$src" .md)_p.pdf"
+	mkdir -p "$out_dir"
+	pandoc "$src" "${PDF_ENGINE_OPTS[@]}" -t beamer -o "$out"
+	echo "$out"
+}
+
+cmd_today() {
+	local file
+	file="$DAILY_DIR/note-$(date +%Y-%m-%d).md"
+	mkdir -p "$DAILY_DIR"
+	[[ -f $file ]] || echo "# Notes for $(date +%Y-%m-%d)" >"$file"
+	edit_with_stamp "$file"
+}
+
+cmd_new() {
+	local dir=${1:-} name=${2:-} path
+	[[ -n $dir ]] || read -rp "Directory (under Google Drive root): " dir
+	[[ -n $name ]] || read -rp "File name (without .md): " name
+	[[ -n $dir && -n $name ]] || die "directory and file name are required"
+	path="$DRIVE/$dir/$name.md"
+	mkdir -p "$(dirname "$path")"
+	if [[ ! -f $path ]]; then
+		cat >"$path" <<EOF
+---
+title: "$name"
+author: "$(git config user.name 2>/dev/null || echo "$USER")"
+date: "$(date +%Y-%m-%d)"
+---
+
+# $name
+
+EOF
+	fi
+	# Re-render <name>.pdf next to the note in the background on every save.
+	edit_with_stamp "$path" -c "autocmd BufWritePost <buffer> silent !pandoc '%' --pdf-engine=xelatex -V CJKmainfont='Noto Serif KR' -V geometry:letterpaper -V geometry:margin=1in -o '%:r.pdf' &"
+	echo "File path: $path"
+}
+
+cmd_open() {
+	local file rel
+	file=$(find "$MARKDOWN_DIR" -maxdepth 4 -type f -name '*.md' | pick 'Pick a markdown note to open') || true
+	[[ -n $file ]] || die "no file selected"
+	rel=${file#"$DRIVE/"}
+	cmd_new "$(dirname "$rel")" "$(basename "$rel" .md)"
+}
+
+open_pdf_from() {
+	local dir=$1 header=$2 file
+	file=$(find "$dir" -maxdepth 4 -type f -name '*.pdf' | pick "$header") || true
+	[[ -n $file ]] || die "no file selected"
+	zathura "$file" &
+	disown
+}
+
+cmd_recent() {
+	local file
+	file=$(find "$DAILY_DIR/pdf" -type f -name '*.pdf' 2>/dev/null | sort -r | head -n 1) || true
+	[[ -n $file ]] || die "no PDF files found in $DAILY_DIR/pdf"
+	zathura "$file" &
+	disown
+}
+
+main() {
+	local cmd=${1:-}
+	shift || true
+	case $cmd in
+	today) cmd_today ;;
+	new) cmd_new "$@" ;;
+	open) cmd_open ;;
+	pdfs) open_pdf_from "$MARKDOWN_DIR" 'Pick a PDF note to open' ;;
+	recent) cmd_recent ;;
+	books) open_pdf_from "$BOOKS_DIR" 'Pick a book to open' ;;
+	pdf) render_pdf "${1:?usage: notes pdf <file.md>}" ;;
+	ppt) render_ppt "${1:?usage: notes ppt <file.md>}" ;;
+	-h | --help | help | '') usage ;;
+	*) usage >&2; exit 1 ;;
+	esac
+}
+
+main "$@"

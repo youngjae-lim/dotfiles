@@ -1,0 +1,3 @@
+# Managed by chezmoi. Read by every zsh (including non-interactive shells that
+# agents, editors and scripts spawn), so keep it fast and side-effect free.
+source "${XDG_CONFIG_HOME:-$HOME/.config}/zsh/env.zsh"

@@ -1,0 +1,35 @@
+// Place your key bindings in this file to override the defaults
+[
+	{
+		"key": "ctrl+,",
+		"command": "github.copilot.interactiveEditor.explain"
+	},
+	{
+		"key": "ctrl+shift+.",
+		"command": "workbench.action.navigateForward",
+		"when": "canNavigateForward"
+	},
+	{
+		"key": "ctrl+shift+-",
+		"command": "-workbench.action.navigateForward",
+		"when": "canNavigateForward"
+	},
+	{
+		"key": "ctrl+shift+,",
+		"command": "workbench.action.navigateBack",
+		"when": "canNavigateBack"
+	},
+	{
+		"key": "ctrl+-",
+		"command": "-workbench.action.navigateBack",
+		"when": "canNavigateBack"
+	},
+	{
+		"key": "cmd+p",
+		"command": "workbench.action.quickOpen"
+	},
+	{
+		"key": "cmd+p",
+		"command": "-workbench.action.quickOpen"
+	}
+]

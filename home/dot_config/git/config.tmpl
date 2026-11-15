@@ -1,0 +1,36 @@
+# Managed by chezmoi.
+[user]
+	name = {{ .name }}
+	email = {{ .email }}
+[core]
+	editor = nvim
+	autocrlf = input
+	pager = delta
+[init]
+	defaultBranch = main
+[interactive]
+	diffFilter = delta --color-only
+[delta]
+	navigate = true
+	line-numbers = true
+	side-by-side = false
+[diff]
+	algorithm = histogram
+	colorMoved = default
+[merge]
+	conflictStyle = zdiff3
+[rerere]
+	enabled = true
+[push]
+	autoSetupRemote = true
+[pull]
+	rebase = true
+[fetch]
+	prune = true
+[rebase]
+	autoStash = true
+	updateRefs = true
+[branch]
+	sort = -committerdate
+[help]
+	autocorrect = prompt

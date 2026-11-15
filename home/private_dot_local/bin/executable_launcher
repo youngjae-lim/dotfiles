@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# launcher: fzf picker for macOS applications.
+set -euo pipefail
+
+app=$(find /System/Applications /System/Applications/Utilities /Applications /System/Library/CoreServices \
+	-maxdepth 1 -name '*.app' 2>/dev/null |
+	fzf --reverse --border=rounded --height=50% --header='Pick an application to launch.') || exit 0
+open "$app"

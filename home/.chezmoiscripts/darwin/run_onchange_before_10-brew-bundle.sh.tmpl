@@ -1,0 +1,11 @@
+#!/bin/bash
+# Re-runs whenever the Brewfile changes. Brewfile sha256: {{ joinPath .chezmoi.workingTree "Brewfile" | include | sha256sum }}
+set -uo pipefail
+command -v brew >/dev/null || eval "$(/opt/homebrew/bin/brew shellenv)"
+# Third-party formula taps must be trusted explicitly on recent Homebrew.
+brew tap homebrew-zathura/zathura >/dev/null && brew trust homebrew-zathura/zathura >/dev/null 2>&1
+if ! brew bundle --file={{ joinPath .chezmoi.workingTree "Brewfile" | quote }} --no-upgrade; then
+  echo "chezmoi: brew bundle reported failures (casks needing sudo?). Re-run it manually:" >&2
+  echo "  brew bundle --file={{ joinPath .chezmoi.workingTree "Brewfile" }}" >&2
+fi
+exit 0

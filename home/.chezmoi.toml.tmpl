@@ -1,0 +1,13 @@
+# Generates ~/.config/chezmoi/chezmoi.toml on `chezmoi init`.
+sourceDir = {{ joinPath .chezmoi.homeDir "Dotfiles" | quote }}
+
+[data]
+  name = "Youngjae Lim"
+  email = "limyoungjae@gmail.com"
+
+[diff]
+  pager = "delta"
+  exclude = ["scripts"]
+
+[edit]
+  command = "nvim"

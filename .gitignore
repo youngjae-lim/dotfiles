@@ -1,0 +1,4 @@
+.DS_Store
+.vscode/
+# Karabiner writes these next to karabiner.json
+config/karabiner/automatic_backups/

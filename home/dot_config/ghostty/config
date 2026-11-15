@@ -1,0 +1,23 @@
+# Ghostty config. Keep this minimal so swapping terminals (e.g. Rex) is cheap;
+# multiplexing lives in herdr.
+theme = Catppuccin Mocha
+font-family = JetBrainsMono NFM
+font-size = 14
+adjust-cell-height = 10%
+
+window-padding-x = 6
+window-padding-y = 4
+window-decoration = auto
+macos-titlebar-style = tabs
+macos-option-as-alt = left
+confirm-close-surface = true
+
+scrollback-limit = 100000000
+copy-on-select = clipboard
+shell-integration-features = cursor,sudo,title
+
+# Shift+Enter inserts a newline in agent prompts (Claude Code, Copilot, Gemini).
+keybind = shift+enter=text:\x1b\r
+
+# Desktop notification when a program rings the bell / sends OSC 9/777.
+desktop-notifications = true

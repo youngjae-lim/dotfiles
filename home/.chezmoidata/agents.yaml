@@ -1,0 +1,125 @@
+# Single source of truth for AI agent policy. Rendered into:
+#   ~/.claude/settings.json, ~/.gemini/policies/dotfiles.toml,
+#   ~/.copilot/settings.json + the `copilot` wrapper in ~/.config/zsh/agents.zsh
+# Policy: auto-edit files + run safe local commands; ask for network/destructive; never touch secrets.
+agents:
+  # Command prefixes agents may run without asking.
+  allowCommands:
+    - git status
+    - git diff
+    - git log
+    - git show
+    - git branch
+    - git worktree list
+    - git rev-parse
+    - git ls-files
+    - git blame
+    - rg
+    - fd
+    - ls
+    - tree
+    - jq
+    - go build
+    - go test
+    - go vet
+    - go fmt
+    - go mod tidy
+    - gofmt
+    - golangci-lint
+    - npm test
+    - npm run
+    - pnpm test
+    - pnpm run
+    - bun test
+    - bun run
+    - php artisan test
+    - vendor/bin/pest
+    - vendor/bin/phpunit
+    - vendor/bin/pint
+    - vendor/bin/phpstan
+    - composer test
+    - pytest
+    - uv run
+    - ruff
+    - mise ls
+    - make test
+    - make lint
+    - chezmoi diff
+    - chezmoi doctor
+    - shellcheck
+    - stylua
+  # Always prompt, even if a broader rule would allow it.
+  askCommands:
+    - git push
+    - git commit
+    - git reset
+    - git clean
+    - git rebase
+    - git checkout
+    - rm
+    - curl
+    - wget
+    - brew
+    - npm install
+    - pnpm add
+    - composer require
+    - chezmoi apply
+  # Never allowed.
+  denyCommands:
+    - sudo
+    - op
+    - git push --force
+    - git push -f
+  # Files agents must never read or write (globs).
+  denyPaths:
+    - "**/.env"
+    - "**/.env.local"
+    - "**/.env.*.local"
+    - "**/.env.production"
+    - "~/.ssh/**"
+    - "~/.config/zsh/secrets.zsh"
+    - "~/.config/op/**"
+
+  # Copilot CLI matches by command name (+ first subcommand for git/go/npm/...),
+  # not by prefix, so its rules are listed explicitly to avoid over-broad grants.
+  # It already auto-runs commands it recognizes as read-only (git status, rg, ls...).
+  copilot:
+    allowTools:
+      - write
+      - shell(go build)
+      - shell(go test)
+      - shell(go vet)
+      - shell(go fmt)
+      - shell(gofmt)
+      - shell(golangci-lint)
+      - shell(npm test)
+      - shell(npm run)
+      - shell(pnpm test)
+      - shell(pnpm run)
+      - shell(bun test)
+      - shell(bun run)
+      - shell(composer test)
+      - shell(vendor/bin/pest)
+      - shell(./vendor/bin/pest)
+      - shell(vendor/bin/pint)
+      - shell(./vendor/bin/pint)
+      - shell(pytest)
+      - shell(uv run)
+      - shell(ruff)
+      - shell(shellcheck)
+      - shell(stylua)
+    denyTools:
+      - shell(sudo)
+      - shell(op)
+      - read(.env)
+      - read(.env.local)
+      - read(.env.production)
+      - write(.env)
+      - read(~/.ssh/**)
+      - read(~/.config/zsh/secrets.zsh)
+
+  # MCP servers shared by Claude Code, Copilot CLI, Gemini CLI and VS Code.
+  mcpServers:
+    context7:
+      type: http
+      url: https://mcp.context7.com/mcp

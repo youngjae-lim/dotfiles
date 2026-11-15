@@ -1,0 +1,94 @@
+{
+    "workbench.colorTheme": "Bearded Theme Oceanic",
+    "workbench.sideBar.location": "right",
+    "editor.fontFamily": "'JetBrainsMono NF', 'MesloLGL Nerd Font', 'RobotoMono Nerd Font',  Menlo, Monaco, 'Courier New', monospace",
+    "[lua]": {
+        "editor.defaultFormatter": "sumneko.lua"
+    },
+    "editor.fontSize": 11,
+    "svelte.enable-ts-plugin": true,
+    "editor.insertSpaces": false,
+    "[html]": {
+        "editor.defaultFormatter": "vscode.html-language-features",
+        "editor.formatOnSave": true
+    },
+    "[css]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnSave": true
+    },
+    "[javascript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnSave": true
+    },
+    "[astro]": {
+        "editor.defaultFormatter": "astro-build.astro-vscode",
+        "editor.formatOnSave": true
+    },
+    "[json]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnSave": true
+    },
+    "[templ]": {
+        "editor.defaultFormatter": "a-h.templ",
+        "editor.formatOnSave": true
+    },
+    "emmet.includeLanguages": {
+        "astro": "html",
+        "gohtml": "html",
+        "svelte": "html",
+        "templ": "html"
+    },
+    "tailwindCSS.includeLanguages": {
+        "astro": "html",
+        "gohtml": "html",
+        "svelte": "html",
+        "templ": "html"
+    },
+    "editor.formatOnSave": false,
+    "terminal.integrated.env.osx": {},
+    "update.mode": "manual",
+    "go.toolsManagement.autoUpdate": true,
+    "editor.linkedEditing": true,
+    "prettier.tabWidth": 4,
+    "prettier.useTabs": true,
+    "prettier.singleAttributePerLine": true,
+    "files.associations": {
+        "*.gohtml": "html",
+        "*.html": "twig",
+    },
+    "html.format.wrapAttributes": "force-expand-multiline",
+    "liveServer.settings.donotShowInfoMsg": true,
+    "editor.wordWrapColumn": 120,
+    "editor.wordWrap": "on",
+    "prettier.singleQuote": true,
+    "codesnap.shutterAction": "copy",
+    "[twig]": {
+        "editor.defaultFormatter": "mblode.twig-language-2"
+    },
+    "editor.minimap.enabled": false,
+    "workbench.iconTheme": "catppuccin-mocha", // this allows for multiline attributes
+    "emmet.triggerExpansionOnTab": true, // enable tab to expanse emmet tags
+    "blade.format.enable": true,
+    "editor.lineHeight": 2,
+    "php.validate.executablePath": "",
+    "explorer.fileNesting.patterns": {
+        "*.ts": "${capture}.js",
+        "*.js": "${capture}.js.map, ${capture}.min.js, ${capture}.d.ts",
+        "*.jsx": "${capture}.js",
+        "*.tsx": "${capture}.ts",
+        "tsconfig.json": "tsconfig.*.json",
+        "package.json": "package-lock.json, yarn.lock, pnpm-lock.yaml, bun.lockb, bun.lock",
+        "*.templ": "${capture}_templ.go,${capture}_templ.txt",
+        "*.sqlite": "${capture}.${extname}-*",
+        "*.db": "${capture}.${extname}-*",
+        "*.sqlite3": "${capture}.${extname}-*",
+        "*.db3": "${capture}.${extname}-*",
+        "*.sdb": "${capture}.${extname}-*",
+        "*.s3db": "${capture}.${extname}-*"
+    },
+    "html.suggest.html5": false,
+    "html.autoClosingTags": false,
+    "html.hover.documentation": false,
+    "html.hover.references": false,
+    "chat.viewSessions.orientation": "stacked" // if you would like to enable blade format
+}

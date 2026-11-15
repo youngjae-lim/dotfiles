@@ -1,0 +1,24 @@
+#!/bin/bash
+# Wires agents into herdr and shared MCP servers. Re-runs when inputs change.
+# herdr: {{ if lookPath "herdr" }}{{ output "herdr" "--version" | trim }}{{ end }}
+# mcp: {{ .agents.mcpServers | toJson | sha256sum }}
+set -uo pipefail
+
+if command -v herdr >/dev/null; then
+  # herdr lifecycle/session-restore hooks for supported agents.
+  for agent in claude copilot; do
+    herdr integration install "$agent" >/dev/null && echo "herdr integration: $agent"
+  done
+  # Version-matched herdr skill, shared by all agents via ~/.agents/skills.
+  mkdir -p "$HOME/.agents/skills/herdr"
+  herdr --skill > "$HOME/.agents/skills/herdr/SKILL.md"
+fi
+
+# Claude Code keeps user MCP servers in ~/.claude.json (app state), so use its CLI.
+if command -v claude >/dev/null; then
+{{- range $name, $s := .agents.mcpServers }}
+  claude mcp remove --scope user {{ $name | quote }} >/dev/null 2>&1 || true
+  claude mcp add --scope user --transport {{ $s.type | quote }} {{ $name | quote }} {{ $s.url | quote }} >/dev/null && echo "claude mcp: {{ $name }}"
+{{- end }}
+fi
+exit 0

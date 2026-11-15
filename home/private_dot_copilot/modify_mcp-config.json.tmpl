@@ -1,0 +1,6 @@
+{{- /* MCP servers come from home/.chezmoidata/agents.yaml. */ -}}
+{{- $mcp := dict -}}
+{{- range $name, $s := .agents.mcpServers -}}
+{{-   $_ := set $mcp $name (dict "type" $s.type "url" $s.url "tools" (list "*")) -}}
+{{- end -}}
+{{- template "merge-json.sh" (dict "mcpServers" $mcp) -}}

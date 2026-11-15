@@ -1,0 +1,10 @@
+{{- /* MCP servers come from home/.chezmoidata/agents.yaml; command policy lives in policies/dotfiles.toml. */ -}}
+{{- $mcp := dict -}}
+{{- range $name, $s := .agents.mcpServers -}}
+{{-   if eq $s.type "http" }}{{ $_ := set $mcp $name (dict "httpUrl" $s.url) }}{{ end -}}
+{{- end -}}
+{{- $managed := dict
+      "general" (dict "defaultApprovalMode" "auto_edit")
+      "context" (dict "fileName" (list "AGENTS.md" "GEMINI.md"))
+      "mcpServers" $mcp -}}
+{{- template "merge-json.sh" $managed -}}

@@ -1,0 +1,8 @@
+# Paths (relative to ~) chezmoi must not manage on some machines.
+{{ if ne .chezmoi.os "darwin" }}
+.config/aerospace
+.config/ghostty
+.config/karabiner
+.hammerspoon
+Library
+{{ end }}

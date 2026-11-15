@@ -1,0 +1,16 @@
+{{- /* Permissions come from home/.chezmoidata/agents.yaml. */ -}}
+{{- $a := .agents -}}
+{{- $allow := list -}}
+{{- range $a.allowCommands -}}
+{{-   $allow = append $allow (printf "Bash(%s:*)" .) -}}
+{{-   if hasPrefix "vendor/" . }}{{ $allow = append $allow (printf "Bash(./%s:*)" .) }}{{ end -}}
+{{- end -}}
+{{- $ask := list -}}
+{{- range $a.askCommands }}{{ $ask = append $ask (printf "Bash(%s:*)" .) }}{{ end -}}
+{{- $deny := list -}}
+{{- range $a.denyCommands }}{{ $deny = append $deny (printf "Bash(%s:*)" .) }}{{ end -}}
+{{- range $a.denyPaths }}{{ $deny = concat $deny (list (printf "Read(%s)" .) (printf "Edit(%s)" .)) }}{{ end -}}
+{{- $managed := dict
+      "$schema" "https://json.schemastore.org/claude-code-settings.json"
+      "permissions" (dict "defaultMode" "acceptEdits" "allow" $allow "ask" $ask "deny" $deny) -}}
+{{- template "merge-json.sh" $managed -}}

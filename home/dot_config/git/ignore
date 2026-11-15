@@ -1,0 +1,37 @@
+# Global gitignore (XDG: ~/.config/git/ignore). Keep this list narrow:
+# ripgrep and agent search tools honor it, so broad patterns hide real files.
+
+# macOS
+.DS_Store
+
+# Editors
+.idea/
+*.iml
+*~
+*.swp
+
+# Secrets / local env (never commit)
+.env
+.env.local
+.env.*.local
+.envrc.local
+
+# Agent-local files
+CLAUDE.local.md
+.claude/settings.local.json
+.github/copilot/settings.local.json
+
+# Logs
+npm-debug.log*
+
+# LaTeX build artifacts
+*.aux
+*.fdb_latexmk
+*.fls
+*.synctex.gz
+*.toc
+*.bbl
+*.bcf
+*.blg
+*.run.xml
+latex.out/
