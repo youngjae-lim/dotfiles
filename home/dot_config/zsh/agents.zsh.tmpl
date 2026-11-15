@@ -37,14 +37,103 @@ _copilot_ask() {
 }
 alias '??'='noglob _copilot_ask'
 
+# --- wt: worktree lifecycle ------------------------------------------------
+# (bash-compatible on purpose, so scripts/check can exercise it)
+
+# Print the worktree path that has <branch> checked out.
+_wt_path() {
+  git worktree list --porcelain |
+    awk -v b="refs/heads/$1" '/^worktree /{w=substr($0,10)} $0=="branch "b{print w; exit}'
+}
+
+# True if <branch> ever got a commit (or rebase/reset) after it was created;
+# a fresh `wt` branch is an ancestor of main too, but it is not "merged".
+_wt_has_work() {
+  git reflog show --format=%gs "refs/heads/$1" -- 2>/dev/null | grep -qv '^branch: Created from'
+}
+
+# wt rm <branch> [--force]: remove its worktree, then the branch if merged.
+_wt_rm() {
+  local branch=${1:-} force=${2:-} dir
+  [[ -n $branch ]] || { echo "usage: wt rm <branch> [--force]"; return 1; }
+  dir=$(_wt_path "$branch")
+  [[ -n $dir ]] || { echo "wt: no worktree has branch '$branch'"; return 1; }
+  if [[ $dir == "$(git rev-parse --show-toplevel)" ]]; then
+    echo "wt: you are inside that worktree; cd out of it first"
+    return 1
+  fi
+  if [[ $force == --force ]]; then
+    git worktree remove --force "$dir" || return
+  else
+    git worktree remove "$dir" || { echo "wt: use 'wt rm $branch --force' to discard its changes"; return 1; }
+  fi
+  echo "wt: removed $dir"
+  if git branch -d "$branch" >/dev/null 2>&1; then
+    echo "wt: deleted branch $branch"
+  else
+    echo "wt: kept branch $branch (not merged; delete it with: git branch -D $branch)"
+  fi
+  [[ ${HERDR_ENV:-} != 1 ]] || echo "wt: close its herdr workspace if one is still open"
+}
+
+# wt prune: remove clean worktrees whose branch is merged (ancestor of the
+# default branch, or a merged GitHub PR via gh, which catches squash merges).
+_wt_prune() {
+  git rev-parse --show-toplevel >/dev/null 2>&1 || { echo "wt: not in a git repository"; return 1; }
+  local main base dir branch reason line reply
+  local -a candidates=()
+  main=$(git worktree list --porcelain | awk '/^worktree /{print substr($0,10); exit}')
+  git remote get-url origin >/dev/null 2>&1 && git fetch --quiet --prune origin 2>/dev/null
+  base=$(git symbolic-ref --quiet --short refs/remotes/origin/HEAD 2>/dev/null || echo main)
+  while IFS=$'\t' read -r dir branch; do
+    [[ $dir != "$main" ]] || continue
+    if [[ -n $(git -C "$dir" status --porcelain 2>/dev/null) ]]; then
+      echo "keep   $branch (uncommitted changes)"
+      continue
+    fi
+    if ! _wt_has_work "$branch"; then
+      echo "keep   $branch (no commits yet)"
+      continue
+    elif git merge-base --is-ancestor "$branch" "$base" 2>/dev/null; then
+      reason="merged into $base"
+    elif command -v gh >/dev/null && [[ $(gh pr view "$branch" --json state -q .state 2>/dev/null) == MERGED ]]; then
+      reason="PR merged"
+    else
+      echo "keep   $branch (not merged)"
+      continue
+    fi
+    echo "remove $branch ($reason)"
+    candidates+=("$dir"$'\t'"$branch")
+  done < <(git worktree list --porcelain |
+    awk '/^worktree /{w=substr($0,10)} /^branch refs\/heads\//{print w "\t" substr($0,19)}')
+  git worktree prune
+  ((${#candidates[@]})) || { echo "wt: nothing to prune"; return 0; }
+  printf 'Remove %d worktree(s) and their branches? [y/N] ' "${#candidates[@]}"
+  read -r reply
+  [[ $reply == [yY]* ]] || return 0
+  for line in "${candidates[@]}"; do
+    dir=${line%%$'\t'*} branch=${line#*$'\t'}
+    git worktree remove "$dir" && git branch -D "$branch" >/dev/null && echo "wt: removed $branch"
+  done
+  [[ ${HERDR_ENV:-} != 1 ]] || echo "wt: close the matching herdr workspaces if they are still open"
+}
+# --- end wt lifecycle --------------------------------------------------------
+
 # wt <branch> [claude|copilot|gemini|none] [base-ref]
 # Create a git worktree for <branch> and start an agent in it.
 # Inside herdr: opens a new herdr worktree workspace and starts the agent there.
 # Outside herdr: creates ../<repo>--<branch> and starts the agent in this shell.
+# wt ls | wt rm <branch> [--force] | wt prune   (see the helpers above)
 wt() {
+  case ${1:-} in
+  ls) shift; git worktree list "$@"; return ;;
+  rm) shift; _wt_rm "$@"; return ;;
+  prune) shift; _wt_prune "$@"; return ;;
+  esac
   local branch=$1 kind=${2:-claude} base=${3:-HEAD}
   if [[ -z $branch ]]; then
     echo "usage: wt <branch> [claude|copilot|gemini|none] [base-ref]"
+    echo "       wt ls | wt rm <branch> [--force] | wt prune"
     return 1
   fi
   git rev-parse --show-toplevel >/dev/null 2>&1 || { echo "wt: not in a git repository"; return 1; }

@@ -36,6 +36,6 @@ if command -v claude >/dev/null; then
   claude mcp remove --scope user {{ $name | squote }} >/dev/null 2>&1 || true
   claude mcp add-json --scope user {{ $name | squote }} {{ $cfg | toJson | squote }} >/dev/null && echo "claude mcp: {{ $name }}"
 {{- end }}
-  printf '%s\n' "${managed[@]}" >"$state"
+  printf '%s\n' ${managed[@]+"${managed[@]}"} >"$state"
 fi
 exit 0
