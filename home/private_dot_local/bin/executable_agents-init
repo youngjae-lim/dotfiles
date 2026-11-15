@@ -146,7 +146,9 @@ render() {
 	echo "## Rules"
 	echo "- TODO: project-specific rules (e.g. never edit generated files, migrations policy)."
 	if ((${#skills[@]})); then
-		echo "- Follow the $(printf '`%s`, ' "${skills[@]}" | sed 's/, $//') skill(s)."
+		local s list=""
+		for s in "${skills[@]}"; do list+="\`$s\`, "; done
+		echo "- Follow the ${list%, } skill(s)."
 	fi
 }
 

@@ -40,6 +40,7 @@ brew "gnu-sed"
 brew "lf"
 brew "lua"
 brew "shellcheck"
+brew "stylua"
 brew "htop"
 brew "figlet"
 
