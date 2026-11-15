@@ -47,6 +47,7 @@
     "editor.formatOnSave": false,
     "terminal.integrated.env.osx": {},
     "update.mode": "manual",
+    "terminal.external.osxExec": "Ghostty.app",
     "go.toolsManagement.autoUpdate": true,
     "editor.linkedEditing": true,
     "prettier.tabWidth": 4,

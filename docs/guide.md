@@ -63,6 +63,12 @@ Here's the same picture in words:
 | Copy | Just select with the mouse (`copy-on-select` is on) |
 | Paste | `Cmd+V` |
 
+**Making Ghostty your "default" terminal.** macOS has no single default-terminal setting, so it's set in a few places:
+- Dock: right-click the Ghostty icon → **Options → Keep in Dock** (and **Open at Login** if you like).
+- Keyboard: `Alt+Enter` opens a new Ghostty window from anywhere (an AeroSpace binding in `aerospace.toml`).
+- VS Code: **Open in External Terminal** uses Ghostty (`terminal.external.osxExec` in `config/vscode/settings.json`). VS Code's built-in terminal panel is separate and unchanged.
+- Finder: right-click a `.command` or `.sh` file → **Get Info → Open with → Ghostty → Change All…**
+
 **Config:** `~/Dotfiles/home/dot_config/ghostty/config`. Edit it there, run `chezmoi apply`, then press `Cmd+Shift+,` in Ghostty.
 
 **Try it.** Open Ghostty and run `claude`. Type a line, press `Shift+Enter`, type a second line, then press `Enter`. You just sent a two-line prompt.
@@ -380,6 +386,7 @@ To change a **global** version, edit `~/Dotfiles/home/dot_config/mise/config.tom
 
 | Action | Keys |
 |---|---|
+| **New Ghostty window** | `Alt+Enter` |
 | Focus window left/down/up/right | `Alt+H` `Alt+J` `Alt+K` `Alt+L` |
 | Move window left/down/up/right | `Alt+Shift+H/J/K/L` |
 | Go to workspace 1–9 / A–Z | `Alt+1` … `Alt+9`, `Alt+<letter>` |

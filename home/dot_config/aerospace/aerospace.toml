@@ -112,6 +112,9 @@ gaps.outer.right =      0
     # alt-enter = '''exec-and-forget osascript -e \
     # 'tell application "Terminal" to tell (do script) to activate' '''
 
+    # Mine: alt + enter opens a new Ghostty window (replaces the old skhd rctrl+return binding).
+    alt-enter = 'exec-and-forget open -n -a Ghostty'
+
     # See: https://nikitabobko.github.io/AeroSpace/commands#layout
     alt-slash = 'layout tiles horizontal vertical'
     alt-comma = 'layout accordion horizontal vertical'
