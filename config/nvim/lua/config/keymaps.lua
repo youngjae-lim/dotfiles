@@ -11,7 +11,6 @@ keymap.set("n", "<right>", "<C-w>l")
 keymap.set("n", "<up>", "<C-w>k")
 keymap.set("n", "<down>", "<C-w>j")
 
-
 -- Resize window using :vertical and :resize
 -- Window is the one that is currently in focus
 keymap.set("n", "<S-left>", ":vertical resize -2<CR>", opts)
