@@ -14,11 +14,28 @@ if command -v herdr >/dev/null; then
   herdr --skill > "$HOME/.agents/skills/herdr/SKILL.md"
 fi
 
-# Claude Code keeps user MCP servers in ~/.claude.json (app state), so use its CLI.
+# Claude Code keeps user MCP servers in ~/.claude.json (app state), so use its
+# CLI. The names this script added last time are kept in a state file, so a
+# server removed from agents.yaml is removed from Claude too.
 if command -v claude >/dev/null; then
+  state="${XDG_STATE_HOME:-$HOME/.local/state}/dotfiles/claude-mcp-servers"
+  mkdir -p "$(dirname "$state")"
+  managed=({{ range $name, $_ := .agents.mcpServers }}{{ $name | squote }} {{ end }})
+  if [[ -f $state ]]; then
+    while IFS= read -r old; do
+      [[ -n $old && " ${managed[*]} " != *" $old "* ]] || continue
+      claude mcp remove --scope user "$old" >/dev/null 2>&1 && echo "claude mcp: removed $old"
+    done <"$state"
+  fi
 {{- range $name, $s := .agents.mcpServers }}
-  claude mcp remove --scope user {{ $name | quote }} >/dev/null 2>&1 || true
-  claude mcp add --scope user --transport {{ $s.type | quote }} {{ $name | quote }} {{ $s.url | quote }} >/dev/null && echo "claude mcp: {{ $name }}"
+{{-   $cfg := dict }}
+{{-   if eq $s.type "http" }}{{ $cfg = dict "type" "http" "url" $s.url }}
+{{-   else if eq $s.type "stdio" }}{{ $cfg = dict "type" "stdio" "command" $s.command "args" (get $s "args" | default (list)) }}
+{{-   else }}{{ fail (printf "agents.yaml: mcpServers.%s has unknown type %q" $name $s.type) }}
+{{-   end }}
+  claude mcp remove --scope user {{ $name | squote }} >/dev/null 2>&1 || true
+  claude mcp add-json --scope user {{ $name | squote }} {{ $cfg | toJson | squote }} >/dev/null && echo "claude mcp: {{ $name }}"
 {{- end }}
+  printf '%s\n' ${managed[@]+"${managed[@]}"} >"$state"
 fi
 exit 0

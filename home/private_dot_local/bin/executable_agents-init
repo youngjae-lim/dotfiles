@@ -1,0 +1,170 @@
+#!/usr/bin/env bash
+# agents-init: scaffold AGENTS.md (+ CLAUDE.md) in the current repository.
+#
+# Detects the stack (Go, Laravel/PHP, Node, Python, Make) and writes the
+# repo's real build/test/lint/format commands, so every agent (Claude,
+# Copilot, Gemini) starts a session knowing how to verify its work.
+# Copilot and Gemini read AGENTS.md directly; CLAUDE.md just imports it.
+#
+# usage: agents-init [--print] [--force]
+#   --print   write AGENTS.md to stdout instead of creating files
+#   --force   overwrite existing AGENTS.md / CLAUDE.md
+set -euo pipefail
+
+print=false force=false
+for arg in "$@"; do
+	case $arg in
+	--print) print=true ;;
+	--force) force=true ;;
+	-h | --help)
+		sed -n '2,/^set /p' "$0" | sed '$d; s/^# \{0,1\}//'
+		exit 0
+		;;
+	*)
+		echo "agents-init: unknown option $arg" >&2
+		exit 1
+		;;
+	esac
+done
+
+root=$(git rev-parse --show-toplevel 2>/dev/null) || {
+	echo "agents-init: not in a git repository" >&2
+	exit 1
+}
+cd "$root"
+
+has() { [[ -e $1 ]]; }
+json_has() { jq -e "$2" "$1" >/dev/null 2>&1; }
+
+# Plain bash 3.2 (macOS /bin/bash): no ${x^}, no empty arrays under set -u.
+stacks=() skills=() cmds=() cur=""
+add() { cmds+=("$cur|$1|$2|${3:-}"); } # add <task> <command> [note]
+stack() { stacks+=("$1"); cur=$1; [[ -z ${2:-} ]] || skills+=("$2"); }
+
+if has go.mod; then
+	stack "Go" go-conventions
+	add "Build" "go build ./..."
+	add "Test" "go test ./..."
+	add "Vet" "go vet ./..."
+	add "Format" "gofmt -l ." "must print nothing"
+	if has .golangci.yml || has .golangci.yaml; then add "Lint" "golangci-lint run"; fi
+fi
+
+if has composer.json; then
+	if json_has composer.json '.require["laravel/framework"]'; then
+		stack "PHP/Laravel" laravel-conventions
+	else
+		stack "PHP"
+	fi
+	if json_has composer.json '(.["require-dev"] // {}) | has("pestphp/pest")'; then
+		add "Test" "vendor/bin/pest" "one test: --filter <name>"
+	elif has artisan; then
+		add "Test" "php artisan test"
+	else
+		add "Test" "vendor/bin/phpunit"
+	fi
+	if json_has composer.json '(.["require-dev"] // {}) | has("laravel/pint")'; then add "Format" "vendor/bin/pint --dirty"; fi
+	if has phpstan.neon || has phpstan.neon.dist; then add "Static analysis" "vendor/bin/phpstan"; fi
+fi
+
+if has package.json; then
+	stack "TypeScript/JavaScript" ts-js-conventions
+	pm=npm
+	if has pnpm-lock.yaml; then pm=pnpm; fi
+	if has bun.lock || has bun.lockb; then pm=bun; fi
+	if has yarn.lock; then pm=yarn; fi
+	add "Install" "$pm install" "ask before running"
+	for s in Build:build Typecheck:typecheck Lint:lint Format:format Test:test; do
+		script=${s#*:}
+		if json_has package.json ".scripts.$script"; then
+			if [[ $pm == npm ]]; then add "${s%%:*}" "npm run $script"; else add "${s%%:*}" "$pm $script"; fi
+		fi
+	done
+fi
+
+if has pyproject.toml || has requirements.txt; then
+	stack "Python" python-conventions
+	run=""
+	if has uv.lock; then run="uv run "; fi
+	if { has pyproject.toml && grep -q 'pytest' pyproject.toml; } || has pytest.ini || has tests; then
+		add "Test" "${run}pytest"
+	fi
+	if has ruff.toml || { has pyproject.toml && grep -q '\[tool\.ruff' pyproject.toml; }; then
+		add "Lint" "${run}ruff check ."
+		add "Format" "${run}ruff format ."
+	fi
+fi
+
+if has Makefile; then
+	cur=Make
+	for t in build test lint fmt; do
+		if grep -qE "^$t:" Makefile; then add "$t" "make $t"; fi
+	done
+fi
+
+name=$(basename "$root")
+stack_line=${stacks[*]:-unknown}
+stack_line=${stack_line// /, }
+
+render() {
+	echo "# AGENTS.md: $name"
+	echo
+	echo "Instructions for AI agents working in this repository."
+	echo
+	echo "## What this is"
+	echo "TODO: one or two sentences on what this project does and who uses it."
+	echo
+	echo "Stack: ${stack_line}."
+	echo
+	echo "## Commands"
+	if ((${#cmds[@]})); then
+		echo "Run these to check your work, and report what you ran."
+		echo
+		echo "| Task | Command | Notes |"
+		echo "|---|---|---|"
+		local c st task cmd note
+		for c in "${cmds[@]}"; do
+			IFS='|' read -r st task cmd note <<<"$c"
+			# Name the stack when there is more than one, so two "Test" rows differ.
+			if ((${#stacks[@]} > 1)) && [[ -n $st ]]; then task="$task ($st)"; fi
+			echo "| $task | \`$cmd\` | $note |"
+		done
+	else
+		echo "TODO: how to build, test, lint and format this project."
+	fi
+	echo
+	echo "## Layout"
+	echo "| Path | Purpose |"
+	echo "|---|---|"
+	local dirs
+	dirs=$(git ls-files | awk -F/ 'NF > 1 {print $1}' | sort -u | head -n 15)
+	if [[ -z $dirs ]]; then echo "| TODO | TODO |"; fi
+	while read -r d; do
+		[[ -n $d ]] && echo "| \`$d/\` | TODO |"
+	done <<<"$dirs"
+	echo
+	echo "## Rules"
+	echo "- TODO: project-specific rules (e.g. never edit generated files, migrations policy)."
+	if ((${#skills[@]})); then
+		local s list=""
+		for s in "${skills[@]}"; do list+="\`$s\`, "; done
+		echo "- Follow the ${list%, } skill(s)."
+	fi
+}
+
+if $print; then
+	render
+	exit 0
+fi
+
+for f in AGENTS.md CLAUDE.md; do
+	if has "$f" && ! $force; then
+		echo "agents-init: $f already exists (use --force to overwrite, --print to preview)" >&2
+		exit 1
+	fi
+done
+
+render >AGENTS.md
+echo "@AGENTS.md" >CLAUDE.md
+echo "agents-init: wrote AGENTS.md and CLAUDE.md (stack: ${stack_line})"
+echo "Fill in the TODOs, then commit both files."

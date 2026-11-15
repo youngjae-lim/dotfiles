@@ -149,9 +149,11 @@ You have three CLI agents plus Copilot in VS Code. They are **interchangeable fo
 | **Instructions** | `home/.chezmoitemplates/agents.md` | "Who I am, how I work": Herd for PHP, conventional commits, ask before pushing… |
 | **Skills** | `home/dot_agents/skills/*/SKILL.md` | Step-by-step playbooks the agent loads **only when relevant**: `commit`, `code-review`, `pr-description`, `tdd`, `laravel-conventions`, `go-conventions`, `python-conventions`, `ts-js-conventions`, `notes-markdown`, `herdr`. |
 | **Permissions** | `home/.chezmoidata/agents.yaml` | What runs without asking (tests, builds, `git status`), what always asks (`git commit`, `git push`, `rm`, `curl`, installs), and what's never allowed (`sudo`, `op`, reading `.env`/SSH keys/your secrets file). |
-| **MCP servers** | same `agents.yaml` | Extra tools. `context7` gives agents up-to-date library docs. |
+| **MCP servers** | same `agents.yaml` | Extra tools. `context7` gives agents up-to-date library docs; `time` gives them the current time in your timezone. VS Code gets the same list. |
+| **Secret guard** (Claude) | `denyPaths` in `agents.yaml` | A hook that blocks any Claude tool call (including shell commands) that touches a secret path. |
+| **"Waiting on you" alerts** (Claude) | `home/dot_claude/hooks/dotfiles/notify.sh` | A macOS notification when Claude needs a permission answer or is idle waiting for you. |
 
-> **MCP** (Model Context Protocol) is a plug-in system that gives agents extra tools. You don't need to understand it; just know `context7` is there.
+> **MCP** (Model Context Protocol) is a plug-in system that gives agents extra tools. To add one, add an entry under `mcpServers` in `agents.yaml` (`type: http` + `url`, or `type: stdio` + `command`/`args`), run `scripts/check.sh`, then `chezmoi apply`. Deleting an entry removes it from every agent on the next apply. Add servers there, not through an agent's own `mcp add` command, or the next apply will remove them.
 
 ### Talking to an agent well
 
@@ -199,7 +201,7 @@ You have three CLI agents plus Copilot in VS Code. They are **interchangeable fo
 
 ### Project-level instructions
 
-Your global instructions apply everywhere. For project-specific rules ("use Pest, not PHPUnit"; "run `make test`"), add an **`AGENTS.md`** at the project root. All three agents read it. The quickest way to start one: run `claude` in the project, then `/init`, then rename or merge the result into `AGENTS.md`.
+Your global instructions apply everywhere. For project-specific rules ("use Pest, not PHPUnit"; "run `make test`"), add an **`AGENTS.md`** at the project root. All three agents read it. The quickest way to start one: run **`agents-init`** in the project. It detects the stack and writes `AGENTS.md` with the real test/lint/format commands, plus a one-line `CLAUDE.md` that imports it. Fill in the TODOs and commit. (`agents-init --print` previews without writing.)
 
 **Try it (15 min)**
 1. `cd ~/Projects/go-todos-htmx && claude`
@@ -211,6 +213,8 @@ Your global instructions apply everywhere. For project-specific rules ("use Pest
 **When it breaks**
 - An agent ignores your instructions: check they're loaded. In Copilot: `copilot instruction list`. In Claude: `/memory`.
 - Too many permission prompts: add the command to `allowCommands` in `agents.yaml`, then `chezmoi apply`. (For Copilot, add it under `copilot.allowTools`, then open a new shell.)
+- After any change to `agents.yaml`, run `scripts/check.sh`. It tells you if one agent ended up with different rules from the others.
+- Claude says *"Blocked by the dotfiles secret guard"*: it tried to touch a path in `denyPaths`. That's working as intended; get the value yourself.
 - Never use `--dangerously-skip-permissions` or `--yolo` outside a throwaway folder.
 
 ---
@@ -231,12 +235,13 @@ Your global instructions apply everywhere. For project-specific rules ("use Pest
 ```sh
 wt feat/delete-todo            # new branch + worktree + Claude
 wt fix/login-bug copilot       # same, with Copilot
-git worktree list              # see all worktrees and their folders
-git worktree remove <folder>   # delete one after merging (refuses if it has unsaved work)
-git branch -d <branch>         # then delete the merged branch
+wt ls                          # see all worktrees and their folders
+wt rm fix/login-bug            # remove one (refuses if it has unsaved work; add --force)
+wt prune                       # remove every clean worktree whose branch is merged
 ```
+`wt prune` lists what it will remove and asks first. It treats a branch as merged when it's contained in `main`, or when `gh` says its PR was merged (that catches squash merges). It never removes a branch you haven't committed to yet, or one with uncommitted changes. Inside herdr, close the leftover workspace yourself.
 
-**Try it.** In a herdr pane inside a repo, run `wt try/worktree none`. A new workspace appears in the sidebar. Run `git branch --show-current` there. To clean up: close that workspace, run `git worktree list` to find its folder, then `git worktree remove <folder>` and `git branch -d try/worktree`.
+**Try it.** In a herdr pane inside a repo, run `wt try/worktree none`. A new workspace appears in the sidebar. Run `git branch --show-current` there. To clean up: close that workspace, then `wt rm try/worktree`.
 
 ---
 
@@ -276,7 +281,8 @@ Neither one needs the other. The only question is whether the file you changed i
 | You changed… | Where it lives | Run `chezmoi apply`? | What makes it take effect |
 |---|---|---|---|
 | Neovim config or plugins (including `lazy-lock.json`, `:Lazy update`) | `config/nvim/` | **No.** Live link. | Restart Neovim |
-| VS Code `settings.json`, `keybindings.json`, `mcp.json` | `config/vscode/` | **No.** Live link. | Saves instantly, or reload the window |
+| VS Code `settings.json`, `keybindings.json` | `config/vscode/` | **No.** Live link. | Saves instantly, or reload the window |
+| VS Code `mcp.json` | `agents.yaml` (`mcpServers`) | **Yes.** Generated. | Reload the window |
 | Karabiner rules (changed in its app) | `config/karabiner/` | **No.** Live link. | Instant |
 | Anything else in `home/` (zsh, git, ghostty, herdr, aerospace, mise, tmux, agents, skills, `~/.local/bin/notes`) | `home/…` | **Yes.** It's a copy. | `apply`, then reload the app (see below) |
 | `Brewfile` | repo root | **Yes.** `apply` runs `brew bundle` when it changes. | `apply` |
@@ -329,7 +335,7 @@ The routine for AeroSpace (§9) works for **most** files: edit the source → `c
 | You want to change… | Edit this | It generates | Then |
 |---|---|---|---|
 | What agents know about you and how they work | `home/.chezmoitemplates/agents.md` | `~/.claude/CLAUDE.md`, `~/.copilot/copilot-instructions.md`, `~/.gemini/GEMINI.md` | `apply`, start a **new** agent session |
-| What agents may run, and MCP servers | `home/.chezmoidata/agents.yaml` | Claude and Gemini settings, Gemini policy, Copilot MCP config, the `copilot` wrapper in `agents.zsh` | `apply`, `exec zsh`, start a **new** agent session |
+| What agents may run, secret paths, and MCP servers | `home/.chezmoidata/agents.yaml` | Claude and Gemini settings, Gemini policy, Copilot MCP config, VS Code `mcp.json`, Claude's secret-guard hook, the `copilot` wrapper in `agents.zsh` | `scripts/check.sh`, `apply`, `exec zsh`, start a **new** agent session |
 | A skill | `home/dot_agents/skills/<name>/SKILL.md` | `~/.agents/skills/<name>/` | `apply`, new agent session |
 
 **Variation 2: templates (`*.tmpl`).** They contain `{{ … }}` that chezmoi fills in. A typo breaks `apply` with an error naming the file. To test one file without applying anything:
@@ -339,7 +345,7 @@ chezmoi execute-template < home/dot_config/git/config.tmpl
 - Your name and email for git come from `home/.chezmoi.toml.tmpl`, not from the git template.
 - `private_secrets.zsh.tmpl` reads 1Password (expect the popup). After a change, open a new shell.
 
-**Variation 3: `modify_` files (Claude and Gemini settings, Copilot MCP config).** The app owns these files and writes to them itself. `apply` only overwrites the keys chezmoi manages and leaves the rest alone. So if you change a *managed* setting from inside the app (for example Claude's default permission mode), the next `apply` puts it back. To make that change stick, change it in `agents.yaml` or the `modify_*.tmpl` file instead.
+**Variation 3: `modify_` files (Claude and Gemini settings, Copilot and VS Code MCP config).** The app owns these files and writes to them itself. `apply` only overwrites the keys chezmoi manages and leaves the rest alone. So if you change a *managed* setting from inside the app (for example Claude's default permission mode), the next `apply` puts it back. To make that change stick, change it in `agents.yaml` or the `modify_*.tmpl` file instead. MCP server lists are stricter: they're *owned*, so the whole list is replaced on `apply`, and servers added from inside an app disappear.
 
 **Variation 4: files that run scripts.** Three changes make `apply` do extra work, but only when their input changed:
 
@@ -347,7 +353,7 @@ chezmoi execute-template < home/dot_config/git/config.tmpl
 |---|---|---|
 | `Brewfile` | `brew bundle` (installs new apps) | It prints the exact command to rerun. Casks that need `sudo` (like Tailscale) must be installed by you in a terminal. |
 | `dot_config/mise/config.toml` | `mise install` | `mise doctor` |
-| MCP servers in `agents.yaml` | Registers them with Claude Code | `claude mcp list` |
+| MCP servers in `agents.yaml` | Registers them with Claude Code, and removes ones you deleted | `claude mcp list` |
 
 **Variation 5: chezmoi's own settings.**
 - `home/.chezmoi.toml.tmpl` (your name, email, diff tool): after editing, run `chezmoi init` once to regenerate `~/.config/chezmoi/chezmoi.toml`, then `apply`. If you forget, chezmoi warns: *"config file template has changed, run chezmoi init"*.
@@ -642,6 +648,7 @@ HERDR  (Ctrl+B, release, then…)          CLAUDE CODE
 
 AEROSPACE (Alt = Option)                 SHELL
   Alt+H/J/K/L focus   +Shift move        wt <branch> [agent]   tt   ?? <q>
+                                         wt ls · wt rm <b> · wt prune · agents-init
   Alt+1..9 / A..Z workspace +Shift send  Esc v  edit command in nvim
   Alt+Tab back   Alt+/ tiles  Alt+, stack updater   notes --help   dot
 
@@ -652,6 +659,7 @@ CHEZMOI                                  SECRETS
 
 APPLY OR NOT?   (apply = copy to ~, commit = save in git; independent)
   config/nvim, config/vscode, config/karabiner → live links, NO apply
+  agents.yaml → scripts/check.sh, then apply (also VS Code mcp.json)
   anything else in home/, plus Brewfile        → chezmoi apply, then reload the app
   docs/, README, AGENTS.md, scripts/           → NO apply, just commit
   unsure → chezmoi status (empty = in sync)

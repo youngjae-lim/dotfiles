@@ -22,7 +22,16 @@ denyMessage = "Blocked by dotfiles agent policy."
 priority = 300
 
 {{ end -}}
-{{- $secretPatterns := list "/\\.env\"" "/\\.env\\.local\"" "/\\.env\\.production\"" "/\\.ssh/" "/\\.config/zsh/secrets\\.zsh" "/\\.config/op/" -}}
+{{- /* argsPattern is matched against the tool's JSON arguments, e.g.
+       {"file_path":"/Users/x/.env"}, so a path starts after `/` or `"`
+       and a file name ends at the closing `"`. */ -}}
+{{- $secretPatterns := list -}}
+{{- range .agents.denyPaths -}}
+{{-   $p := . | trimPrefix "**/" | trimPrefix "~/" -}}
+{{-   $dir := hasSuffix "/**" $p -}}
+{{-   $p = $p | trimSuffix "/**" | regexQuoteMeta | replace "\\*" "[^/\"]*" -}}
+{{-   $secretPatterns = append $secretPatterns (printf "[/\"]%s%s" $p (ternary "/" "\"" $dir)) -}}
+{{- end -}}
 {{ range $tool := list "read_file" "read_many_files" "write_file" "replace" -}}
 {{ range $secretPatterns -}}
 [[rule]]

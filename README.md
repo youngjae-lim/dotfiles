@@ -41,9 +41,11 @@ updater           # fzf menu: brew, mise, agents, herdr, zsh plugins
 
 - Everything shared is generated from one place:
   - Instructions come from [`home/.chezmoitemplates/agents.md`](home/.chezmoitemplates/agents.md) and are installed as `~/.claude/CLAUDE.md`, `~/.copilot/copilot-instructions.md` and `~/.gemini/GEMINI.md`.
-  - Permissions and MCP servers come from [`home/.chezmoidata/agents.yaml`](home/.chezmoidata/agents.yaml). The default policy auto-approves file edits and safe local commands, asks before network or destructive actions, and never lets agents read secrets.
+  - Permissions and MCP servers come from [`home/.chezmoidata/agents.yaml`](home/.chezmoidata/agents.yaml), for Claude, Copilot, Gemini and VS Code. The default policy auto-approves file edits and safe local commands, asks before network or destructive actions, and never lets agents read secrets. Claude also gets a secret-guard hook and a macOS notification when it's waiting on you.
+  - `scripts/check.sh` (and CI) verifies every agent's rendered config still matches `agents.yaml`.
   - Skills come from [`home/dot_agents/skills/`](home/dot_agents/skills) and are installed to `~/.agents/skills`. Copilot and Gemini read that folder directly; `~/.claude/skills` is a symlink to it.
-- `wt <branch> [claude|copilot|gemini]` creates a git worktree and starts an agent in it. Inside herdr, it opens the worktree as a new workspace.
+- `wt <branch> [claude|copilot|gemini]` creates a git worktree and starts an agent in it. Inside herdr, it opens the worktree as a new workspace. `wt ls`, `wt rm <branch>` and `wt prune` (removes merged, clean worktrees) clean up.
+- `agents-init` writes an `AGENTS.md` + `CLAUDE.md` for the current repo, with its detected test/lint/format commands.
 - `?? <question>` gives a quick answer from Copilot without running any tools.
 - To write a long prompt in nvim, press `Esc` then `v` (or Ctrl-X Ctrl-E).
 - In Ghostty, Shift+Enter inserts a newline in agent prompts.

@@ -13,4 +13,20 @@
 {{- $managed := dict
       "$schema" "https://json.schemastore.org/claude-code-settings.json"
       "permissions" (dict "defaultMode" "acceptEdits" "allow" $allow "ask" $ask "deny" $deny) -}}
-{{- template "merge-json.sh" $managed -}}
+{{- /* Hooks: scripts live in ~/.claude/hooks/dotfiles/. Other tools (herdr)
+       add their own hooks to this file, so ours are merged in by path:
+       entries pointing into hooks/dotfiles/ are replaced, the rest are kept. */ -}}
+{{- $hookDir := joinPath .chezmoi.homeDir ".claude/hooks/dotfiles" -}}
+{{- $hooks := dict
+      "PreToolUse" (list (dict
+        "matcher" "Read|Edit|MultiEdit|Write|NotebookEdit|Bash|Grep|Glob"
+        "hooks" (list (dict "type" "command" "command" (joinPath $hookDir "guard-secrets.sh")))))
+      "Notification" (list (dict
+        "hooks" (list (dict "type" "command" "command" (joinPath $hookDir "notify.sh"))))) -}}
+{{- $mergeHooks := `($extra.hooks // {}) as $mine
+| ((.hooks // {})
+    | map_values(map(select(any(.hooks[]?; (.command // "") | contains("/.claude/hooks/dotfiles/")) | not)))
+    | with_entries(select(.value | length > 0))) as $kept
+| .hooks = reduce ($mine | to_entries[]) as $e ($kept; .[$e.key] = ((.[$e.key] // []) + $e.value))
+| if .hooks == {} then del(.hooks) else . end` -}}
+{{- template "merge-json.sh" (dict "managed" $managed "extra" $mergeHooks "extraData" (dict "hooks" $hooks)) -}}

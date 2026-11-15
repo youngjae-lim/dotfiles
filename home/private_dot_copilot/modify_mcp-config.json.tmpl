@@ -1,6 +1,12 @@
-{{- /* MCP servers come from home/.chezmoidata/agents.yaml. */ -}}
+{{- /* MCP servers come from home/.chezmoidata/agents.yaml. mcpServers is owned: unlisted servers are removed. */ -}}
 {{- $mcp := dict -}}
 {{- range $name, $s := .agents.mcpServers -}}
-{{-   $_ := set $mcp $name (dict "type" $s.type "url" $s.url "tools" (list "*")) -}}
+{{-   if eq $s.type "http" -}}
+{{-     $_ := set $mcp $name (dict "type" "http" "url" $s.url "tools" (list "*")) -}}
+{{-   else if eq $s.type "stdio" -}}
+{{-     $_ := set $mcp $name (dict "type" "local" "command" $s.command "args" (get $s "args" | default (list)) "tools" (list "*")) -}}
+{{-   else -}}
+{{-     fail (printf "agents.yaml: mcpServers.%s has unknown type %q" $name $s.type) -}}
+{{-   end -}}
 {{- end -}}
-{{- template "merge-json.sh" (dict "mcpServers" $mcp) -}}
+{{- template "merge-json.sh" (dict "managed" (dict "mcpServers" $mcp) "owned" (list "mcpServers")) -}}
