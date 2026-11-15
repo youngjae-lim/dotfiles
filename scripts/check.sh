@@ -40,13 +40,13 @@ if have shellcheck; then
       "$CHEZMOI" --source . execute-template <"$t" >"$out" && files+=("$out")
     done
   fi
-  shellcheck "${files[@]}" && echo "ok   ${#files[@]} scripts" || status=1
+  if shellcheck "${files[@]}"; then echo "ok   ${#files[@]} scripts"; else status=1; fi
 fi
 
 echo
 echo "== stylua"
 if have stylua; then
-  stylua --check config/nvim home/dot_hammerspoon && echo "ok   lua formatting" || status=1
+  if stylua --check config/nvim home/dot_hammerspoon; then echo "ok   lua formatting"; else status=1; fi
 fi
 
 echo

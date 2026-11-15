@@ -4,7 +4,7 @@
 {{-   if eq $s.type "http" -}}
 {{-     $_ := set $mcp $name (dict "type" "http" "url" $s.url "tools" (list "*")) -}}
 {{-   else if eq $s.type "stdio" -}}
-{{-     $_ := set $mcp $name (dict "type" "local" "command" $s.command "args" ($s.args | default (list)) "tools" (list "*")) -}}
+{{-     $_ := set $mcp $name (dict "type" "local" "command" $s.command "args" (get $s "args" | default (list)) "tools" (list "*")) -}}
 {{-   else -}}
 {{-     fail (printf "agents.yaml: mcpServers.%s has unknown type %q" $name $s.type) -}}
 {{-   end -}}

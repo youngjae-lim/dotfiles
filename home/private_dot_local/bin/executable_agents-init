@@ -122,7 +122,7 @@ render() {
 		echo
 		echo "| Task | Command | Notes |"
 		echo "|---|---|---|"
-		local c rest st task cmd note
+		local c st task cmd note
 		for c in "${cmds[@]}"; do
 			IFS='|' read -r st task cmd note <<<"$c"
 			# Name the stack when there is more than one, so two "Test" rows differ.

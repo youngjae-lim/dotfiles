@@ -5,7 +5,7 @@
 {{-   if eq $s.type "http" -}}
 {{-     $_ := set $servers $name (dict "type" "http" "url" $s.url) -}}
 {{-   else if eq $s.type "stdio" -}}
-{{-     $_ := set $servers $name (dict "type" "stdio" "command" $s.command "args" ($s.args | default (list))) -}}
+{{-     $_ := set $servers $name (dict "type" "stdio" "command" $s.command "args" (get $s "args" | default (list))) -}}
 {{-   else -}}
 {{-     fail (printf "agents.yaml: mcpServers.%s has unknown type %q" $name $s.type) -}}
 {{-   end -}}

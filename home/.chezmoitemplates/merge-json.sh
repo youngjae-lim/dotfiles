@@ -8,6 +8,7 @@
 #              agents.yaml (e.g. an MCP server) is removed from the file too.
 #   extra      (optional) jq program applied after the merge, with
 #   extraData  bound to $extra.
+# Optional keys are read with `get`: chezmoi renders with missingkey=error.
 set -eu
 JQ=$(command -v jq || echo /opt/homebrew/bin/jq)
 current=$(cat)
@@ -16,13 +17,13 @@ managed=$(cat <<'CHEZMOI_MANAGED_JSON'
 {{ .managed | toPrettyJson }}
 CHEZMOI_MANAGED_JSON
 )
-owned='{{ .owned | default (list) | toJson }}'
+owned='{{ get . "owned" | default (list) | toJson }}'
 extra=$(cat <<'CHEZMOI_EXTRA_JSON'
-{{ .extraData | default (dict) | toPrettyJson }}
+{{ get . "extraData" | default (dict) | toPrettyJson }}
 CHEZMOI_EXTRA_JSON
 )
 program='. * $managed | reduce $owned[] as $k (.; .[$k] = $managed[$k])'
-{{- with .extra }}
+{{- with get . "extra" }}
 program="$program | $(cat <<'CHEZMOI_EXTRA_JQ'
 {{ . }}
 CHEZMOI_EXTRA_JQ
