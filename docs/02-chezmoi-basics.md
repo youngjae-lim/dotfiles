@@ -153,6 +153,78 @@ Other tools follow the same six steps. Only the file in step 1 and the reload in
 
 A few kinds of file work differently; [chapter 3](03-how-files-are-made.md) covers them.
 
+## Working on a branch
+
+For anything bigger than a one-line tweak, make the change on a **branch** first, try it on your Mac, and merge it into `main` once it works. That way `main` always holds a setup you know is good.
+
+### The one rule: your Mac follows the branch you're on
+
+chezmoi is like a **photocopier of whatever page is open**. `chezmoi apply` copies from the branch currently checked out in `~/Dotfiles`: not from GitHub, and not from "the latest" version.
+
+```mermaid
+flowchart LR
+    F["~/Dotfiles on branch feat/x<br/>(checked out now)"]:::source -->|chezmoi apply| H["~ your Mac"]:::output
+    M["~/Dotfiles on branch main<br/>(not checked out)"]:::step -.->|"used only after<br/>git switch main"| H
+    classDef source fill:#dbeafe,stroke:#1d4ed8,color:#0b1b3f
+    classDef step fill:#f1f5f9,stroke:#64748b,color:#1e293b
+    classDef output fill:#dcfce7,stroke:#15803d,color:#052e16
+```
+
+Two things follow from that:
+- **Merge before you switch back.** If you switch to `main` before the branch is merged and run `apply`, your Mac goes back to `main`'s version, and the new change seems to vanish.
+- **Switching back is also how you undo.** If you decide against a change, `git switch main` and `chezmoi apply` restore the old setup (see [Abandoning a branch](#abandoning-a-branch), below).
+
+### The routine, start to finish
+
+```sh
+cd ~/Dotfiles
+git switch -c feat/bigger-gaps        # 1. make a branch and switch to it
+# 2. edit files in home/ (or ask an agent to)
+chezmoi diff && chezmoi apply         # 3. try it on your Mac
+# 4. reload the app and check it works
+scripts/check.sh                      # 5. run the checks
+git add -A && git commit -m "style(aerospace): bigger gaps"
+git push -u origin feat/bigger-gaps   # 6. send the branch to GitHub
+gh pr create --fill                   # 7. open a pull request; CI runs the checks
+# 8. merge it on GitHub (the green button), then:
+git switch main && git pull           # 9. back to main, now including the change
+git branch -d feat/bigger-gaps        # 10. delete the finished branch
+chezmoi status                        # 11. should print nothing: all in sync
+```
+
+> **`git switch`**: change which branch your folder shows. `-c` creates a new branch first. **`git pull`**: fetch the latest commits from GitHub and add them to your current branch.
+
+**If `git branch -d` refuses** after a merge, GitHub probably **squash-merged** the pull request: it combined your commits into one new commit, so git can't recognise them inside `main`. Your work is safe; delete the branch with `-D` instead.
+
+### When a pull request can't be merged
+
+| What you see on GitHub | What it means | What to do |
+|---|---|---|
+| **CI failed** (red ✗) | `scripts/check.sh` found a problem | On your branch: run `scripts/check.sh`, fix what it reports, then `git commit -am "fix: …"` and `git push`. The pull request updates itself and CI runs again. |
+| **"This branch has conflicts"** | `main` changed the same lines after you made your branch | On your branch: `git pull origin main`. Git marks each clash with `<<<<<<<`, `=======` and `>>>>>>>`; edit the file to keep what you want, delete the markers, then `git add -A && git commit` and `git push`. Or ask an agent: "resolve the merge conflict with main". |
+| You **closed** it | You decided against the change | [Abandon the branch](#abandoning-a-branch), below. |
+
+Nothing is lost in any of these cases: the branch keeps all its commits until you delete it.
+
+### Abandoning a branch
+
+```sh
+git switch main
+chezmoi diff                 # shows your Mac going back to main's version
+chezmoi apply                # the change is undone
+git branch -D feat/bigger-gaps
+```
+Then reload the affected app, as after any apply.
+
+`apply` only **writes files**, so a few kinds of change don't undo themselves:
+
+| What the branch did | After switching back and applying | Clean up by hand |
+|---|---|---|
+| Changed an existing file in `home/` | ✅ Back to `main`'s version | Nothing |
+| **Added a new file** in `home/` | ❌ The file stays in `~` (chezmoi never deletes) | `rm` the file |
+| **Added an app** to the Brewfile | ❌ The app stays installed | `brew uninstall <name>` |
+| Ran a one-off script (e.g. `mise install`) | ❌ What it installed stays | Usually harmless; leave it |
+
 ## The 20% you'll use
 
 | Command | Short alias | Does |
@@ -163,6 +235,7 @@ A few kinds of file work differently; [chapter 3](03-how-files-are-made.md) cove
 | `chezmoi status` | | List files waiting to be applied |
 | `chezmoi add ~/.somerc` | | Start managing an existing file (creates the source with the right name) |
 | `chezmoi re-add` | | You edited a copied file in `~` by mistake: copy it back into the repo |
+| `chezmoi source-path ~/.zshrc` | | Show which repo file produces a file in `~` |
 | `chezmoi managed` | | List everything chezmoi manages |
 | `chezmoi update` | | `git pull` + apply (use this on another Mac) |
 | `chezmoi doctor` | | Health check |
@@ -182,9 +255,11 @@ Two more things to know:
 
 ## When it breaks
 
+- **A change disappeared after `apply`**: check which branch you're on with `git branch --show-current`. If it's `main` and the change is still on an unmerged branch, that's the [one rule](#the-one-rule-your-mac-follows-the-branch-youre-on) at work: merge the branch, or switch back to it.
 - ***"…has changed since chezmoi last wrote it"***: you (or an app) edited the copy in `~`. Run `chezmoi diff` to look; then `chezmoi re-add` to keep your edit, or `chezmoi apply --force` to throw it away.
 - **A template error during apply**: see [chapter 3](03-how-files-are-made.md#templates).
 - **1Password errors on apply**: unlock the 1Password app, and check that `op vault list` shows **Dev**.
+- **git says *"Unable to create '…/.git/index.lock': File exists"*** (or another `.lock` file): a git command was interrupted and left its lock behind. First make sure no git command is still running in another tab or app. If none is, delete the file named in the message (`rm ~/Dotfiles/.git/index.lock`) and try again.
 - **Docs**: <https://chezmoi.io/user-guide/command-overview/>
 
 Next: [How files are made →](03-how-files-are-made.md)

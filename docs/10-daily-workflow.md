@@ -80,6 +80,6 @@ Spend about **20 minutes a day**. Don't move on until the current week's tools f
 
 1. **Ask an agent.** Run `claude` in `~/Dotfiles`. It reads this repo's `AGENTS.md` and knows how everything fits together, so "why does X…?" works well. Point it at a chapter: "read @docs/04-terminal.md and help me with herdr".
 2. **Health checks:** `chezmoi doctor`, `mise doctor`, `herdr status`, `tailscale status`, `op vault list`, `scripts/check.sh`.
-3. **Undo:** the repo is in git, so `git log` shows every change and `git checkout -- <file>` undoes an uncommitted one. A full backup of the old setup is at `~/Backups/dotfiles-2026-11-14.tar.gz`.
+3. **Undo:** the repo is in git, so `git log` shows every change and `git checkout -- <file>` undoes an uncommitted one. To back out a whole branch you tried, see [Abandoning a branch](02-chezmoi-basics.md#abandoning-a-branch). A full backup of the old setup is at `~/Backups/dotfiles-2026-11-14.tar.gz`.
 4. **Look a word up** in the [glossary](glossary.md).
 5. **Official docs:** [herdr](https://herdr.dev/docs/) · [chezmoi](https://chezmoi.io/user-guide/command-overview/) · [mise](https://mise.jdx.dev/getting-started.html) · [AeroSpace](https://nikitabobko.github.io/AeroSpace/guide) · [Ghostty](https://ghostty.org/docs) · [Claude Code](https://docs.anthropic.com/en/docs/claude-code) · [Copilot CLI](https://docs.github.com/copilot/how-tos/use-copilot-agents/use-copilot-cli) · [Gemini CLI](https://geminicli.com/docs/) · [Ovis](https://github.com/devswha/ovis/blob/main/docs/guide.md)

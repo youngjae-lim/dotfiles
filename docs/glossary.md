@@ -95,7 +95,10 @@ A **linter** points out likely mistakes in code (shellcheck for shell scripts). 
 A standard way to plug extra tools into an AI agent. An **MCP server** is one such tool: either a web address (`type: http`) or a small program the agent starts on your Mac (`type: stdio`). Yours: `context7` and `time`. ([Chapter 5](05-ai-agents.md#adding-an-mcp-server))
 
 ### Merge
-Combining one branch's changes into another, usually a feature branch into `main`. A **squash merge** combines all the branch's commits into one new commit first.
+Combining one branch's changes into another, usually a feature branch into `main`. A **squash merge** combines all the branch's commits into one new commit first; afterwards `git branch -d` doesn't recognise the branch as merged, so delete it with `-D`. ([Chapter 2](02-chezmoi-basics.md#the-routine-start-to-finish))
+
+### Merge conflict
+Two branches changed the same lines, so git can't combine them on its own. Git marks the clash with `<<<<<<<`, `=======` and `>>>>>>>`; you edit the file to keep what you want. ([Chapter 2](02-chezmoi-basics.md#when-a-pull-request-cant-be-merged))
 
 ### Mermaid
 A way of writing diagrams as text, which GitHub draws as pictures. The diagrams in these docs are Mermaid.
@@ -117,6 +120,9 @@ The list of folders the shell searches when you type a command. If the wrong ver
 
 ### Prefix key
 A key you press first, then let go, before a shortcut. herdr's is `Ctrl+B`; tmux's is `Ctrl+F`. ([Chapter 4](04-terminal.md))
+
+### Pull (`git pull`)
+Fetch the latest commits from GitHub and add them to the branch you're on. The opposite direction of a push.
 
 ### Pull request (PR)
 A request on GitHub to merge a branch, where the changes can be reviewed (and CI runs) first.
@@ -144,6 +150,9 @@ The **source** is what's in `~/Dotfiles`; the **target** is your home folder, wh
 
 ### Space (macOS), Desktop
 macOS's own virtual desktops, shown along the top of Mission Control. A window in native full screen gets a Space of its own. With AeroSpace, keep exactly one per monitor: AeroSpace's workspaces replace them. ([Chapter 9](09-desktop.md))
+
+### Switch (`git switch`)
+Change which branch your folder shows. `git switch -c <name>` creates a new branch and switches to it. chezmoi applies whichever branch you've switched to. ([Chapter 2](02-chezmoi-basics.md#the-one-rule-your-mac-follows-the-branch-youre-on))
 
 ### Symlink (symbolic link)
 A file that points at another file, like a shortcut. `~/.config/nvim` is a symlink to `~/Dotfiles/config/nvim`, so there's only one real copy. ([Chapter 1](01-big-picture.md#three-ways-a-file-gets-to-your-mac))
