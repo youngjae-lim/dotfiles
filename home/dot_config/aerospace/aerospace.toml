@@ -126,10 +126,12 @@ gaps.outer.right =      8
     alt-comma = 'layout accordion horizontal vertical'
 
     # See: https://nikitabobko.github.io/AeroSpace/commands#focus
-    alt-h = 'focus left'
-    alt-j = 'focus down'
-    alt-k = 'focus up'
-    alt-l = 'focus right'
+    # all-monitors-outer-frame: at the edge of a monitor, focus continues onto
+    # the neighbouring monitor instead of stopping.
+    alt-h = 'focus --boundaries all-monitors-outer-frame left'
+    alt-j = 'focus --boundaries all-monitors-outer-frame down'
+    alt-k = 'focus --boundaries all-monitors-outer-frame up'
+    alt-l = 'focus --boundaries all-monitors-outer-frame right'
 
     # See: https://nikitabobko.github.io/AeroSpace/commands#move
     alt-shift-h = 'move left'
@@ -233,22 +235,12 @@ gaps.outer.right =      8
 
 # --- Letter workspaces --------------------------------------------------------
 # Mnemonic workspaces (docs/09-desktop.md has the full map):
-#   T terminal   C code   D data        (32" LG Ultra HD)
-#   B browser    W work   R reading   M messages   (27" LG HDR 4K)
-#   Z zoom   N notes   1-9 scratch      (whichever monitor has focus)
+#   T terminal   C code   D data   B browser   W work   R reading
+#   M messages   Z zoom   N notes   1-9 scratch
+# Workspaces are not pinned to monitors: Alt+<letter> shows a workspace on the
+# monitor you're focused on, and Alt+Shift+Tab moves it to the other monitor.
 # Use ONE macOS Desktop per monitor and never macOS native full screen (green
 # button): windows in other macOS Spaces still take a slot here and leave gaps.
-
-# Pin workspaces to monitors. Patterns match `aerospace list-monitors` names.
-# If a monitor is unplugged, its workspaces move to one that is connected.
-[workspace-to-monitor-force-assignment]
-T = '^LG Ultra HD$'
-C = '^LG Ultra HD$'
-D = '^LG Ultra HD$'
-B = '^LG HDR 4K$'
-W = '^LG HDR 4K$'
-R = '^LG HDR 4K$'
-M = '^LG HDR 4K$'
 
 # Open apps on their workspace. Rules are checked top to bottom and the first
 # match wins, so the specific Chrome Work rule must stay above the general one.

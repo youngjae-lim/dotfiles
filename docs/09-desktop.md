@@ -12,27 +12,23 @@
 
 ```mermaid
 flowchart LR
-    subgraph BIG["32-inch monitor"]
+    subgraph BIG["32-inch, landscape: windows side by side"]
         direction TB
-        T["Alt+T · Terminal<br/>Claude + Ghostty"]:::output
-        C["Alt+C · Code<br/>VS Code"]:::step
-        D["Alt+D · Data<br/>DBeaver, Docker"]:::step
+        T1["Claude"]:::output
+        T2["Ghostty"]:::output
     end
-    subgraph SMALL["27-inch monitor"]
-        direction TB
-        B["Alt+B · Browser<br/>Chrome Personal"]:::output
-        W["Alt+W · Work<br/>Chrome Work"]:::step
-        R["Alt+R · Reading"]:::step
-        M["Alt+M · Messages"]:::step
+    subgraph SMALL["27-inch, portrait: windows stacked"]
+        direction LR
+        B1["Chrome"]:::output
+        B2["Chrome"]:::output
     end
     BIG ~~~ SMALL
-    classDef step fill:#f1f5f9,stroke:#64748b,color:#1e293b
     classDef output fill:#dcfce7,stroke:#15803d,color:#052e16
     style BIG fill:#f8fafc,stroke:#94a3b8,color:#1e293b
     style SMALL fill:#f8fafc,stroke:#94a3b8,color:#1e293b
 ```
 
-Each monitor shows **one** of its workspaces at a time (green here); the others are one keypress away (grey).
+Each monitor shows **one** workspace at a time. Here the 32-inch shows `T` (Claude and Ghostty) and the 27-inch shows `B` (two Chrome windows). Any workspace can go on either monitor.
 
 **The 20% you'll use**
 
@@ -52,25 +48,33 @@ Each monitor shows **one** of its workspaces at a time (green here); the others 
 
 ### Your workspaces: one letter per job
 
-Workspaces are named with **letters you can remember**. Most apps open on their own letter automatically, and the main ones are **pinned** to a monitor, so `Alt+T` always lands on the big screen and `Alt+B` on the small one.
+Workspaces are named with **letters you can remember**, and most apps open on their own letter automatically.
 
-| Key | Mnemonic | Opens there automatically | Monitor |
-|---|---|---|---|
-| **`T`** | **T**erminal | Claude desktop (open Ghostty here; it sits beside Claude) | 32" |
-| **`C`** | **C**ode | VS Code | 32" |
-| **`D`** | **D**ata | DBeaver, Beekeeper Studio, Docker Desktop | 32" |
-| **`B`** | **B**rowser | Chrome **Personal** profile, Firefox | 27" |
-| **`W`** | **W**ork | Chrome **Work** profile | 27" |
-| **`R`** | **R**eading | nothing automatic: send docs and PDFs here | 27" |
-| **`M`** | **M**essages | Mail, Messages, Slack, KakaoTalk | 27" |
-| **`Z`** | **Z**oom | Zoom (floating, not tiled) | whichever has focus |
-| **`N`** | **N**otes | Apple Notes | whichever has focus |
-| `1`–`9` | scratch | nothing: use for anything temporary | whichever has focus |
+| Key | Mnemonic | Opens there automatically |
+|---|---|---|
+| **`T`** | **T**erminal | Claude desktop (open Ghostty here; it sits beside Claude) |
+| **`C`** | **C**ode | VS Code |
+| **`D`** | **D**ata | DBeaver, Beekeeper Studio, Docker Desktop |
+| **`B`** | **B**rowser | Chrome **Personal** profile, Firefox |
+| **`W`** | **W**ork | Chrome **Work** profile |
+| **`R`** | **R**eading | nothing automatic: send docs and PDFs here |
+| **`M`** | **M**essages | Mail, Messages, Slack, KakaoTalk |
+| **`Z`** | **Z**oom | Zoom (floating, not tiled) |
+| **`N`** | **N**otes | Apple Notes |
+| `1`–`9` | scratch | nothing: use for anything temporary |
 
-- **Go** to a workspace: `Alt+<letter>`. **Send** the current window there: `Alt+Shift+<letter>`.
+**Workspaces aren't tied to a monitor.** Any workspace can show on either one:
+
+- **Go** to a workspace: `Alt+<letter>`. It appears on the monitor you're focused on. If it's already showing on the *other* monitor, your focus jumps there instead.
+- **Send** the current window to a workspace: `Alt+Shift+<letter>`.
+- **Move the whole workspace** to the other monitor: `Alt+Shift+Tab`. Handy for putting the browser, or a Zoom call, on the big screen for a while.
+- **Switch focus between monitors:** keep pressing `Alt+H` / `Alt+L`. At the edge of one monitor, focus carries on to the next, in the direction the monitors are arranged in System Settings → Displays.
+
+A layout that works well: `T` on the 32-inch, `B` or `W` on the 27-inch.
+
+**The portrait 27-inch.** Your config sets `default-root-container-orientation = 'auto'`: on a wide monitor, windows sit side by side; on a tall one, they **stack top and bottom**. So the same workspace looks different depending on which monitor shows it. `Alt+/` flips between side by side and stacked if you want the other arrangement.
 - **Ghostty has no automatic rule** on purpose. `Alt+Enter` opens a new terminal *where you are*; with a rule, every new terminal would jump to `T`.
 - **Chrome's two profiles** are told apart by the end of the window title: `(Work)` goes to `W`, everything else to `B`. Chrome sometimes sets the title a moment after the window appears, so a Work window occasionally lands on `B`: press `Alt+Shift+W`.
-- **Moving a whole workspace** to the other monitor for a while (say, Zoom onto the big screen): `Alt+Shift+Tab`.
 - **Adding an app:** run `aerospace list-apps` to find its **bundle ID** (the unique name macOS gives each app, like `com.google.Chrome`), then copy one of the `[[on-window-detected]]` rules in `aerospace.toml`. Rules are checked top to bottom and the first match wins.
 
 **Try it.** Open Ghostty and Firefox on workspace 1. They split the screen. Press `Alt+H` and `Alt+L` to switch between them, `Alt+Shift+L` to swap them, then `Alt+Shift+2` to send Firefox to workspace 2 and `Alt+2` to follow it.

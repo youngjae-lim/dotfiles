@@ -20,9 +20,9 @@ AEROSPACE (Alt = Option)                 SHELL
   Alt+Enter new Ghostty  Alt+Shift+= even  updater   notes --help   dot
   Alt+Shift+Enter full screen (never the green button)
 
-WORKSPACES   32": T terminal · C code · D data
-             27": B browser · W work · R reading · M messages
-             either: Z zoom · N notes · 1-9 scratch
+WORKSPACES   T terminal · C code · D data · B browser · W work · R reading
+             M messages · Z zoom · N notes · 1-9 scratch
+             any monitor; Alt+Shift+Tab moves a workspace to the other one
 ```
 
 Chapters: [herdr](04-terminal.md#herdr-where-your-agents-live) · [Claude Code](05-ai-agents.md#keys-and-commands-worth-knowing) · [AeroSpace](09-desktop.md#aerospace-window-tiling) · [shell](08-languages-and-tools.md#your-shell-shortcuts) · [wt](06-worktrees.md)
