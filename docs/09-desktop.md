@@ -12,20 +12,27 @@
 
 ```mermaid
 flowchart LR
-    subgraph W1["Workspace 1"]
-        direction LR
-        G["Ghostty"]:::output
-        F["Firefox"]:::output
+    subgraph BIG["32-inch monitor"]
+        direction TB
+        T["Alt+T · Terminal<br/>Claude + Ghostty"]:::output
+        C["Alt+C · Code<br/>VS Code"]:::step
+        D["Alt+D · Data<br/>DBeaver, Docker"]:::step
     end
-    subgraph W2["Workspace 2"]
-        V["VS Code"]:::output
+    subgraph SMALL["27-inch monitor"]
+        direction TB
+        B["Alt+B · Browser<br/>Chrome Personal"]:::output
+        W["Alt+W · Work<br/>Chrome Work"]:::step
+        R["Alt+R · Reading"]:::step
+        M["Alt+M · Messages"]:::step
     end
-    W1 -->|"Alt+2"| W2
-    W2 -->|"Alt+1, or Alt+Tab"| W1
+    BIG ~~~ SMALL
+    classDef step fill:#f1f5f9,stroke:#64748b,color:#1e293b
     classDef output fill:#dcfce7,stroke:#15803d,color:#052e16
-    style W1 fill:#f8fafc,stroke:#94a3b8,color:#1e293b
-    style W2 fill:#f8fafc,stroke:#94a3b8,color:#1e293b
+    style BIG fill:#f8fafc,stroke:#94a3b8,color:#1e293b
+    style SMALL fill:#f8fafc,stroke:#94a3b8,color:#1e293b
 ```
+
+Each monitor shows **one** of its workspaces at a time (green here); the others are one keypress away (grey).
 
 **The 20% you'll use**
 
@@ -43,13 +50,36 @@ flowchart LR
 | **Make all windows equal size again** | `Alt+Shift+=` |
 | Service mode (then `Esc` reloads config) | `Alt+Shift+;` |
 
-**A simple habit:** `1` = terminal, `2` = browser, `3` = VS Code, `4` = chat and mail. Send each app there once with `Alt+Shift+<n>`.
+### Your workspaces: one letter per job
+
+Workspaces are named with **letters you can remember**. Most apps open on their own letter automatically, and the main ones are **pinned** to a monitor, so `Alt+T` always lands on the big screen and `Alt+B` on the small one.
+
+| Key | Mnemonic | Opens there automatically | Monitor |
+|---|---|---|---|
+| **`T`** | **T**erminal | Claude desktop (open Ghostty here; it sits beside Claude) | 32" |
+| **`C`** | **C**ode | VS Code | 32" |
+| **`D`** | **D**ata | DBeaver, Beekeeper Studio, Docker Desktop | 32" |
+| **`B`** | **B**rowser | Chrome **Personal** profile, Firefox | 27" |
+| **`W`** | **W**ork | Chrome **Work** profile | 27" |
+| **`R`** | **R**eading | nothing automatic: send docs and PDFs here | 27" |
+| **`M`** | **M**essages | Mail, Messages, Slack, KakaoTalk | 27" |
+| **`Z`** | **Z**oom | Zoom (floating, not tiled) | whichever has focus |
+| **`N`** | **N**otes | Apple Notes | whichever has focus |
+| `1`–`9` | scratch | nothing: use for anything temporary | whichever has focus |
+
+- **Go** to a workspace: `Alt+<letter>`. **Send** the current window there: `Alt+Shift+<letter>`.
+- **Ghostty has no automatic rule** on purpose. `Alt+Enter` opens a new terminal *where you are*; with a rule, every new terminal would jump to `T`.
+- **Chrome's two profiles** are told apart by the end of the window title: `(Work)` goes to `W`, everything else to `B`. Chrome sometimes sets the title a moment after the window appears, so a Work window occasionally lands on `B`: press `Alt+Shift+W`.
+- **Moving a whole workspace** to the other monitor for a while (say, Zoom onto the big screen): `Alt+Shift+Tab`.
+- **Adding an app:** run `aerospace list-apps` to find its **bundle ID** (the unique name macOS gives each app, like `com.google.Chrome`), then copy one of the `[[on-window-detected]]` rules in `aerospace.toml`. Rules are checked top to bottom and the first match wins.
 
 **Try it.** Open Ghostty and Firefox on workspace 1. They split the screen. Press `Alt+H` and `Alt+L` to switch between them, `Alt+Shift+L` to swap them, then `Alt+Shift+2` to send Firefox to workspace 2 and `Alt+2` to follow it.
 
 **Changing its settings:** `home/dot_config/aerospace/aerospace.toml` (lane 1). [Chapter 2](02-chezmoi-basics.md#worked-example-change-a-setting-end-to-end) walks through a full change using this file as the example.
 
 **When it breaks**
+- **Empty gaps where windows should be.** Some windows are in a *different macOS Space*: either a window in macOS **native full screen** (the green button, or `Ctrl+Cmd+F`), or a window on a second macOS Desktop. AeroSpace still reserves room for them. Fix: open Mission Control (`Ctrl+↑`), take full-screen windows out of full screen with `Ctrl+Cmd+F`, and remove extra Desktops with the **×** on their thumbnails. Keep **one macOS Desktop per monitor**, and use `Alt+Shift+Enter` for full screen instead. `aerospace list-windows --workspace focused` shows every window AeroSpace thinks is on the current workspace.
+- An app opens on the wrong workspace: check its bundle ID with `aerospace list-apps` against the rules in `aerospace.toml`.
 - Keys do nothing: grant **Accessibility** permission (System Settings → Privacy & Security → Accessibility → AeroSpace).
 - A window shouldn't tile (e.g. a dialog): it floats automatically for System Settings, 1Password and Karabiner. To add more, add an `[[on-window-detected]]` rule to `aerospace.toml`.
 - Run `~/Dotfiles/scripts/macos-defaults.sh` once. It sets the Mission Control options AeroSpace recommends (log out and back in afterwards).
