@@ -2,7 +2,7 @@
 
 My macOS setup, built for working with AI coding agents. Managed with [chezmoi](https://chezmoi.io).
 
-> **New to these tools?** Start with the [learning guide](docs/guide.md).
+> **New to these tools?** Start with the [docs](docs/README.md): ten short chapters that explain everything from zero, a [glossary](docs/glossary.md) and a [cheat sheet](docs/cheatsheet.md).
 
 | Layer | Tool |
 |---|---|

@@ -19,7 +19,7 @@ Youngjae's macOS dotfiles, managed by **chezmoi**. The repo lives at `~/Dotfiles
 | `Brewfile` | All Homebrew packages; applied automatically when it changes. |
 | `scripts/` | `check.sh` (validate everything), `check-agents.py` (agent-config parity), `macos-defaults.sh` (manual). |
 | `.github/workflows/check.yml` | CI: runs `scripts/check.sh` on every push. |
-| `docs/guide.md` | Human learning guide for every tool here. Update it when you change a workflow, keybinding or command it documents. |
+| `docs/` | Human docs, written for beginners: `README.md` (index), ten numbered chapters, `glossary.md`, `cheatsheet.md`. Update the chapter (and cheat sheet) that documents a workflow, keybinding or command when you change it. Define new jargon in `glossary.md`. Diagrams are Mermaid, using the colour classes listed in `docs/README.md`. |
 | `install.sh` | New-machine bootstrap. |
 
 ## Rules
