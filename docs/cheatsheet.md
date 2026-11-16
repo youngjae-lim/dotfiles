@@ -15,9 +15,14 @@ HERDR  (Ctrl+B, let go, then…)           CLAUDE CODE
 
 AEROSPACE (Alt = Option)                 SHELL
   Alt+H/J/K/L focus   +Shift move        wt <branch> [agent]   tt   ?? <question>
-  Alt+1..9 / A..Z workspace +Shift send  wt ls · wt rm <b> · wt prune · agents-init
+  Alt+<letter> go     +Shift send there  wt ls · wt rm <b> · wt prune · agents-init
   Alt+Tab back   Alt+/ tiles  Alt+, stack Esc v  edit command in nvim
   Alt+Enter new Ghostty  Alt+Shift+= even  updater   notes --help   dot
+  Alt+Shift+Enter full screen (never the green button)
+
+WORKSPACES   32": T terminal · C code · D data
+             27": B browser · W work · R reading · M messages
+             either: Z zoom · N notes · 1-9 scratch
 ```
 
 Chapters: [herdr](04-terminal.md#herdr-where-your-agents-live) · [Claude Code](05-ai-agents.md#keys-and-commands-worth-knowing) · [AeroSpace](09-desktop.md#aerospace-window-tiling) · [shell](08-languages-and-tools.md#your-shell-shortcuts) · [wt](06-worktrees.md)

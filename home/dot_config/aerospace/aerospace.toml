@@ -231,6 +231,92 @@ gaps.outer.right =      8
     alt-shift-k = ['join-with up', 'mode main']
     alt-shift-l = ['join-with right', 'mode main']
 
+# --- Letter workspaces --------------------------------------------------------
+# Mnemonic workspaces (docs/09-desktop.md has the full map):
+#   T terminal   C code   D data        (32" LG Ultra HD)
+#   B browser    W work   R reading   M messages   (27" LG HDR 4K)
+#   Z zoom   N notes   1-9 scratch      (whichever monitor has focus)
+# Use ONE macOS Desktop per monitor and never macOS native full screen (green
+# button): windows in other macOS Spaces still take a slot here and leave gaps.
+
+# Pin workspaces to monitors. Patterns match `aerospace list-monitors` names.
+# If a monitor is unplugged, its workspaces move to one that is connected.
+[workspace-to-monitor-force-assignment]
+T = '^LG Ultra HD$'
+C = '^LG Ultra HD$'
+D = '^LG Ultra HD$'
+B = '^LG HDR 4K$'
+W = '^LG HDR 4K$'
+R = '^LG HDR 4K$'
+M = '^LG HDR 4K$'
+
+# Open apps on their workspace. Rules are checked top to bottom and the first
+# match wins, so the specific Chrome Work rule must stay above the general one.
+# Ghostty has no rule on purpose: Alt+Enter opens a terminal where you are.
+# Find an app's id with `aerospace list-apps`; a wrong id just never matches.
+
+[[on-window-detected]]
+if.app-id = 'com.anthropic.claudefordesktop'
+run = 'move-node-to-workspace T'
+
+[[on-window-detected]]
+if.app-id = 'com.microsoft.VSCode'
+run = 'move-node-to-workspace C'
+
+# Chrome profiles: the title ends in "(Work)" or "(Personal)". Chrome sometimes
+# sets the title just after the window appears; then a Work window lands on B:
+# press Alt+Shift+W to move it.
+[[on-window-detected]]
+if.app-id = 'com.google.Chrome'
+if.window-title-regex-substring = '\(Work\)$'
+run = 'move-node-to-workspace W'
+
+[[on-window-detected]]
+if.app-id = 'com.google.Chrome'
+run = 'move-node-to-workspace B'
+
+[[on-window-detected]]
+if.app-id = 'org.mozilla.firefox'
+run = 'move-node-to-workspace B'
+
+[[on-window-detected]]
+if.app-id = 'org.jkiss.dbeaver.core.product'
+run = 'move-node-to-workspace D'
+
+[[on-window-detected]]
+if.app-id = 'io.beekeeperstudio.desktop'
+run = 'move-node-to-workspace D'
+
+[[on-window-detected]]
+if.app-id = 'com.docker.docker'
+run = 'move-node-to-workspace D'
+
+[[on-window-detected]]
+if.app-id = 'com.apple.mail'
+run = 'move-node-to-workspace M'
+
+[[on-window-detected]]
+if.app-id = 'com.apple.MobileSMS'
+run = 'move-node-to-workspace M'
+
+[[on-window-detected]]
+if.app-id = 'com.tinyspeck.slackmacgap'
+run = 'move-node-to-workspace M'
+
+[[on-window-detected]]
+if.app-id = 'com.kakao.KakaoTalkMac'
+run = 'move-node-to-workspace M'
+
+[[on-window-detected]]
+if.app-id = 'com.apple.Notes'
+run = 'move-node-to-workspace N'
+
+# Zoom opens many small windows (controls, chat, share bar); floating keeps
+# them from being squeezed into tiles.
+[[on-window-detected]]
+if.app-id = 'us.zoom.xos'
+run = ['layout floating', 'move-node-to-workspace Z']
+
 # Float utility windows instead of tiling them.
 [[on-window-detected]]
 if.app-id = 'com.apple.systempreferences'

@@ -41,6 +41,7 @@ brew "lf"
 brew "lua"
 brew "shellcheck"
 brew "stylua"
+brew "terminal-notifier" # Claude "waiting on you" alerts (hooks/dotfiles/notify.sh)
 brew "htop"
 brew "figlet"
 

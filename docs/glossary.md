@@ -7,11 +7,11 @@ Every term these docs use, in plain words, alphabetically. The chapter in bracke
 ### Agent (AI coding agent)
 An AI you talk to in the terminal that can also *act*: read and edit files and run commands, such as your tests. Here: Claude Code, Copilot CLI and Gemini CLI. ([Chapter 5](05-ai-agents.md))
 
-### `agents.yaml`
-The one file (`home/.chezmoidata/agents.yaml`) that holds the rules for every AI agent: which commands they may run, which files are secret, and which MCP servers they get. chezmoi turns it into each agent's own settings. ([Chapter 5](05-ai-agents.md))
-
 ### `AGENTS.md`
 A file at the root of a project with instructions for AI agents working in it: how to run its tests, rules to follow. All three agents read it. `agents-init` writes a first version for you. ([Chapter 5](05-ai-agents.md#project-level-instructions-agentsmd))
+
+### `agents.yaml`
+The one file (`home/.chezmoidata/agents.yaml`) that holds the rules for every AI agent: which commands they may run, which files are secret, and which MCP servers they get. chezmoi turns it into each agent's own settings. ([Chapter 5](05-ai-agents.md))
 
 ### Alias
 A short name for a longer command. `czd` is an alias for `chezmoi diff`. Yours are in `home/dot_config/zsh/aliases.zsh`. ([Chapter 2](02-chezmoi-basics.md))
@@ -27,6 +27,9 @@ A separate line of work in a git repo. You make changes on a branch, then merge 
 
 ### Brewfile
 A list of every app and tool to install with Homebrew. When it changes, `chezmoi apply` installs what's new. ([Chapter 3](03-how-files-are-made.md#scripts-that-run-on-apply))
+
+### Bundle ID
+The unique name macOS gives each app, like `com.google.Chrome`. AeroSpace rules use it to recognise apps; `aerospace list-apps` shows them. ([Chapter 9](09-desktop.md#your-workspaces-one-letter-per-job))
 
 ### Checkout
 The files you see in a project folder: one branch's version of the repo. ([Chapter 6](06-worktrees.md))
@@ -138,6 +141,9 @@ A short instruction file an agent reads only when the task matches, like a recip
 
 ### Source, target (chezmoi)
 The **source** is what's in `~/Dotfiles`; the **target** is your home folder, where chezmoi writes. ([Chapter 2](02-chezmoi-basics.md))
+
+### Space (macOS), Desktop
+macOS's own virtual desktops, shown along the top of Mission Control. A window in native full screen gets a Space of its own. With AeroSpace, keep exactly one per monitor: AeroSpace's workspaces replace them. ([Chapter 9](09-desktop.md))
 
 ### Symlink (symbolic link)
 A file that points at another file, like a shortcut. `~/.config/nvim` is a symlink to `~/Dotfiles/config/nvim`, so there's only one real copy. ([Chapter 1](01-big-picture.md#three-ways-a-file-gets-to-your-mac))
