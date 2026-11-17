@@ -35,6 +35,7 @@ if have shellcheck; then
   # Templated shell scripts are checked after rendering.
   if command -v "$CHEZMOI" >/dev/null 2>&1; then
     for t in home/.chezmoiscripts/run_onchange_after_30-agent-integrations.sh.tmpl \
+      home/.chezmoiscripts/darwin/run_onchange_before_10-brew-bundle.sh.tmpl \
       home/dot_claude/hooks/dotfiles/executable_guard-secrets.sh.tmpl; do
       out="$tmp/$(basename "$t" .tmpl)"
       "$CHEZMOI" --source . execute-template <"$t" >"$out" && files+=("$out")

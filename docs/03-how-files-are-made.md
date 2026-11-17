@@ -91,11 +91,15 @@ Three rules follow from this:
 
 | You change | `apply` also runs | If it fails |
 |---|---|---|
-| `Brewfile` | `brew bundle` (installs new apps and tools) | It prints the exact command to rerun. Apps that need your password (like Tailscale) must be installed by you in a terminal. |
+| `Brewfile` | Trusts every `tap` listed in the Brewfile, then `brew bundle` (installs new apps and tools) | It prints the exact command to rerun. Apps that need your password (like Tailscale) must be installed by you in a terminal. |
 | `home/dot_config/mise/config.toml` | `mise install` | `mise doctor` |
 | MCP servers in `agents.yaml` | Registers them with Claude Code, and removes ones you deleted | `claude mcp list` |
 
 The same script also connects Claude and Copilot to herdr ([chapter 4](04-terminal.md)).
+
+**If a script fails, `apply` won't retry it by itself.** "Run on change" means "run once per version of the input". The scripts report failures but still finish "successfully" (so one problem doesn't stop the rest of `apply`), and chezmoi marks that version as done. Fix the problem, then run the command the error message prints, for example `brew bundle --file="$HOME/Dotfiles/Brewfile"`.
+
+> **Tap**: an extra source of Homebrew packages, published by someone other than Homebrew (`tap "FelixKratz/formulae"`). Recent Homebrew refuses a tap's formulas until you **trust** it (`brew trust <tap>`), because installing runs that publisher's code. The brew script trusts every tap listed in the Brewfile, since listing it there is your decision to trust it.
 
 ## chezmoi's own settings
 
