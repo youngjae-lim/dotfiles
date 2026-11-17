@@ -29,6 +29,7 @@ flowchart TB
 | New window / tab | `Cmd+N` / `Cmd+T` |
 | Close | `Cmd+W` |
 | Reload config | `Cmd+Shift+,` |
+| Text smaller / bigger / back to normal (**temporary**) | `Cmd+-` / `Cmd+=` / `Cmd+0` |
 | New line in an agent prompt (instead of sending) | `Shift+Enter` |
 | Copy | Just select with the mouse (copy-on-select is on) |
 | Paste | `Cmd+V` |
@@ -40,6 +41,12 @@ flowchart TB
 - Finder: right-click a `.command` or `.sh` file → **Get Info → Open with → Ghostty → Change All…**
 
 **Config:** `home/dot_config/ghostty/config` (lane 1). Edit it, run `chezmoi apply`, then press `Cmd+Shift+,` in Ghostty.
+
+**Changing the font size for good.** `Cmd+-` and `Cmd+=` only change the running app; the size resets when Ghostty restarts. Use them to *find* a size you like, then make it permanent:
+1. Count your `Cmd+-` presses (one point each), then press `Cmd+0` to reset.
+2. `cze ~/.config/ghostty/config` and change `font-size = …` to the new number. Save; `cze` applies it.
+3. Press `Cmd+Shift+,` to reload.
+4. Check: `chezmoi diff` prints nothing, `git diff` shows the one-line change. Commit it.
 
 **Try it.** Open Ghostty and run `claude`. Type a line, press `Shift+Enter`, type a second line, then press `Enter`. You just sent a two-line prompt.
 

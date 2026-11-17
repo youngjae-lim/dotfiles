@@ -140,6 +140,18 @@ chezmoi diff       # shows exactly what apply WOULD change
 
 > **1Password popup:** `apply`, `diff` and `status` ask 1Password for approval, because your secrets file is part of the comparison. That's expected. See [chapter 7](07-secrets.md).
 
+### In-app settings vs config files
+
+Many apps let you change settings from inside the app: `Cmd+-` for a smaller font, a theme menu, a preferences window. What happens to such a change depends on the app's lane:
+
+| Lane | Change made inside the app | Shows in `git diff`? |
+|---|---|---|
+| **Copied** (Ghostty, herdr, AeroSpace…) | Either temporary (gone when the app restarts, like Ghostty's `Cmd+-`), or written to the copy in `~`, where the next `apply` overwrites it | **No.** To keep it, edit the repo file with `cze`, or rescue a written change with `chezmoi re-add` |
+| **Linked** (Neovim, VS Code settings, Karabiner) | Written straight into the repo, because `~` links to it | **Yes**, immediately. Commit it like any other change |
+| **Generated** (agent settings) | Managed settings are put back by the next `apply` ([chapter 3](03-how-files-are-made.md#merged-files-modify_)) | **No.** Change `agents.yaml` instead |
+
+So for a copied app, the in-app control is a good way to *try* a setting, and the config file is how you *keep* it.
+
 ## Worked example: change a setting, end to end
 
 This routine works for almost every file in lane 1. Say you want bigger gaps between windows in AeroSpace.
