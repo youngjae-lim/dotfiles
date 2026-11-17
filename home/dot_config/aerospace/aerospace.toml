@@ -264,6 +264,10 @@ if.window-title-regex-substring = '\(Work\)$'
 run = 'move-node-to-workspace W'
 
 [[on-window-detected]]
+if.app-id = 'com.microsoft.teams2'
+run = 'move-node-to-workspace W'
+
+[[on-window-detected]]
 if.app-id = 'com.google.Chrome'
 run = 'move-node-to-workspace B'
 
