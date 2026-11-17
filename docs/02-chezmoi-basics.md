@@ -24,6 +24,42 @@ flowchart LR
 
 > **Diff**: a listing of the differences between two versions of a file. Lines starting with `-` would be removed, lines with `+` would be added.
 
+### Reading `chezmoi diff`
+
+**Direction:** a chezmoi diff runs from **what's in `~` now** to **what `apply` would make it**. So a line you added to the file in `~` by hand, but not to the repo, shows up as one that *would be removed*.
+
+**Colours, not `+` and `-`:** your diffs go through **delta** ([chapter 8](08-languages-and-tools.md#small-tools-that-make-agents-better)), which marks changes with colour instead:
+
+| Delta shows | Means | `apply` will… |
+|---|---|---|
+| **Red** line | in `~` now, not in the repo | remove it |
+| **Green** line | in the repo, not in `~` yet | add it |
+| Uncoloured line | the same in both | leave it alone |
+
+The two columns of numbers on the left are line numbers: the old file's on the left, the new file's on the right. A changed line has a number on only one side.
+
+### Three places, three commands
+
+A file you manage with chezmoi can exist in three versions at once. Each command copies **one way** between two of them:
+
+```mermaid
+flowchart LR
+    C["Last commit<br/>(git history)"]:::step -->|"git checkout -- file<br/>throws away uncommitted edits"| R["Repo file<br/>~/Dotfiles/home/..."]:::source
+    R -->|"chezmoi apply"| H["Your Mac<br/>~/..."]:::output
+    H -->|"chezmoi re-add<br/>keeps an edit made in ~"| R
+    classDef source fill:#dbeafe,stroke:#1d4ed8,color:#0b1b3f
+    classDef step fill:#f1f5f9,stroke:#64748b,color:#1e293b
+    classDef output fill:#dcfce7,stroke:#15803d,color:#052e16
+```
+
+| Command | Copies from → to | Use it when |
+|---|---|---|
+| `chezmoi apply` | repo → `~` | You changed the repo and want your Mac to use it |
+| `chezmoi re-add` | `~` → repo | You edited the copy in `~` by mistake and want to **keep** the edit |
+| `git checkout -- <file>` | last commit → repo | You want to **throw away** uncommitted edits in the repo. It doesn't touch `~`: run `chezmoi apply` afterwards. |
+
+**Committing is what makes a change safe.** Until you commit, `git checkout --` can wipe a change from the repo, and the next `apply` then removes it from your Mac too.
+
 ## Reading file names in `home/`
 
 chezmoi uses **prefixes and endings** on file names as instructions. Strip them off and you get the real name.
@@ -247,11 +283,47 @@ Two more things to know:
 - **Deleting or renaming a file in `home/`:** chezmoi does **not** delete the old file from `~`. Remove it yourself (`rm ~/the/old/file`), then commit.
 - **Before committing**, run `scripts/check.sh`. It tests the agent settings and scripts, and scans for secrets. A **pre-commit hook** also runs **gitleaks** and refuses the commit if it finds a secret. ([Chapter 7](07-secrets.md))
 
-## Try it (10 min)
+## Try it (15 min)
 
-1. `cze ~/.config/zsh/aliases.zsh`. Add `alias hi='echo hello'` and save. It applies automatically.
-2. Open a new terminal tab and type `hi`.
-3. `dot && git diff` shows your change in the repo. Commit it, or undo it with `git checkout -- . && chezmoi apply`.
+This exercise shows, on purpose, what happens when you edit the copy in `~` instead of the repo. Everything is undone at the end.
+
+**1. Find where a file really comes from.**
+```sh
+cd ~/Dotfiles
+chezmoi source-path ~/.config/zsh/aliases.zsh
+```
+It prints `…/home/dot_config/zsh/aliases.zsh`: `dot_config` becomes `.config`.
+
+**2. Add an alias the right way.**
+```sh
+cze ~/.config/zsh/aliases.zsh
+```
+Add `alias hello='echo hello from the repo'`, save and quit (it applies on save). Open a new tab and run `hello`. Then `git diff`: the change is in the **repo**.
+
+**3. Break it on purpose, the old way.** Add a line straight to the copy in `~`:
+```sh
+echo "alias oops='echo old habit'" >> ~/.config/zsh/aliases.zsh
+chezmoi diff
+```
+The `oops` line is **red**: it's in `~` but not in the repo, so `apply` would remove it.
+
+**4. Ending A: keep it.**
+```sh
+chezmoi re-add
+git diff            # now shows both hello and oops in the repo
+chezmoi diff        # prints nothing: repo and ~ agree again
+```
+
+**5. Ending B: throw it all away.**
+```sh
+git checkout -- home/dot_config/zsh/aliases.zsh   # repo file back to the last commit
+chezmoi diff                                      # hello and oops, both red
+chezmoi apply                                     # ~ matches the repo again
+exec zsh
+hello                                             # command not found
+git status                                        # nothing changed
+```
+`hello` disappears too, even though you added it the right way: it was never **committed**, so `git checkout --` threw it away. See [Three places, three commands](#three-places-three-commands).
 
 ## When it breaks
 
