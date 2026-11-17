@@ -99,6 +99,8 @@ The same script also connects Claude and Copilot to herdr ([chapter 4](04-termin
 
 **If a script fails, `apply` won't retry it by itself.** "Run on change" means "run once per version of the input". The scripts report failures but still finish "successfully" (so one problem doesn't stop the rest of `apply`), and chezmoi marks that version as done. Fix the problem, then run the command the error message prints, for example `brew bundle --file="$HOME/Dotfiles/Brewfile"`.
 
+One difference to know: chezmoi's script runs `brew bundle --no-upgrade`, which only installs what's missing. Running plain `brew bundle` yourself **also upgrades** anything outdated, git included, so you may see a few one-off prompts afterwards, such as the Keychain asking again on your next `git push` ([chapter 2](02-chezmoi-basics.md#when-it-breaks)).
+
 > **Tap**: an extra source of Homebrew packages, published by someone other than Homebrew (`tap "FelixKratz/formulae"`). Recent Homebrew refuses a tap's formulas until you **trust** it (`brew trust <tap>`), because installing runs that publisher's code. The brew script trusts every tap listed in the Brewfile, since listing it there is your decision to trust it.
 
 ## chezmoi's own settings
