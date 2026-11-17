@@ -37,7 +37,7 @@ Each monitor shows **one** workspace at a time. Here the 32-inch shows `T` (Clau
 | **New Ghostty window** | `Alt+Enter` |
 | **Make this window fill the screen** (press again to go back) | `Alt+Shift+Enter` |
 | Focus window left/down/up/right | `Alt+H` `Alt+J` `Alt+K` `Alt+L` |
-| Move window left/down/up/right | `Alt+Shift+H/J/K/L` |
+| Move window left/down/up/right (swaps places with its neighbour) | `Alt+Shift+H/J/K/L` |
 | Go to workspace 1–9 / A–Z | `Alt+1` … `Alt+9`, `Alt+<letter>` |
 | Send window to workspace | `Alt+Shift+1` … / `Alt+Shift+<letter>` |
 | Previous workspace (toggle) | `Alt+Tab` |
@@ -73,10 +73,35 @@ Workspaces are named with **letters you can remember**, and most apps open on th
 A layout that works well: `T` on the 32-inch, `B` or `W` on the 27-inch.
 
 **The portrait 27-inch.** Your config sets `default-root-container-orientation = 'auto'`: on a wide monitor, windows sit side by side; on a tall one, they **stack top and bottom**. So the same workspace looks different depending on which monitor shows it. `Alt+/` flips between side by side and stacked if you want the other arrangement.
+
 - **Ghostty has no automatic rule** on purpose. `Alt+Enter` opens a new terminal *where you are*; with a rule, every new terminal would jump to `T`.
 - **Work and personal stay apart.** `W` holds everything for work (Work Chrome, Teams); `B` and `M` are personal. A Teams **call** opens in its own window on `W`; to take it full screen on the big monitor, send it to `Z` with `Alt+Shift+Z`, then move `Z` over with `Alt+Shift+Tab`.
 - **Chrome's two profiles** are told apart by the end of the window title: `(Work)` goes to `W`, everything else to `B`. Chrome sometimes sets the title a moment after the window appears, so a Work window occasionally lands on `B`: press `Alt+Shift+W`.
 - **Adding an app:** run `aerospace list-apps` to find its **bundle ID** (the unique name macOS gives each app, like `com.google.Chrome`), then copy one of the `[[on-window-detected]]` rules in `aerospace.toml`. Rules are checked top to bottom and the first match wins.
+
+### Focus border
+
+The focused window gets a **soft green outline**, so you can always tell which window your keys will go to, even across two monitors. Unfocused windows get no outline.
+
+It's drawn by **JankyBorders** (the `borders` command), a small separate program; AeroSpace can't draw borders itself. AeroSpace starts it, through this line near the top of `aerospace.toml`:
+
+```toml
+after-startup-command = [
+  'exec-and-forget borders active_color=0xff8fbf7f inactive_color=0x00000000 width=4.0',
+]
+```
+
+| Setting | Means | Yours |
+|---|---|---|
+| `active_color` | Outline of the focused window, as `0xAARRGGBB`: `AA` is opacity (`ff` solid, `00` invisible), then red, green, blue | `0xff8fbf7f`: solid soft green |
+| `inactive_color` | Outline of the other windows | `0x00000000`: none |
+| `width` | Thickness in points | `4.0`: subtle |
+
+**To change it:** try a value live first. `borders width=6.0` or `borders active_color=0xff7fafdf` changes the running border straight away without touching any file, like Ghostty's `Cmd+-`. Then make it permanent with `cze ~/.config/aerospace/aerospace.toml`.
+
+**A permanent change needs an AeroSpace restart.** `after-startup-command` runs only when AeroSpace **starts**, so `aerospace reload-config` isn't enough: click the AeroSpace menu-bar icon → **Quit AeroSpace**, then `open -a AeroSpace`.
+
+**To remove it:** delete the `after-startup-command` lines (leave `after-startup-command = []`), and the `tap "FelixKratz/formulae"` and `brew "borders"` lines from the Brewfile; apply, restart AeroSpace, and `brew uninstall borders`.
 
 **Try it.** Open Ghostty and Firefox on workspace 1. They split the screen. Press `Alt+H` and `Alt+L` to switch between them, `Alt+Shift+L` to swap them, then `Alt+Shift+2` to send Firefox to workspace 2 and `Alt+2` to follow it.
 
@@ -87,6 +112,7 @@ A layout that works well: `T` on the 32-inch, `B` or `W` on the 27-inch.
 - **A window won't tile, and `Alt+/` does nothing.** The window is **floating**: AeroSpace floats windows it takes for dialogs or popups (Chrome's profile picker, for example), and a floating window isn't part of the tiles, so layout keys don't affect it. Check with `aerospace list-windows --workspace focused --format '%{app-name} | %{window-layout}'`: `floating` is the culprit, `h_tiles`/`v_tiles` are fine. Fix: click it, then `Alt+Shift+;` then `f`. If one app's windows *always* float, add `'layout tiling'` to its rule: `run = ['layout tiling', 'move-node-to-workspace W']`.
 - **A strange, nested layout.** On that workspace, `Alt+Shift+;` then `r` flattens it back to simple tiles.
 - An app opens on the wrong workspace: check its bundle ID with `aerospace list-apps` against the rules in `aerospace.toml`. An app with no rule opens wherever you are.
+- **No border.** Is it running? `pgrep -l borders`. If not, restart AeroSpace (see [Focus border](#focus-border)). JankyBorders draws with private macOS interfaces, so a big macOS update can stop it until a fix ships: `brew upgrade borders`.
 - Keys do nothing: grant **Accessibility** permission (System Settings → Privacy & Security → Accessibility → AeroSpace).
 - A window shouldn't tile (e.g. a dialog): it floats automatically for System Settings, 1Password and Karabiner. To add more, add an `[[on-window-detected]]` rule to `aerospace.toml`.
 - Run `~/Dotfiles/scripts/macos-defaults.sh` once. It sets the Mission Control options AeroSpace recommends (log out and back in afterwards).

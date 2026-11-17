@@ -305,6 +305,30 @@ Step 5 above runs **one command that runs four checks**, so you don't have to re
 
 Locally, a check whose tool isn't installed is skipped with a note; on GitHub, a missing tool counts as a failure.
 
+### How branches come back together
+
+A branch doesn't need to contain `main`'s newer commits to be merged. Git combines **changes**, not whole folders. A real example from this repo: a border change was committed to `main` while a brew fix waited on its own branch. Both started from the same commit:
+
+```mermaid
+gitGraph
+    commit id: "A: this morning"
+    branch fix/brew-trust-taps
+    commit id: "F: brew fix"
+    checkout main
+    commit id: "B: border"
+    merge fix/brew-trust-taps id: "M: merge PR"
+```
+
+- `B` changed the Brewfile and `aerospace.toml`; `F` changed the brew script, `check.sh` and some docs. Neither commit contains the other.
+- Pressing **Merge** on GitHub made a **merge commit**, `M`, on `main`. `M` holds everything: `A` + `B` + `F`.
+- `git pull` brought `M` to the Mac, and `chezmoi apply` copied the combined result into `~`.
+
+This works automatically as long as the two sides didn't change the **same lines**. If they did, git can't choose, and GitHub reports a conflict: see the next section.
+
+**See it yourself:** `git log --oneline --graph -10` draws your real history this way, with `|` for each line of work and `\` `/` where they split and join.
+
+**To bring `main`'s newer commits into a branch before merging** (to test both together), run `git merge main` while on the branch.
+
 ### When a pull request can't be merged
 
 | What you see on GitHub | What it means | What to do |
