@@ -38,7 +38,7 @@ The files you see in a project folder: one branch's version of the repo. ([Chapt
 The dotfiles manager. It reads `~/Dotfiles` (the source) and writes your home folder (the target). ([Chapter 2](02-chezmoi-basics.md))
 
 ### CI (continuous integration)
-Checks that run automatically on GitHub every time you push. This repo's CI runs `scripts/check.sh` (the file is `.github/workflows/check.yml`). **GitHub Actions** is GitHub's name for this service.
+Checks that run automatically on GitHub every time you push. This repo's CI runs `scripts/check.sh` (the file is `.github/workflows/check.yml`; [what it checks](02-chezmoi-basics.md#what-scriptschecksh-checks)). **GitHub Actions** is GitHub's name for this service.
 
 ### CLI (command-line interface)
 A program you use by typing in the terminal, not by clicking. ([Chapter 5](05-ai-agents.md))

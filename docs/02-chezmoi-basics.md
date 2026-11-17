@@ -205,6 +205,52 @@ A few kinds of file work differently; [chapter 3](03-how-files-are-made.md) cove
 
 For anything bigger than a one-line tweak, make the change on a **branch** first, try it on your Mac, and merge it into `main` once it works. That way `main` always holds a setup you know is good.
 
+### Direct commit or pull request?
+
+Both end with your change in `main`. The difference is **whether there's a checkpoint before it gets there**:
+
+```mermaid
+flowchart TB
+    subgraph D["Direct commit"]
+        direction LR
+        D1["Edit"]:::source --> D2["Commit on main"]:::step --> D3["Push"]:::step --> D4["main has it<br/>CI checks afterwards"]:::output
+    end
+    subgraph P["Pull request"]
+        direction LR
+        P1["Edit on a branch"]:::source --> P2["Commit, push,<br/>open PR"]:::step --> P3["CI checks,<br/>you review"]:::secret --> P4["Merge: main has it"]:::output
+    end
+    D ~~~ P
+    classDef source fill:#dbeafe,stroke:#1d4ed8,color:#0b1b3f
+    classDef step fill:#f1f5f9,stroke:#64748b,color:#1e293b
+    classDef output fill:#dcfce7,stroke:#15803d,color:#052e16
+    classDef secret fill:#fee2e2,stroke:#b91c1c,color:#450a0a
+    style D fill:#f8fafc,stroke:#94a3b8,color:#1e293b
+    style P fill:#f8fafc,stroke:#94a3b8,color:#1e293b
+```
+
+In a pull request, nothing reaches `main` until you press **Merge** (the red box is the checkpoint).
+
+| | Direct commit to `main` | Pull request |
+|---|---|---|
+| **Speed** | Fastest: three commands | A few more steps |
+| **When CI runs** | *After* the change is in `main`, so a failure means `main` is already broken | *Before* merging; a red ✗ stops you |
+| **Reviewing** | Only what you looked at locally | GitHub shows the full diff in one place; an agent can review it too (`/review` in Copilot, "review this PR" in Claude) |
+| **Trying it first** | You test on `main` directly | You test the branch on your Mac, and switch back if you don't like it |
+| **Backing out** | Needs a new commit that undoes it (`git revert <commit>`) | Close the PR and delete the branch; `main` never knew |
+| **History** | One commit per change | One PR per feature, with a description of why |
+
+**Why it matters more for dotfiles than usual:** `main` is what `chezmoi update` installs on any other Mac, and on this one after `git pull`. A broken `main` means a broken setup wherever you apply it.
+
+**Rule of thumb:**
+- **Direct commit:** a one-line tweak you've already tested and seen working: a font size, a gap size, an alias.
+- **Pull request:**
+  - anything touching several files;
+  - anything in `agents.yaml`, scripts, or shell start-up files, where a mistake could break every new terminal;
+  - any change an **AI agent** made: the PR is your chance to read it before it becomes your setup;
+  - experiments you might abandon.
+
+> **`git revert <commit>`**: make a new commit that undoes an earlier one. It's the safe way to undo something already pushed, because it adds to history instead of rewriting it.
+
 ### The one rule: your Mac follows the branch you're on
 
 chezmoi is like a **photocopier of whatever page is open**. `chezmoi apply` copies from the branch currently checked out in `~/Dotfiles`: not from GitHub, and not from "the latest" version.
@@ -243,6 +289,21 @@ chezmoi status                        # 11. should print nothing: all in sync
 > **`git switch`**: change which branch your folder shows. `-c` creates a new branch first. **`git pull`**: fetch the latest commits from GitHub and add them to your current branch.
 
 **If `git branch -d` refuses** after a merge, GitHub probably **squash-merged** the pull request: it combined your commits into one new commit, so git can't recognise them inside `main`. Your work is safe; delete the branch with `-D` instead.
+
+### What `scripts/check.sh` checks
+
+Step 5 above runs **one command that runs four checks**, so you don't have to remember them separately. Each catches a different kind of mistake *before* it reaches your Mac or GitHub:
+
+| Check | Catches | Matters when you change… |
+|---|---|---|
+| **Agent configs vs `agents.yaml`** | Claude, Copilot, Gemini or VS Code ending up with different rules: a missing secret rule, a wrong MCP server, a broken merge | `agents.yaml`, agent templates, hooks ([chapter 5](05-ai-agents.md)) |
+| **shellcheck** | Common bugs in shell scripts: unquoted variables, typos, commands that fail silently | `scripts/`, `~/.local/bin/` scripts, hooks, `install.sh` |
+| **stylua** | Lua files not formatted to the repo's style | Neovim and Hammerspoon config |
+| **gitleaks** | Anything that looks like a password, token or key | **Everything.** The repo is public, and a pushed secret should be treated as leaked even if you delete it later ([chapter 7](07-secrets.md)) |
+
+**Why run all four for a tiny change?** You can't always tell which check matters, and all four take a few seconds. It also gives AI agents a clear pass/fail signal: `AGENTS.md` tells them to run it before finishing. **CI runs the same script on GitHub** after every push, as a safety net.
+
+Locally, a check whose tool isn't installed is skipped with a note; on GitHub, a missing tool counts as a failure.
 
 ### When a pull request can't be merged
 
@@ -293,7 +354,7 @@ Then reload the affected app, as after any apply.
 
 Two more things to know:
 - **Deleting or renaming a file in `home/`:** chezmoi does **not** delete the old file from `~`. Remove it yourself (`rm ~/the/old/file`), then commit.
-- **Before committing**, run `scripts/check.sh`. It tests the agent settings and scripts, and scans for secrets. A **pre-commit hook** also runs **gitleaks** and refuses the commit if it finds a secret. ([Chapter 7](07-secrets.md))
+- **Before committing**, run `scripts/check.sh`. It tests the agent settings and scripts, and scans for secrets ([what it checks](#what-scriptschecksh-checks)). A **pre-commit hook** also runs **gitleaks** and refuses the commit if it finds a secret. ([Chapter 7](07-secrets.md))
 
 ## Try it (15 min)
 
