@@ -19,8 +19,9 @@ AEROSPACE (Alt = Option)                 SHELL
   Alt+Tab back   Alt+/ tiles  Alt+, stack Esc v  edit command in nvim
   Alt+Enter new Ghostty  Alt+Shift+= even  updater   notes --help   dot
   Alt+Shift+Enter full screen (never the green button)
+  Alt+Shift+; then f  float ↔ tile    then r  reset layout
 
-WORKSPACES   T terminal · C code · D data · B browser · W work · R reading
+WORKSPACES   T terminal · C code · D data · B browser · W work (Chrome + Teams) · R reading
              M messages · Z zoom · N notes · 1-9 scratch
              any monitor; Alt+Shift+Tab moves a workspace to the other one
 ```

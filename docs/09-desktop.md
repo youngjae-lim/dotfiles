@@ -44,7 +44,7 @@ Each monitor shows **one** workspace at a time. Here the 32-inch shows `T` (Clau
 | Side by side ↔ stacked | `Alt+/` ↔ `Alt+,` |
 | Make window smaller / bigger | `Alt+-` / `Alt+=` |
 | **Make all windows equal size again** | `Alt+Shift+=` |
-| Service mode (then `Esc` reloads config) | `Alt+Shift+;` |
+| Service mode, then: `Esc` reload config · `f` float ↔ tile this window · `r` reset the layout | `Alt+Shift+;` |
 
 ### Your workspaces: one letter per job
 
@@ -56,7 +56,7 @@ Workspaces are named with **letters you can remember**, and most apps open on th
 | **`C`** | **C**ode | VS Code |
 | **`D`** | **D**ata | DBeaver, Beekeeper Studio, Docker Desktop |
 | **`B`** | **B**rowser | Chrome **Personal** profile, Firefox |
-| **`W`** | **W**ork | Chrome **Work** profile |
+| **`W`** | **W**ork | Chrome **Work** profile, Microsoft Teams |
 | **`R`** | **R**eading | nothing automatic: send docs and PDFs here |
 | **`M`** | **M**essages | Mail, Messages, Slack, KakaoTalk |
 | **`Z`** | **Z**oom | Zoom (floating, not tiled) |
@@ -74,6 +74,7 @@ A layout that works well: `T` on the 32-inch, `B` or `W` on the 27-inch.
 
 **The portrait 27-inch.** Your config sets `default-root-container-orientation = 'auto'`: on a wide monitor, windows sit side by side; on a tall one, they **stack top and bottom**. So the same workspace looks different depending on which monitor shows it. `Alt+/` flips between side by side and stacked if you want the other arrangement.
 - **Ghostty has no automatic rule** on purpose. `Alt+Enter` opens a new terminal *where you are*; with a rule, every new terminal would jump to `T`.
+- **Work and personal stay apart.** `W` holds everything for work (Work Chrome, Teams); `B` and `M` are personal. A Teams **call** opens in its own window on `W`; to take it full screen on the big monitor, send it to `Z` with `Alt+Shift+Z`, then move `Z` over with `Alt+Shift+Tab`.
 - **Chrome's two profiles** are told apart by the end of the window title: `(Work)` goes to `W`, everything else to `B`. Chrome sometimes sets the title a moment after the window appears, so a Work window occasionally lands on `B`: press `Alt+Shift+W`.
 - **Adding an app:** run `aerospace list-apps` to find its **bundle ID** (the unique name macOS gives each app, like `com.google.Chrome`), then copy one of the `[[on-window-detected]]` rules in `aerospace.toml`. Rules are checked top to bottom and the first match wins.
 
@@ -83,7 +84,9 @@ A layout that works well: `T` on the 32-inch, `B` or `W` on the 27-inch.
 
 **When it breaks**
 - **Empty gaps where windows should be.** Some windows are in a *different macOS Space*: either a window in macOS **native full screen** (the green button, or `Ctrl+Cmd+F`), or a window on a second macOS Desktop. AeroSpace still reserves room for them. Fix: open Mission Control (`Ctrl+↑`), take full-screen windows out of full screen with `Ctrl+Cmd+F`, and remove extra Desktops with the **×** on their thumbnails. Keep **one macOS Desktop per monitor**, and use `Alt+Shift+Enter` for full screen instead. `aerospace list-windows --workspace focused` shows every window AeroSpace thinks is on the current workspace.
-- An app opens on the wrong workspace: check its bundle ID with `aerospace list-apps` against the rules in `aerospace.toml`.
+- **A window won't tile, and `Alt+/` does nothing.** The window is **floating**: AeroSpace floats windows it takes for dialogs or popups (Chrome's profile picker, for example), and a floating window isn't part of the tiles, so layout keys don't affect it. Check with `aerospace list-windows --workspace focused --format '%{app-name} | %{window-layout}'`: `floating` is the culprit, `h_tiles`/`v_tiles` are fine. Fix: click it, then `Alt+Shift+;` then `f`. If one app's windows *always* float, add `'layout tiling'` to its rule: `run = ['layout tiling', 'move-node-to-workspace W']`.
+- **A strange, nested layout.** On that workspace, `Alt+Shift+;` then `r` flattens it back to simple tiles.
+- An app opens on the wrong workspace: check its bundle ID with `aerospace list-apps` against the rules in `aerospace.toml`. An app with no rule opens wherever you are.
 - Keys do nothing: grant **Accessibility** permission (System Settings → Privacy & Security → Accessibility → AeroSpace).
 - A window shouldn't tile (e.g. a dialog): it floats automatically for System Settings, 1Password and Karabiner. To add more, add an `[[on-window-detected]]` rule to `aerospace.toml`.
 - Run `~/Dotfiles/scripts/macos-defaults.sh` once. It sets the Mission Control options AeroSpace recommends (log out and back in afterwards).
