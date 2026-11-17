@@ -5,6 +5,7 @@
 
 tap "nikitabobko/tap"
 tap "homebrew-zathura/zathura"
+tap "FelixKratz/formulae"
 
 # --- Agents & terminal workflow ---
 cask "ghostty"
@@ -61,6 +62,7 @@ brew "homebrew-zathura/zathura/zathura-pdf-poppler"
 
 # --- macOS apps ---
 cask "nikitabobko/tap/aerospace"
+brew "borders" # JankyBorders: green outline on the focused window (started by AeroSpace)
 cask "karabiner-elements"
 cask "hammerspoon"
 cask "docker-desktop"
