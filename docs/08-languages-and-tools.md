@@ -46,7 +46,7 @@ To change a **global** version, edit `home/dot_config/mise/config.toml` and run 
 | Tool | What it is | The one thing to know |
 |---|---|---|
 | **direnv** | Loads a folder's `.envrc` when you `cd` in | See [chapter 7](07-secrets.md#secrets-for-one-project-direnv) |
-| **delta** | Prettier `git diff` (colours, line numbers) | Automatic. In a diff, `n`/`N` jump between files. |
+| **delta** | Prettier diffs for `git diff` and `chezmoi diff`: colours and line numbers instead of `+`/`-` | Automatic. Red = removed, green = added ([how to read one](02-chezmoi-basics.md#reading-chezmoi-diff)). In a diff, `n`/`N` jump between files. |
 | **lazygit** | Git in a full-screen interface | `lazygit` (or `Ctrl+B` `Alt+G` in herdr). `space` stage, `c` commit, `P` push, `?` help. Great for reviewing what an agent changed. |
 | **gitleaks** | Secret scanner | See [chapter 7](07-secrets.md#the-safety-net-gitleaks) |
 | **gh** | GitHub from the terminal | `gh pr create`, `gh pr checkout 12`, `gh run watch`. Agents use it too. |
