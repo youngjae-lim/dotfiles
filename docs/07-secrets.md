@@ -22,13 +22,13 @@ flowchart LR
 
 **What it is.** The command-line side of your 1Password app. A **vault** is a folder of items in 1Password; your terminal secrets are in the vault called **Dev**.
 
-**Why you have it.** Passwords and tokens used to sit in plain text in `.zshrc`. That's dangerous, especially now that AI agents read config files. Now they live in the vault, and the repo only holds **references** to them, like `op://Dev/GENAI_DB_DSN/credential`, which are safe to share.
+**Why you have it.** Passwords and tokens used to sit in plain text in `.zshrc`. That's dangerous, especially now that AI agents read config files. Now they live in the vault, and the repo only holds **references** to them, like `op://Dev/OPENAI_API_KEY/credential`, which are safe to share.
 
 **The 20% you'll use**
 ```sh
 op vault list                                   # check you're connected
 op item list --vault Dev                        # what's in there
-op read "op://Dev/GENAI_DB_DSN/credential"      # print one secret
+op read "op://Dev/OPENAI_API_KEY/credential"   # print one secret
  op item create --vault Dev --category "API Credential" \
   --title OPENAI_API_KEY credential='sk-...'    # add one (note the leading space)
 ```
@@ -42,6 +42,44 @@ op read "op://Dev/GENAI_DB_DSN/credential"      # print one secret
    export OPENAI_API_KEY={{ onepasswordRead "op://Dev/OPENAI_API_KEY/credential" | squote }}
    ```
 3. `chezmoi apply`, then open a new shell.
+
+Right now the file has no secrets in it, just its comment lines, so it's ready for the first one.
+
+**Removing a secret you no longer need (5 steps):**
+1. `cze ~/.config/zsh/secrets.zsh` and **delete** the `export …` line. Save; `cze` applies it.
+2. Check: `grep NAME ~/.config/zsh/secrets.zsh` prints nothing, and `git diff` shows one red line.
+3. Clear it from shells that already loaded it: `unset NAME`. New windows won't have it. (herdr panes inherit herdr's environment, so they may keep it until `herdr server stop`.)
+4. Archive it in 1Password: `op item delete NAME --vault Dev --archive` (restorable from 1Password's Archive; leave off `--archive` to delete for good).
+5. Make sure nothing else uses it (`rg -l NAME ~/Projects ~/Dotfiles`), then `scripts/check.sh` and commit.
+
+Only the `op://` reference was ever in git, never the value, so there's no history to clean up.
+
+> **Don't comment a line out, delete it.** `{{ … }}` is a template instruction, and chezmoi runs it even inside a `#` shell comment, so a commented-out line keeps calling 1Password. Git history keeps the old line if you need it back.
+
+## Why does 1Password keep asking?
+
+**Where the popup comes from.** While the secrets template has any `onepasswordRead` line, chezmoi has to fill those in to know what `~/.config/zsh/secrets.zsh` *should* contain. It asks the 1Password CLI, which asks the 1Password app, which asks **you** (Touch ID or your password).
+
+| Command | Asks 1Password? |
+|---|---|
+| `chezmoi apply`, `chezmoi diff`, `chezmoi status`, `cze` (it applies on save) | **Yes**, while the secrets file reads from 1Password: it must build that file to compare it |
+| `git diff`, `git commit`, `scripts/check.sh` | **No**: they never fill in templates |
+| `op read`, `op item …` | **Yes**: that's `op` itself |
+
+With no secrets in the file (as now), chezmoi never asks.
+
+**Why only "once in a while".** After you approve, 1Password trusts that terminal for a while:
+- **Per terminal tab:** a new Ghostty tab or herdr pane asks again.
+- **It expires** after about 10 minutes of not using `op`, with a hard limit of about 12 hours.
+- **Locking 1Password** or your Mac ends every session.
+
+**Making it ask less:**
+- **Accept it.** One tap means no secret ever sits in the repo, and nothing (AI agents included) can read your vault without you noticing.
+- **Target one file:** `chezmoi apply ~/.config/aerospace/aerospace.toml`, or `chezmoi diff ~/.config/ghostty/config`. chezmoi then usually only fills in the templates it needs.
+- **Stay in one tab** for a session of dotfiles work.
+- **Don't** turn off 1Password's CLI integration or copy secrets into the repo: either removes the protection.
+
+If the popup appears on a command that shouldn't need it (`git`, `check.sh`), something is calling `op` that shouldn't be: worth investigating.
 
 ## Secrets for one project: direnv
 
