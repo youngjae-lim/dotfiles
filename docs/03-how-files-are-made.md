@@ -42,7 +42,8 @@ chezmoi execute-template < home/dot_config/git/config.tmpl
 ```
 
 - Your name and email come from `home/.chezmoi.toml.tmpl`, not from the git template.
-- `private_secrets.zsh.tmpl` reads from 1Password, so expect the popup. After changing it, open a new shell.
+- `private_secrets.zsh.tmpl` reads from 1Password whenever it has secrets in it, so expect a popup ([why](07-secrets.md#why-does-1password-keep-asking)). After changing it, open a new shell.
+- **Template instructions run even inside comments.** A `{{ … }}` on a line starting with `#` still runs: the `#` only matters to the shell later, not to chezmoi. To switch a line off, delete it, or wrap it in a template comment: `{{/* … */}}`.
 
 ## Generated files
 

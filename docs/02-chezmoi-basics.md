@@ -138,7 +138,7 @@ chezmoi diff       # shows exactly what apply WOULD change
 
 **The safe habit:** when in doubt, run `chezmoi apply`. It only touches files that differ, and `chezmoi diff` shows you first. The risky mistake is the opposite one: editing a copied file in `~` directly. That edit gets overwritten by the next apply.
 
-> **1Password popup:** `apply`, `diff` and `status` ask 1Password for approval, because your secrets file is part of the comparison. That's expected. See [chapter 7](07-secrets.md).
+> **1Password popup:** while your secrets file reads from 1Password, `apply`, `diff` and `status` ask 1Password for approval, because that file is part of the comparison. That's expected. See [why, and how to make it ask less](07-secrets.md#why-does-1password-keep-asking).
 
 ### In-app settings vs config files
 
@@ -165,7 +165,7 @@ This routine works for almost every file in lane 1. Say you want bigger gaps bet
 3. **Preview, then apply.**
    ```sh
    chezmoi diff      # shows exactly what will change in ~/.config/aerospace
-   chezmoi apply     # approve the 1Password popup if it appears
+   chezmoi apply     # approve the 1Password popup if one appears
    ```
 4. **Reload the app** so it reads the new file.
    ```sh
