@@ -2,9 +2,15 @@
 # Re-runs whenever the Brewfile changes. Brewfile sha256: {{ joinPath .chezmoi.workingTree "Brewfile" | include | sha256sum }}
 set -uo pipefail
 command -v brew >/dev/null || eval "$(/opt/homebrew/bin/brew shellenv)"
-# Third-party formula taps must be trusted explicitly on recent Homebrew.
-brew tap homebrew-zathura/zathura >/dev/null && brew trust homebrew-zathura/zathura >/dev/null 2>&1
-if ! brew bundle --file={{ joinPath .chezmoi.workingTree "Brewfile" | quote }} --no-upgrade; then
+brewfile={{ joinPath .chezmoi.workingTree "Brewfile" | quote }}
+# Recent Homebrew refuses formulae from third-party taps until the tap is
+# trusted. Listing a tap in the Brewfile is the decision to trust it, so trust
+# every `tap "owner/repo"` line here instead of naming each one by hand.
+# (Older Homebrew has no `brew trust`; its error is ignored.)
+while IFS= read -r tap; do
+  brew tap "$tap" >/dev/null && brew trust "$tap" >/dev/null 2>&1
+done < <(sed -nE 's/^tap "([^"]+)".*/\1/p' "$brewfile")
+if ! brew bundle --file="$brewfile" --no-upgrade; then
   echo "chezmoi: brew bundle reported failures (casks needing sudo?). Re-run it manually:" >&2
   echo "  brew bundle --file={{ joinPath .chezmoi.workingTree "Brewfile" }}" >&2
 fi

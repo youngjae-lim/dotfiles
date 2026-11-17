@@ -157,6 +157,9 @@ Change which branch your folder shows. `git switch -c <name>` creates a new bran
 ### Symlink (symbolic link)
 A file that points at another file, like a shortcut. `~/.config/nvim` is a symlink to `~/Dotfiles/config/nvim`, so there's only one real copy. ([Chapter 1](01-big-picture.md#three-ways-a-file-gets-to-your-mac))
 
+### Tap (Homebrew)
+An extra source of Homebrew packages, published by someone other than Homebrew, like `FelixKratz/formulae`. Recent Homebrew refuses a tap's formulas until you trust it; the brew script trusts every tap listed in the Brewfile. ([Chapter 3](03-how-files-are-made.md#scripts-that-run-on-apply))
+
 ### Template
 A file with blanks (`{{ … }}`) that chezmoi fills in when it applies. Names end in `.tmpl`. ([Chapter 3](03-how-files-are-made.md#templates))
 
