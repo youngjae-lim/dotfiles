@@ -280,13 +280,39 @@ scripts/check.sh                      # 5. run the checks
 git add -A && git commit -m "style(aerospace): bigger gaps"
 git push -u origin feat/bigger-gaps   # 6. send the branch to GitHub
 gh pr create --fill                   # 7. open a pull request; CI runs the checks
-# 8. merge it on GitHub (the green button), then:
+# 8. merge it on GitHub (the green button); GitHub then deletes
+#    its copy of the branch by itself (see "Cleaning up branches")
 git switch main && git pull           # 9. back to main, now including the change
-git branch -d feat/bigger-gaps        # 10. delete the finished branch
+git branch -d feat/bigger-gaps        # 10. delete your local copy of the branch
 chezmoi status                        # 11. should print nothing: all in sync
 ```
 
 > **`git switch`**: change which branch your folder shows. `-c` creates a new branch first. **`git pull`**: fetch the latest commits from GitHub and add them to your current branch.
+
+### Branches you don't need to switch to
+
+`git switch` is only about **files**: it changes which branch your folder *shows*. Every branch is stored inside `.git` whatever your folder shows, so commands that just *deliver* a branch can name it instead:
+
+```sh
+# still on main:
+git push -u origin feat/bigger-gaps              # send that branch to GitHub
+gh pr create --head feat/bigger-gaps --fill      # open its pull request
+# merge on GitHub, then:
+git pull && git branch -d feat/bigger-gaps
+```
+
+> **Base and head (pull request)**: the **base** is the branch you merge *into* (`main`); the **head** is the branch with the new work. `gh pr create` uses the branch you're *on* as the head unless you name one with `--head`. Run it on `main` without `--head` and you get *"head branch main is the same as base branch main"*. `--fill` takes the PR's title and description from the commit messages.
+
+**The rule: be on the branch, or name it.** Commands that act on "the current branch" by default almost always accept a name instead.
+
+| You want to… | Need `git switch`? |
+|---|---|
+| Push a branch, open its PR, delete it | No: name it |
+| Add commits to it (edit files) | **Yes** |
+| Try it on your Mac (`chezmoi apply`) | **Yes**: apply copies whatever your folder shows |
+| Fix a failed CI check or a conflict on an open PR | **Yes** |
+
+Staying on `main` also means a stray `chezmoi apply` can't copy a branch's files into `~`.
 
 **If `git branch -d` refuses** after a merge, GitHub probably **squash-merged** the pull request: it combined your commits into one new commit, so git can't recognise them inside `main`. Your work is safe; delete the branch with `-D` instead.
 
@@ -325,9 +351,53 @@ gitGraph
 
 This works automatically as long as the two sides didn't change the **same lines**. If they did, git can't choose, and GitHub reports a conflict: see the next section.
 
-**See it yourself:** `git log --oneline --graph -10` draws your real history this way, with `|` for each line of work and `\` `/` where they split and join.
+**See it yourself:** `git log --oneline --graph -10` draws your real history this way: [how to read it](#reading-git-log---graph).
 
 **To bring `main`'s newer commits into a branch before merging** (to test both together), run `git merge main` while on the branch.
+
+### Reading `git log --graph`
+
+`git log --oneline --graph -6` shows the last six commits as a drawing. Here's this repo's real history from the merge above, **newest at the top**:
+
+```
+*   cb65501 (HEAD -> main, origin/main, origin/HEAD) Merge pull request #12 from …/docs/border-and-merges
+|| * 17d688c (origin/docs/border-and-merges) docs: focus border, swapping windows, how branches merge
+|/
+*   e20f5ea Merge pull request #11 from …/fix/brew-trust-taps
+|| * f2283df (origin/fix/brew-trust-taps) fix(brew): trust every tap listed in the Brewfile
+* | a98e792 feat(aerospace): green border on the focused window (JankyBorders)
+|/
+*   25c5888 Merge pull request #10 from …/docs/teams-floating
+```
+
+Each line is: **the graph**, the **short commit ID** (enough to name it: `git show cb65501`), **labels** in brackets, and the **commit message**.
+
+| Graph symbol | Means |
+|---|---|
+| `*` | A commit; its column shows which line of work it's on |
+| `\|` | A line of work continuing past this row |
+| `\|\` | Under a merge: going down (older), history **splits in two**. Left is `main`'s past; right is the branch that was merged in |
+| `\|/` | Going down, the branch line **rejoins**: that's where the branch **started** |
+| `* \|` | A commit on the left line while the right line runs alongside |
+
+| Label | Means |
+|---|---|
+| `HEAD -> main` | You're on `main`, and your `main` is at this commit |
+| `origin/main` | GitHub's `main` is here too: you're in sync. If it sits lower down, you have commits not yet pushed |
+| `origin/HEAD` | GitHub's default branch; ignore it |
+| `origin/<branch>` | That branch still exists on GitHub (see [Cleaning up branches](#cleaning-up-branches)) |
+
+**Reading the example:** `e20f5ea` merged two lines: on the right, the brew fix `f2283df` on its branch; on the left, the border commit `a98e792`, made on `main` at the same time. Both start from `25c5888` (the `|/` below them). That's the diagram in [How branches come back together](#how-branches-come-back-together), drawn by git.
+
+### Cleaning up branches
+
+A merged branch can leave **two** copies behind: yours (on your Mac) and GitHub's (shown as `origin/<branch>` in `git log` and `git branch -r`).
+
+- **Your copy:** `git branch -d <branch>` after merging (step 10 of the routine).
+- **GitHub's copy:** this repo has **"Automatically delete head branches"** turned on (GitHub → repo **Settings → General → Pull Requests**), so GitHub deletes it when you merge. Your next `git pull` then forgets it too, because your git config has `fetch.prune = true`.
+- **Leftovers** from before that setting, or from a PR you closed without merging: `git push origin --delete <branch> [<branch>…]`.
+
+`git branch -r` lists the branches GitHub has; normally just `origin/main`.
 
 ### When a pull request can't be merged
 
@@ -429,6 +499,8 @@ git status                                        # nothing changed
 - **A template error during apply**: see [chapter 3](03-how-files-are-made.md#templates).
 - **1Password errors on apply**: unlock the 1Password app, and check that `op vault list` shows **Dev**.
 - **git says *"Unable to create '…/.git/index.lock': File exists"*** (or another `.lock` file): a git command was interrupted and left its lock behind. First make sure no git command is still running in another tab or app. If none is, delete the file named in the message (`rm ~/Dotfiles/.git/index.lock`) and try again.
+- ***"head branch main is the same as base branch main"*** from `gh pr create`: you're on `main`. Name the branch: `gh pr create --head <branch> --fill` (see [Branches you don't need to switch to](#branches-you-dont-need-to-switch-to)).
+- **A Keychain prompt: *"git-credential-osxkeychain wants to use … github.com"*** when you push: git fetches your GitHub login from the macOS Keychain, and the Keychain asks again whenever the helper program changes, usually right after **git was upgraded** by Homebrew. Enter your Mac login password and choose **Always Allow**. Be suspicious only of a prompt that appears out of nowhere or names an app you don't recognise.
 - **Docs**: <https://chezmoi.io/user-guide/command-overview/>
 
 Next: [How files are made →](03-how-files-are-made.md)

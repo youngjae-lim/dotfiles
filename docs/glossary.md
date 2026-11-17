@@ -22,6 +22,9 @@ The three buckets an agent's commands fall into: run without asking, always ask 
 ### Apply (`chezmoi apply`)
 Make your home folder match the repo: copy, generate and link the files that differ. ([Chapter 2](02-chezmoi-basics.md))
 
+### Base, head (pull request)
+The **base** is the branch a pull request merges *into* (usually `main`); the **head** is the branch with the new work. `gh pr create --head <branch>` names the head. ([Chapter 2](02-chezmoi-basics.md#branches-you-dont-need-to-switch-to))
+
 ### Branch
 A separate line of work in a git repo. You make changes on a branch, then merge it into `main`. ([Chapter 6](06-worktrees.md))
 
@@ -70,6 +73,9 @@ The tool that tracks a folder's history: every change, who made it and why. `~/D
 ### gitleaks
 A scanner that looks for secrets. It runs before every commit in this repo and blocks the commit if it finds one. ([Chapter 7](07-secrets.md#the-safety-net-gitleaks))
 
+### HEAD
+Git's name for "where you are now": the commit your folder shows. In `git log`, `HEAD -> main` means you're on `main`. ([Chapter 2](02-chezmoi-basics.md#reading-git-log---graph))
+
 ### Home folder (`~`)
 Your personal folder, `/Users/youngjaelim`. `~/.zshrc` means "`.zshrc` in my home folder".
 
@@ -111,6 +117,9 @@ A chezmoi file that updates *part* of a settings file an app also writes to, ins
 
 ### Multiplexer (terminal multiplexer)
 A program that holds many terminals in one window and keeps them running in the background. herdr is yours; tmux is the fallback. ([Chapter 4](04-terminal.md))
+
+### Origin, remote branch
+**origin** is git's name for the copy of the repo on GitHub. A **remote branch** like `origin/main` is your Mac's record of where that branch is on GitHub, updated by `git pull` or `git fetch`. `git branch -r` lists them. ([Chapter 2](02-chezmoi-basics.md#cleaning-up-branches))
 
 ### Pane, tab, workspace, session (herdr)
 A **pane** is one terminal. A **tab** is a layout of panes. A **workspace** is one project's set of tabs. The **session** is the background server holding them all. ([Chapter 4](04-terminal.md#words-you-need))
