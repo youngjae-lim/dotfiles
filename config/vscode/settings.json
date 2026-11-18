@@ -1,5 +1,5 @@
 {
-    "workbench.colorTheme": "Bearded Theme Oceanic",
+    "workbench.colorTheme": "One Monokai",
     "workbench.sideBar.location": "right",
     "editor.fontFamily": "'JetBrainsMono NF', 'MesloLGL Nerd Font', 'RobotoMono Nerd Font',  Menlo, Monaco, 'Courier New', monospace",
     "[lua]": {
