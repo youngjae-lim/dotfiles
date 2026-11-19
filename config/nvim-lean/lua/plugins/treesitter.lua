@@ -26,7 +26,7 @@ local parsers = {
 -- Install only what's missing (runs in the background; a no-op when complete)
 -- Parsers go to stdpath("data")/site/parser, their queries (the rules for
 -- colours, folds, indents) to site/queries. That folder is on the runtimepath
--- by default; :checkhealth's "not in runtimepath" line is a false alarm.
+-- by default.
 local ts = require("nvim-treesitter")
 local installed = {}
 for _, lang in ipairs(ts.get_installed()) do

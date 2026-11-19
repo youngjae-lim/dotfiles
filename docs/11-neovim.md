@@ -240,7 +240,7 @@ Run it two or three times and ignore the first (files aren't cached yet). On the
 
 - **An error at startup naming `plugins/<x>.lua`:** that file failed; the rest of the editor still works. Open the file (`<leader>fc`) and read the message.
 - **A language feature doesn't work:** `:LspMissing`, then `:checkhealth vim.lsp`.
-- **No syntax colours in a language:** its parser may still be building (first start), or missing from `treesitter.lua`. `:checkhealth nvim-treesitter`. Ignore its "install directory is not in runtimepath" line: the folder is on the runtimepath by default and the check misreports it. A quick real test: `:lua print(pcall(vim.treesitter.query.get, "go", "highlights"))` should print `true`.
+- **No syntax colours in a language:** its parser may still be building (first start), or missing from `treesitter.lua`. `:checkhealth nvim-treesitter`. If it also says the install directory "is not in runtimepath" next to errors in query files, fix the query errors first: here, that line disappeared once catppuccin's broken queries were removed (the folder was on the runtimepath all along). A quick real test: `:lua print(pcall(vim.treesitter.query.get, "go", "highlights"))` should print `true`.
 - **A colour scheme plugin breaks colours in some language:** themes can ship their own tree-sitter rules (an `after/queries` folder), which go stale when parsers change. catppuccin's CSS/JS/TS rules did; `lua/config/themes.lua` drops them. That file is also where a new theme is added.
 - **Completion menu is slow or warns about "Lua fallback":** blink.cmp couldn't download its matcher. Restart with internet access.
 - **No Copilot suggestions:** `:LspCopilotSignIn` in any file.
