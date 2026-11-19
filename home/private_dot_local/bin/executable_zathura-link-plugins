@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# zathura-link-plugins: let Homebrew's zathura find its PDF plugin.
+# zathura only looks for plugins in its own lib/zathura folder, and Homebrew
+# installs the poppler plugin elsewhere, so it needs a link. Every zathura
+# upgrade is a new folder without that link ("Found no plugins"), so the brew
+# bundle script and `updater` run this after Homebrew changes. Safe to rerun.
+set -euo pipefail
+command -v brew >/dev/null || eval "$(/opt/homebrew/bin/brew shellenv)"
+brew list --formula zathura >/dev/null 2>&1 || exit 0
+brew list --formula zathura-pdf-poppler >/dev/null 2>&1 || exit 0
+plugin="$(brew --prefix zathura-pdf-poppler)/libpdf-poppler.dylib"
+dir="$(brew --prefix zathura)/lib/zathura"
+[[ -f $plugin ]] || {
+	echo "zathura-link-plugins: plugin not found: $plugin" >&2
+	exit 1
+}
+mkdir -p "$dir"
+ln -sf "$plugin" "$dir/libpdf-poppler.dylib"

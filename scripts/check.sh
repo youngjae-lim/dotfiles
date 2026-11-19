@@ -30,8 +30,11 @@ fi
 echo
 echo "== shellcheck"
 if have shellcheck; then
-  files=(install.sh .githooks/pre-commit scripts/*.sh home/private_dot_local/bin/executable_*
-    home/dot_claude/hooks/dotfiles/executable_*.sh)
+  files=(install.sh .githooks/pre-commit scripts/*.sh home/dot_claude/hooks/dotfiles/executable_*.sh)
+  # ~/.local/bin holds Python scripts too; check only the shell ones
+  for f in home/private_dot_local/bin/executable_*; do
+    head -n1 "$f" | grep -qE '^#!.*(ba)?sh' && files+=("$f")
+  done
   # Templated shell scripts are checked after rendering.
   if command -v "$CHEZMOI" >/dev/null 2>&1; then
     for t in home/.chezmoiscripts/run_onchange_after_30-agent-integrations.sh.tmpl \

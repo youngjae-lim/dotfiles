@@ -71,7 +71,7 @@ updater() {
     case "$selected" in
       dotfiles*)      chezmoi update ;;
       'zsh plugins')  shell_upgrade ;;
-      homebrew)       brew update && brew upgrade && brew cleanup ;;
+      homebrew)       brew update && brew upgrade && brew cleanup; zathura-link-plugins ;;
       'mise runtimes') mise upgrade ;;
       'agent CLIs')   claude update; brew upgrade copilot-cli gemini-cli ;;
       herdr)          brew upgrade herdr ;;

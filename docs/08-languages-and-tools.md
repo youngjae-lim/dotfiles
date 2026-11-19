@@ -66,7 +66,7 @@ To change a **global** version, edit `home/dot_config/mise/config.toml` and run 
 | `agents-init` | Write an `AGENTS.md` for the current project ([chapter 5](05-ai-agents.md#project-level-instructions-agentsmd)) |
 | `tt` | Open a project as a herdr workspace |
 | `updater` | Menu to update dotfiles, Homebrew, mise, agent CLIs, herdr, zsh plugins |
-| `notes …` / `nt`, `note`, `omn`, `ns`, `on`, `bs` | Your notes workflow (`notes --help`). Inside Neovim: `Space n` keys ([chapter 11](11-neovim.md#keys-youll-use)) |
+| `notes …` / `nt`, `note`, `omn`, `ns`, `on`, `bs` | Your notes in `~/Notes` (`notes --help`, [chapter 12](12-notes.md)). Inside Neovim: `Space n` keys |
 | `Esc` then `v` | Edit the current command in Neovim. Great for long prompts. |
 | `dot`, `pro`, `fav`, `cdf` | Jump to dotfiles / projects / favourites / a subfolder |
 | `trash <file>` | Move to `~/.shell/trash` instead of deleting |
