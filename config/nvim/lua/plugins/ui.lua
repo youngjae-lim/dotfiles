@@ -17,7 +17,7 @@ end
 
 -- everforest's options are read when it loads: "soft", "medium" or "hard"
 -- contrast, and nicer italics
-vim.g.everforest_background = "medium"
+vim.g.everforest_background = "hard"
 vim.g.everforest_better_performance = 1
 vim.g.everforest_enable_italic = 1
 
