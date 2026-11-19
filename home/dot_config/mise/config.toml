@@ -28,7 +28,11 @@ go = "1.26"
 "npm:yaml-language-server" = "latest"
 "npm:dockerfile-language-server-nodejs" = "latest"
 "npm:bash-language-server" = "latest"
-"npm:@github/copilot-language-server" = "latest"   # Copilot suggestions in Neovim
+# Copilot suggestions in Neovim. Its Mac binary package lacks the "trusted
+# publisher" record older releases had, though npm shows the same GitHub
+# Actions OIDC publisher (checked 2026-11-18). Exempt that exact version only;
+# a newer pin will fail again and should be re-checked the same way.
+"npm:@github/copilot-language-server" = { version = "latest", trust_policy_excludes = ["@github/copilot-sdk-darwin-arm64@1.0.28"] }
 "npm:prettier" = "latest"                          # fallback when a project has none
 "npm:blade-formatter" = "latest"
 "npm:markdownlint-cli" = "latest"
