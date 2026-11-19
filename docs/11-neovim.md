@@ -224,6 +224,18 @@ Four places, each optional depending on the language:
 3. **Project tools come from the project.** Prettier, ESLint, Pint and PHPStan versions in `node_modules/.bin` or `vendor/bin` win over the global ones.
 4. **Neovim never installs anything.** It only uses what's on your PATH.
 
+## Measuring startup
+
+`--headless` (no screen) timings are misleading: LazyVim, for example, puts much of its work off until the screen appears, so headless runs skip it. Measure with a real file and a real screen; Neovim quits by itself after 300 ms:
+
+```sh
+vl --startuptime /tmp/lean.log some/file.go +'au UIEnter * ++once lua vim.defer_fn(function() vim.cmd.qa() end, 300)'
+grep "NVIM STARTED" /tmp/lean.log | tail -1     # total, in ms (first column)
+sort -k2 -nr /tmp/lean.log | head -12           # slowest steps first
+```
+
+Run it two or three times and ignore the first (files aren't cached yet). On the first trial (November 2026, same file): LazyVim 276 ms, this config 72 ms.
+
 ## When it breaks
 
 - **An error at startup naming `plugins/<x>.lua`:** that file failed; the rest of the editor still works. Open the file (`<leader>fc`) and read the message.
