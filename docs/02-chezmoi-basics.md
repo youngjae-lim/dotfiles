@@ -152,6 +152,37 @@ Many apps let you change settings from inside the app: `Cmd+-` for a smaller fon
 
 So for a copied app, the in-app control is a good way to *try* a setting, and the config file is how you *keep* it.
 
+### When a link quietly turns into a file
+
+Some apps save settings by writing a new file and swapping it in for the old one. If the old one was a **link** (lane 2), the swap replaces the link with an ordinary file. Nothing looks wrong, but from then on the app's changes go into that copy, not the repo: `git diff` stays empty, and the next `chezmoi apply` puts the link back and **throws the copy's changes away**.
+
+**Spot it:**
+
+```sh
+ls -l ~/.config | grep -E "nvim|karabiner"                          # must start with l and show ->
+ls -l ~/Library/"Application Support"/Code/User | grep json          # settings.json, keybindings.json
+chezmoi status                                                       # a linked path listed here = suspicious
+```
+
+In `ls -l`, a line starting with `l` is a link (good), `-` an ordinary file (the trap), `d` a folder. `chezmoi status` shows two letters per line:
+
+| Column | Compares | `M` means |
+|---|---|---|
+| 1st | what chezmoi last wrote vs what's there now | changed since the last apply (here: the link became a file) |
+| 2nd | what's there now vs the repo | `chezmoi apply` would change it (here: make it a link again) |
+
+**Fix it**, rescuing first:
+
+```sh
+f=~/Library/"Application Support"/Code/User/keybindings.json        # the path that broke
+diff "$f" ~/Dotfiles/config/vscode/keybindings.json && echo same    # anything to rescue?
+cp "$f" ~/Dotfiles/config/vscode/keybindings.json                   # only if they differ
+chezmoi apply                                                       # link back (answer yes if asked)
+ls -l "$f"                                                          # starts with l again
+```
+
+Not every link in `~` is chezmoi's (`~/.config/herdr-web-ui` → `~/.config/ovis` was made by the Ovis installer). `chezmoi managed` lists what chezmoi is responsible for.
+
 ## Worked example: change a setting, end to end
 
 This routine works for almost every file in lane 1. Say you want bigger gaps between windows in AeroSpace.
@@ -496,6 +527,7 @@ git status                                        # nothing changed
 
 - **A change disappeared after `apply`**: check which branch you're on with `git branch --show-current`. If it's `main` and the change is still on an unmerged branch, that's the [one rule](#the-one-rule-your-mac-follows-the-branch-youre-on) at work: merge the branch, or switch back to it.
 - ***"…has changed since chezmoi last wrote it"***: you (or an app) edited the copy in `~`. Run `chezmoi diff` to look; then `chezmoi re-add` to keep your edit, or `chezmoi apply --force` to throw it away.
+- **A linked config (Neovim, VS Code, Karabiner) stopped showing changes in `git diff`**, or shows `MM` in `chezmoi status`: an app replaced the link with a file. Don't use `re-add` here; follow [When a link quietly turns into a file](#when-a-link-quietly-turns-into-a-file).
 - **A template error during apply**: see [chapter 3](03-how-files-are-made.md#templates).
 - **1Password errors on apply**: unlock the 1Password app, and check that `op vault list` shows **Dev**.
 - **git says *"Unable to create '…/.git/index.lock': File exists"*** (or another `.lock` file): a git command was interrupted and left its lock behind. First make sure no git command is still running in another tab or app. If none is, delete the file named in the message (`rm ~/Dotfiles/.git/index.lock`) and try again.
