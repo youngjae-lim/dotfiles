@@ -138,6 +138,7 @@ Your phone doesn't keep its own copy of the notes. It opens a terminal **on your
 - **`notes save` says "saved locally (no GitHub remote yet)":** step 5 of the first-time setup hasn't been done. The version is safe on your Mac; it goes to GitHub with your next save after the repo exists.
 - **`notes sync` stops with a conflict:** the same lines changed on two computers. Open the file, keep the right text, delete the `<<<<<<<`, `=======`, `>>>>>>>` lines, then run `git -C ~/Notes add -A && git -C ~/Notes rebase --continue`. (If you only edit on this Mac, from the desk or over SSH, this can't happen.)
 - **A PDF doesn't update:** `Space n r` renders it by hand and shows the error if pandoc fails. A common cause is a character the PDF font can't draw (it covers English and Korean).
+- **zathura says "Found no plugins" or "Could not determine file type"** (`on`, `ns`, `bs`): a Homebrew upgrade of zathura lost the link to its PDF plugin. Run `zathura-link-plugins`. The brew bundle script and `updater` (homebrew) already do this after every change, so it should only happen after a plain `brew upgrade`.
 - **`ssh` from the phone says "connection refused" or times out:** the Mac is asleep, Remote Login is off, or Tailscale isn't connected on one side.
 - **"Permission denied (publickey)" from the phone:** the key isn't installed on the Mac; rerun `ssh-copy-id` (it needs password logins on for that one run, so undo step 5 temporarily if you already did it).
 

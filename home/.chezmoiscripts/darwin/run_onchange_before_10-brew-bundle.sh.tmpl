@@ -14,4 +14,7 @@ if ! brew bundle --file="$brewfile" --no-upgrade; then
   echo "chezmoi: brew bundle reported failures (casks needing sudo?). Re-run it manually:" >&2
   echo "  brew bundle --file={{ joinPath .chezmoi.workingTree "Brewfile" }}" >&2
 fi
+# zathura needs a link to its PDF plugin after every install or upgrade.
+# (Runs the repo's copy: ~/.local/bin may not be written yet at this point.)
+bash {{ joinPath .chezmoi.workingTree "home/private_dot_local/bin/executable_zathura-link-plugins" | quote }} || true
 exit 0
