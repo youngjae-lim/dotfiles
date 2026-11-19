@@ -108,18 +108,18 @@ Your phone doesn't keep its own copy of the notes. It opens a terminal **on your
 **One-time setup:**
 
 1. **On the Mac: turn on Remote Login.** System Settings → General → Sharing → **Remote Login** on. Under "Allow access for", choose **Only these users** and keep just yourself.
-2. **Find the Mac's Tailscale name:** run `tailscale status` on the Mac. The first line shows its name (for example `macbook-air`). Your phone can reach that name whenever both are connected to Tailscale.
+2. **Find the Mac's Tailscale address:** run `tailscale status` on the Mac. The first line starts with its address (`100.x.y.z`) followed by its name. Use the **address**: Termux looks up names with its own public name servers, not Tailscale's, so the name fails there with "No address associated with hostname". A device's Tailscale address doesn't change. Also check that the phone's line doesn't say `offline`; if it does, switch on the Tailscale app on the phone.
 3. **On the phone: install Termux.** The Termux project recommends installing it from F-Droid or its GitHub releases. Open it and run:
    ```sh
    pkg update && pkg install openssh
    ssh-keygen -t ed25519            # press Enter to accept the defaults
-   ssh-copy-id <you>@<mac-name>     # asks your Mac password once, then installs the key
+   ssh-copy-id <you>@<mac-address>     # asks your Mac password once, then installs the key
    ```
 4. **Connect:**
    ```sh
-   ssh <you>@<mac-name>
+   ssh <you>@<mac-address>
    ```
-   You're now in your Mac's shell. Type `nt`, `omn` or `nvim`, and `exit` when you're done. To make it one word, run `echo 'alias mac="ssh <you>@<mac-name>"' >> ~/.bashrc` in Termux once. From then on, typing `mac` connects.
+   You're now in your Mac's shell. Type `nt`, `omn` or `nvim`, and `exit` when you're done. To make it one word, run `echo 'alias mac="ssh <you>@<mac-address>"' >> ~/.bashrc` in Termux once. From then on, typing `mac` connects.
 5. **Recommended: turn off password logins.** Remote Login also listens on your home Wi-Fi, so once the key works, allow keys only. On the Mac:
    ```sh
    printf 'PasswordAuthentication no\nKbdInteractiveAuthentication no\n' | sudo tee /etc/ssh/sshd_config.d/100-keys-only.conf
@@ -139,6 +139,7 @@ Your phone doesn't keep its own copy of the notes. It opens a terminal **on your
 - **`notes sync` stops with a conflict:** the same lines changed on two computers. Open the file, keep the right text, delete the `<<<<<<<`, `=======`, `>>>>>>>` lines, then run `git -C ~/Notes add -A && git -C ~/Notes rebase --continue`. (If you only edit on this Mac, from the desk or over SSH, this can't happen.)
 - **A PDF doesn't update:** `Space n r` renders it by hand and shows the error if pandoc fails. A common cause is a character the PDF font can't draw (it covers English and Korean).
 - **zathura says "Found no plugins" or "Could not determine file type"** (`on`, `ns`, `bs`): a Homebrew upgrade of zathura lost the link to its PDF plugin. Run `zathura-link-plugins`. The brew bundle script and `updater` (homebrew) already do this after every change, so it should only happen after a plain `brew upgrade`.
+- **`ssh` from the phone says "No address associated with hostname":** you used the Mac's name; use its `100.x.y.z` address (see step 2 above).
 - **`ssh` from the phone says "connection refused" or times out:** the Mac is asleep, Remote Login is off, or Tailscale isn't connected on one side.
 - **"Permission denied (publickey)" from the phone:** the key isn't installed on the Mac; rerun `ssh-copy-id` (it needs password logins on for that one run, so undo step 5 temporarily if you already did it).
 
