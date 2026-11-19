@@ -93,11 +93,11 @@ config/nvim-lean/
 
 | When | What |
 |---|---|
-| Startup | mini.nvim modules, *your* colour scheme (the others load when you open the picker), tree-sitter, language-server settings, blink.cmp |
+| Startup | mini.nvim modules, *your* colour scheme (the others load when you open the picker), tree-sitter |
 | First file opened | conform (format on save), nvim-lint |
 | First time you type | auto-pairs |
 | First key press that needs it | fzf-lua (`<leader>f…`, `<leader>s…`), nvim-tree (`<leader>e`), outline (`<leader>cs`) |
-| Right after the first screen | key hints (mini.clue), clipboard |
+| Right after the first screen | completion (blink.cmp), language servers, key hints (mini.clue), clipboard |
 
 The "later" plugins are registered in the second list in `config/pack.lua` and loaded with `packadd` by their file in `plugins/`.
 
@@ -234,7 +234,7 @@ grep "NVIM STARTED" /tmp/lean.log | tail -1     # total, in ms (first column)
 sort -k2 -nr /tmp/lean.log | head -12           # slowest steps first
 ```
 
-Run it two or three times and ignore the first (files aren't cached yet). On the first trial (November 2026, same file): LazyVim 276 ms, this config 72 ms.
+Run it two or three times and ignore the first (files aren't cached yet). On the first trial (November 2026, same file): LazyVim 276 ms, this config 72 ms. The `sort` list showed language-server and completion setup as the biggest pieces (~18 ms), so they now run just after the first screen is drawn.
 
 ## When it breaks
 
