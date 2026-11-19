@@ -64,6 +64,9 @@ Settings files for command-line tools, named with a leading dot (`.zshrc`), whic
 ### Environment variable
 A named value every program can read, like `EDITOR=nvim`. Set in `home/dot_config/zsh/env.zsh`. ([Chapter 4](04-terminal.md#zsh-your-shell))
 
+### Front matter
+A block at the top of a markdown file, between two `---` lines, with facts about it: title, date, tags, and here `public: true/false`. pandoc and website tools read it. ([Chapter 12](12-notes.md#what-a-note-looks-like))
+
 ### Generated file
 A file chezmoi builds from another source file, such as the four agents' settings from `agents.yaml`. Edit the source, never the output. ([Chapter 3](03-how-files-are-made.md#generated-files))
 
@@ -172,11 +175,17 @@ The **source** is what's in `~/Dotfiles`; the **target** is your home folder, wh
 ### Space (macOS), Desktop
 macOS's own virtual desktops, shown along the top of Mission Control. A window in native full screen gets a Space of its own. With AeroSpace, keep exactly one per monitor: AeroSpace's workspaces replace them. ([Chapter 9](09-desktop.md))
 
+### SSH (secure shell), SSH key
+A way to open a terminal on another computer over the network, encrypted. An **SSH key** is a pair of files that proves who you are without a password: the private half stays on your device, the public half goes on the computer you log in to. ([Chapter 12](12-notes.md#editing-from-your-android-phone))
+
 ### Switch (`git switch`)
 Change which branch your folder shows. `git switch -c <name>` creates a new branch and switches to it. chezmoi applies whichever branch you've switched to. ([Chapter 2](02-chezmoi-basics.md#the-one-rule-your-mac-follows-the-branch-youre-on))
 
 ### Symlink (symbolic link)
 A file that points at another file, like a shortcut. `~/.config/nvim` is a symlink to `~/Dotfiles/config/nvim`, so there's only one real copy. ([Chapter 1](01-big-picture.md#three-ways-a-file-gets-to-your-mac))
+
+### Tailscale
+A private network between your own devices (Mac, phone), wherever they are. Your phone reaches Ovis and SSH on your Mac through it, and nobody else can. ([Chapter 9](09-desktop.md#tailscale--ovis-your-agents-on-your-phone))
 
 ### Tap (Homebrew)
 An extra source of Homebrew packages, published by someone other than Homebrew, like `FelixKratz/formulae`. Recent Homebrew refuses a tap's formulas until you trust it; the brew script trusts every tap listed in the Brewfile. ([Chapter 3](03-how-files-are-made.md#scripts-that-run-on-apply))
@@ -186,6 +195,9 @@ A file with blanks (`{{ … }}`) that chezmoi fills in when it applies. Names en
 
 ### Terminal (terminal emulator)
 The app that shows the text window you type commands into. Yours is **Ghostty**. ([Chapter 4](04-terminal.md))
+
+### Termux
+A terminal app for Android, with Linux tools like `ssh`. Used to open your Mac's terminal from your phone. ([Chapter 12](12-notes.md#editing-from-your-android-phone))
 
 ### Tiling window manager
 A program that arranges windows side by side automatically. Yours is **AeroSpace**. ([Chapter 9](09-desktop.md))

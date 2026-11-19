@@ -1,39 +1,72 @@
 #!/usr/bin/env bash
-# notes: markdown note workflow (Google Drive + nvim + pandoc + zathura).
-# Replaces note_taker.sh, create_markdown_note.sh, open_markdown_note.sh,
-# note_searcher.sh, most_recent_note.sh, book_searcher.sh, convert_md_note_to_{pdf,ppt}.sh.
+# notes: markdown notes in a git repo (~/Notes), edited in nvim, rendered with
+# pandoc, read in zathura. Books stay in Google Drive. See docs/12-notes.md.
 set -euo pipefail
 
+NOTES_DIR="${NOTES_DIR:-$HOME/Notes}"
+DAILY_DIR="$NOTES_DIR/daily"
 DRIVE="${GOOGLE_DRIVE_DIR:-$HOME/Google Drive/My Drive}"
-DAILY_DIR="$DRIVE/Notes/src"
-MARKDOWN_DIR="$DRIVE/Markdown"
 BOOKS_DIR="$DRIVE/Books"
 PDF_ENGINE_OPTS=(--pdf-engine=xelatex -V "CJKmainfont=Noto Serif KR")
 
 usage() {
 	cat <<'EOF'
 usage: notes <command> [args]
-  today               open today's daily note (Notes/src/note-YYYY-MM-DD.md)
-  new [dir] [name]    create or open <Drive>/<dir>/<name>.md (prompts if omitted)
-  open                fzf-pick a markdown note under Markdown/ and open it
-  pdfs                fzf-pick a PDF under Markdown/ and open it in zathura
+Writing
+  today               open today's daily note (daily/YYYY-MM-DD.md; private)
+  new [dir] [name]    create or open <dir>/<name>.md (prompts if omitted)
+  open                fzf-pick a note and open it
+Reading
+  pdfs                fzf-pick a rendered PDF and open it in zathura
   recent              open the most recent daily-note PDF in zathura
-  books               fzf-pick a book PDF under Books/ and open it in zathura
-  pdf <file.md>       render <file.md> to ./pdf/<name>.pdf
-  ppt <file.md>       render <file.md> to a beamer deck ./presentation/<name>_p.pdf
+  books               fzf-pick a book PDF (Google Drive Books/) in zathura
+  pdf <file.md>       render <file.md> to <its folder>/pdf/<name>.pdf
+  ppt <file.md>       render <file.md> to slides: <its folder>/presentation/<name>_p.pdf
+History (git; nothing is saved to GitHub until you run `notes save`)
+  status              what changed since the last save
+  save [message]      commit every change and push it to GitHub
+  sync                pull changes saved from another device (do this first)
+  log [file.md]       history of one note (with changes), or of all notes
+  init                create ~/Notes as a git repo (first time only)
+Notes are private until their front matter says `public: true`.
 EOF
 }
 
-die() { echo "notes: $*" >&2; exit 1; }
+die() {
+	echo "notes: $*" >&2
+	exit 1
+}
 
 pick() { fzf --reverse --border=rounded --height=50% --header="$1"; }
 
+need_repo() {
+	[[ -d $NOTES_DIR/.git ]] || die "$NOTES_DIR is not set up yet; run: notes init"
+}
+
+git_notes() { git -C "$NOTES_DIR" "$@"; }
+
+# Front matter: the --- block at the top that pandoc and the website read.
+# `public: false` keeps a note off the website until you change it.
+front_matter() {
+	local title=$1
+	cat <<EOF
+---
+title: "$title"
+author: "$(git config user.name 2>/dev/null || echo "$USER")"
+date: "$(date +%Y-%m-%d)"
+tags: []
+public: false
+---
+
+# $title
+
+EOF
+}
+
 # Open a note at the end with a new timestamped heading, in insert mode.
-# Extra nvim args (e.g. an autocmd) can follow the file.
+# Neovim re-renders the PDF on every save (config/nvim/lua/plugins/notes.lua).
 edit_with_stamp() {
-	local file=$1
-	shift
-	nvim -c "norm Go" -c "norm Go## $(date '+%m-%d-%Y %H:%M')" -c "norm G2o" -c "norm zz" -c "startinsert" "$@" "$file"
+	nvim -c "norm Go" -c "norm Go## $(date '+%m-%d-%Y %H:%M')" -c "norm G2o" -c "norm zz" -c "startinsert" "$1"
 }
 
 render_pdf() {
@@ -58,47 +91,37 @@ render_ppt() {
 
 cmd_today() {
 	local file
-	file="$DAILY_DIR/note-$(date +%Y-%m-%d).md"
+	need_repo
+	file="$DAILY_DIR/$(date +%Y-%m-%d).md"
 	mkdir -p "$DAILY_DIR"
-	[[ -f $file ]] || echo "# Notes for $(date +%Y-%m-%d)" >"$file"
+	[[ -f $file ]] || front_matter "Notes for $(date +%Y-%m-%d)" >"$file"
 	edit_with_stamp "$file"
 }
 
 cmd_new() {
 	local dir=${1:-} name=${2:-} path
-	[[ -n $dir ]] || read -rp "Directory (under Google Drive root): " dir
+	need_repo
+	[[ -n $dir ]] || read -rp "Folder (inside ~/Notes, e.g. go or books/reading): " dir
 	[[ -n $name ]] || read -rp "File name (without .md): " name
-	[[ -n $dir && -n $name ]] || die "directory and file name are required"
-	path="$DRIVE/$dir/$name.md"
+	[[ -n $dir && -n $name ]] || die "folder and file name are required"
+	path="$NOTES_DIR/$dir/$name.md"
 	mkdir -p "$(dirname "$path")"
-	if [[ ! -f $path ]]; then
-		cat >"$path" <<EOF
----
-title: "$name"
-author: "$(git config user.name 2>/dev/null || echo "$USER")"
-date: "$(date +%Y-%m-%d)"
----
-
-# $name
-
-EOF
-	fi
-	# Re-render <name>.pdf next to the note in the background on every save.
-	edit_with_stamp "$path" -c "autocmd BufWritePost <buffer> silent !pandoc '%' --pdf-engine=xelatex -V CJKmainfont='Noto Serif KR' -V geometry:letterpaper -V geometry:margin=1in -o '%:r.pdf' &"
+	[[ -f $path ]] || front_matter "$name" >"$path"
+	edit_with_stamp "$path"
 	echo "File path: $path"
 }
 
 cmd_open() {
-	local file rel
-	file=$(find "$MARKDOWN_DIR" -maxdepth 4 -type f -name '*.md' | pick 'Pick a markdown note to open') || true
+	local file
+	need_repo
+	file=$(cd "$NOTES_DIR" && rg --files --glob '*.md' | sort | pick 'Pick a note to open') || true
 	[[ -n $file ]] || die "no file selected"
-	rel=${file#"$DRIVE/"}
-	cmd_new "$(dirname "$rel")" "$(basename "$rel" .md)"
+	edit_with_stamp "$NOTES_DIR/$file"
 }
 
 open_pdf_from() {
 	local dir=$1 header=$2 file
-	file=$(find "$dir" -maxdepth 4 -type f -name '*.pdf' | pick "$header") || true
+	file=$(find "$dir" -maxdepth 6 -type f -name '*.pdf' | pick "$header") || true
 	[[ -n $file ]] || die "no file selected"
 	zathura "$file" &
 	disown
@@ -112,6 +135,88 @@ cmd_recent() {
 	disown
 }
 
+cmd_status() {
+	need_repo
+	git_notes status --short
+}
+
+cmd_save() {
+	local msg=${1:-}
+	need_repo
+	git_notes add -A
+	if git_notes diff --cached --quiet; then
+		echo "notes: nothing to save"
+		return 0
+	fi
+	git_notes diff --cached --stat
+	[[ -n $msg ]] || msg="notes: $(date '+%Y-%m-%d %H:%M')"
+	git_notes commit -q -m "$msg"
+	if git_notes remote get-url origin >/dev/null 2>&1; then
+		# -u the first time, so later pushes and `notes sync` know the branch
+		git_notes push -q -u origin HEAD && echo "notes: saved and pushed"
+	else
+		echo "notes: saved locally (no GitHub remote yet; see docs/12-notes.md)"
+	fi
+}
+
+cmd_sync() {
+	need_repo
+	git_notes remote get-url origin >/dev/null 2>&1 || die "no GitHub remote yet; see docs/12-notes.md"
+	git_notes pull -q --rebase --autostash origin "$(git_notes branch --show-current)"
+	echo "notes: up to date"
+}
+
+cmd_log() {
+	need_repo
+	if [[ -n ${1:-} ]]; then
+		git_notes log --follow -p -- "$(realpath "$1")"
+	else
+		git_notes log --stat
+	fi
+}
+
+cmd_init() {
+	if [[ -d $NOTES_DIR/.git ]]; then
+		echo "notes: $NOTES_DIR is already a git repo"
+		return 0
+	fi
+	mkdir -p "$DAILY_DIR" "$NOTES_DIR/attachments"
+	git -C "$NOTES_DIR" init -q -b main
+	cat >"$NOTES_DIR/.gitignore" <<'EOF'
+# Rendered output: rebuilt from the notes with `notes pdf` / `notes ppt`
+pdf/
+presentation/
+.DS_Store
+EOF
+	cat >"$NOTES_DIR/README.md" <<'EOF'
+# Notes
+
+Markdown notes, managed with the `notes` command from my dotfiles
+(docs/12-notes.md there). A note is private unless its front matter says
+`public: true`.
+
+- `daily/`: daily notes (private journal)
+- `attachments/`: small images and files linked from notes (big files go elsewhere)
+- everything else: notes, grouped in folders by topic
+EOF
+	touch "$DAILY_DIR/.gitkeep" "$NOTES_DIR/attachments/.gitkeep"
+	# Same secret scanner as the dotfiles repo, before every commit
+	mkdir -p "$NOTES_DIR/.githooks"
+	cat >"$NOTES_DIR/.githooks/pre-commit" <<'EOF'
+#!/bin/sh
+# Block commits that contain secrets (passwords, API keys, tokens).
+if ! command -v gitleaks >/dev/null 2>&1; then
+  echo "pre-commit: gitleaks not installed (brew install gitleaks); refusing to commit." >&2
+  exit 1
+fi
+exec gitleaks git --pre-commit --staged --redact --no-banner
+EOF
+	chmod +x "$NOTES_DIR/.githooks/pre-commit"
+	git_notes config core.hooksPath .githooks
+	echo "notes: created $NOTES_DIR"
+	echo "next: notes-migrate (dry run), then: gh repo create notes --private --source \"$NOTES_DIR\" --remote origin"
+}
+
 main() {
 	local cmd=${1:-}
 	shift || true
@@ -119,13 +224,21 @@ main() {
 	today) cmd_today ;;
 	new) cmd_new "$@" ;;
 	open) cmd_open ;;
-	pdfs) open_pdf_from "$MARKDOWN_DIR" 'Pick a PDF note to open' ;;
+	pdfs) open_pdf_from "$NOTES_DIR" 'Pick a PDF note to open' ;;
 	recent) cmd_recent ;;
 	books) open_pdf_from "$BOOKS_DIR" 'Pick a book to open' ;;
 	pdf) render_pdf "${1:?usage: notes pdf <file.md>}" ;;
 	ppt) render_ppt "${1:?usage: notes ppt <file.md>}" ;;
+	status) cmd_status ;;
+	save) cmd_save "$*" ;;
+	sync) cmd_sync ;;
+	log) cmd_log "${1:-}" ;;
+	init) cmd_init ;;
 	-h | --help | help | '') usage ;;
-	*) usage >&2; exit 1 ;;
+	*)
+		usage >&2
+		exit 1
+		;;
 	esac
 }
 

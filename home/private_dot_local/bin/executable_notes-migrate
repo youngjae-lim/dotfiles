@@ -1,0 +1,141 @@
+#!/usr/bin/env python3
+"""notes-migrate: copy markdown notes from Google Drive into ~/Notes.
+
+Dry run by default: it only prints what it would do. Add --apply to copy.
+It never deletes or changes anything in Google Drive; your Drive copy stays
+as an archive. See docs/12-notes.md.
+
+What goes where:
+  Drive/Notes/src/note-YYYY-MM-DD.md  ->  ~/Notes/daily/YYYY-MM-DD.md
+  Drive/Notes/<path>.md               ->  ~/Notes/<path>.md
+  Drive/Markdown/<path>.md            ->  ~/Notes/<path>.md
+  images next to notes                ->  same relative place (so links keep working)
+Every copied note gets front matter (title, date, tags, public: false) if it
+has none, or `public: false` added if its front matter lacks `public`.
+Not copied (listed instead): rendered pdf/ and presentation/ folders, images
+over 1 MB (use --include-large to copy them anyway), and any other file type.
+"""
+
+import argparse
+import datetime as dt
+import os
+import re
+import shutil
+import sys
+from pathlib import Path
+
+IMAGE_EXTS = {".png", ".jpg", ".jpeg", ".gif", ".svg", ".webp", ".heic"}
+SKIP_DIRS = {"pdf", "presentation", ".git"}
+SKIP_FILES = {".DS_Store", "Icon\r"}
+LARGE = 1024 * 1024
+DAILY_RE = re.compile(r"^note-(\d{4}-\d{2}-\d{2})\.md$")
+
+
+def front_matter(title: str, date: str) -> str:
+    title = title.replace('"', '\\"')
+    return f'---\ntitle: "{title}"\ndate: "{date}"\ntags: []\npublic: false\n---\n\n'
+
+
+def with_front_matter(text: str, src: Path, date: str) -> tuple[str, str]:
+    """Return (new text, what changed)."""
+    if text.startswith("---\n"):
+        end = text.find("\n---", 4)
+        if end != -1:
+            header = text[4:end]
+            if re.search(r"^public:", header, re.M):
+                return text, "kept front matter"
+            return text[: end + 1] + "public: false\n" + text[end + 1 :], "added public: false"
+    heading = re.search(r"^# (.+)$", text, re.M)
+    title = heading.group(1).strip() if heading else src.stem
+    return front_matter(title, date) + text, "added front matter"
+
+
+def plan(drive: Path, notes: Path, include_large: bool):
+    copies, skipped = [], []  # copies: (src, dest, kind); skipped: (src, reason)
+    for root_name in ("Notes", "Markdown"):
+        root = drive / root_name
+        if not root.is_dir():
+            skipped.append((root, "folder not found"))
+            continue
+        for dirpath, dirnames, filenames in os.walk(root):
+            dirnames[:] = sorted(d for d in dirnames if d not in SKIP_DIRS)
+            for name in sorted(filenames):
+                src = Path(dirpath) / name
+                rel = src.relative_to(root)
+                if name in SKIP_FILES:
+                    continue
+                ext = src.suffix.lower()
+                if ext == ".md":
+                    m = DAILY_RE.match(name)
+                    if root_name == "Notes" and m and rel.parent == Path("src"):
+                        copies.append((src, notes / "daily" / f"{m.group(1)}.md", "daily"))
+                    else:
+                        copies.append((src, notes / rel, "note"))
+                elif ext in IMAGE_EXTS:
+                    if src.stat().st_size > LARGE and not include_large:
+                        skipped.append((src, f"image over 1 MB ({src.stat().st_size // 1024} KB)"))
+                    else:
+                        copies.append((src, notes / rel, "image"))
+                else:
+                    skipped.append((src, f"not a note or image ({ext or 'no extension'})"))
+    return copies, skipped
+
+
+def main() -> int:
+    p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    p.add_argument("--apply", action="store_true", help="really copy (default: dry run)")
+    p.add_argument("--include-large", action="store_true", help="also copy images over 1 MB")
+    args = p.parse_args()
+
+    drive = Path(os.environ.get("GOOGLE_DRIVE_DIR", Path.home() / "Google Drive/My Drive"))
+    notes = Path(os.environ.get("NOTES_DIR", Path.home() / "Notes"))
+    if not drive.is_dir():
+        print(f"notes-migrate: Google Drive folder not found: {drive}", file=sys.stderr)
+        return 1
+    if args.apply and not (notes / ".git").is_dir():
+        print(f"notes-migrate: {notes} isn't set up yet; run `notes init` first", file=sys.stderr)
+        return 1
+
+    copies, skipped = plan(drive, notes, args.include_large)
+    counts = {"daily": 0, "note": 0, "image": 0, "exists": 0}
+    print("DRY RUN (nothing copied; add --apply)\n" if not args.apply else "Copying\n")
+    for src, dest, kind in copies:
+        rel_dest = dest.relative_to(notes)
+        if dest.exists():
+            counts["exists"] += 1
+            print(f"  skip (already in ~/Notes)  {rel_dest}")
+            continue
+        counts[kind] += 1
+        if kind == "image":
+            change = "image"
+            if args.apply:
+                dest.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(src, dest)
+        else:
+            date = dt.date.fromtimestamp(src.stat().st_mtime).isoformat()
+            if kind == "daily":
+                date = dest.stem
+            text, change = with_front_matter(src.read_text(encoding="utf-8", errors="replace"), src, date)
+            if args.apply:
+                dest.parent.mkdir(parents=True, exist_ok=True)
+                dest.write_text(text, encoding="utf-8")
+                shutil.copystat(src, dest)
+        print(f"  {kind:<6} {rel_dest}  ({change})")
+
+    if skipped:
+        print("\nNot copied (decide later; they stay in Google Drive):")
+        for src, reason in skipped:
+            print(f"  {src.relative_to(drive) if src.is_relative_to(drive) else src}  ({reason})")
+
+    verb = "copied" if args.apply else "would copy"
+    print(
+        f"\n{verb}: {counts['daily']} daily notes, {counts['note']} notes, {counts['image']} images; "
+        f"{counts['exists']} already there; {len(skipped)} not copied"
+    )
+    if args.apply:
+        print("next: look through ~/Notes, then `notes save \"Import notes from Google Drive\"`")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

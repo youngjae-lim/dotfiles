@@ -1,6 +1,6 @@
 # 11. Neovim: the lean config
 
-[← A day with this setup](10-daily-workflow.md) · [Back to start](README.md)
+[← A day with this setup](10-daily-workflow.md) · [Back to start](README.md) · Next: [Notes →](12-notes.md)
 
 This chapter explains your Neovim config in `config/nvim/`: what's in it, why, and how to change it yourself. It's written so you can own every line.
 
@@ -130,8 +130,9 @@ The "later" plugins are registered in the second list in `config/pack.lua` and l
 | `<leader>cf` | Format now (saving also formats; `<leader>uf` toggles that) |
 | `ys` / `ds` / `cs` | Add / delete / change surrounding (`ysiw"`, `ds"`, `cs"'`) |
 | `]h` / `[h`, `<leader>gg` | Next / previous git change, lazygit |
-| `<leader>nf` / `<leader>ng` | Find a note / search inside your notes (Google Drive `Notes/`) |
-| `<leader>nr` / `<leader>np` | Render this note to PDF / slides. Daily notes (`nt`) re-render to PDF by themselves on every save |
+| `<leader>nf` / `<leader>ng` | Find a note / search inside your notes (`~/Notes`) |
+| `<leader>nr` / `<leader>np` | Render this note to PDF / slides. Every note also re-renders to PDF by itself when you write it |
+| `<leader>nh` / `<leader>nc` | This note's history / save all notes to GitHub ([chapter 12](12-notes.md)) |
 | `<leader>tt` or `Ctrl+/` | Show / hide a terminal at the bottom. Inside it, `Space` just types a space, so use `Ctrl+/` to hide it; `Esc Esc` = back to normal keys |
 | `<leader>uC` | Colour scheme picker (live preview, remembered) |
 | `<leader>qs` | Restore this folder's last session |

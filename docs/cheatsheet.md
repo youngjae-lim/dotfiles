@@ -39,6 +39,7 @@ NEOVIM   (Space = leader; press it and wait for the key-hint popup)
   Space cf  format           ys ds cs  surround      ]h [h  git changes
   Space gg  lazygit          Space uC  theme         Space qs restore session
   Space nf / ng  find / search notes   Space nr / np  note → PDF / slides
+  Space nh  note history             Space nc  save notes to GitHub
   Space tt / Ctrl+/  terminal show/hide (Ctrl+/ works inside it; Esc Esc = normal keys)
   Arrows move between windows (Shift+arrows resize)  ;a ;e  line start/end
   Typing: Enter accept menu · Tab accept Copilot · Ctrl+G next suggestion
