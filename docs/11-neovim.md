@@ -234,7 +234,7 @@ grep "NVIM STARTED" /tmp/lean.log | tail -1     # total, in ms (first column)
 sort -k2 -nr /tmp/lean.log | head -12           # slowest steps first
 ```
 
-Run it two or three times and ignore the first (files aren't cached yet). On the first trial (November 2026, same file): LazyVim 276 ms, this config 72 ms. The `sort` list showed language-server and completion setup as the biggest pieces (~18 ms), so they now run just after the first screen is drawn.
+Run it two or three times and ignore the first (files aren't cached yet). On the first trial (November 2026, same file): LazyVim 276 ms, this config 72 ms. The `sort` list showed language-server and completion setup as the biggest pieces (~18 ms), so they now run just after the first screen is drawn: about 43 ms (median of five runs; `init.lua` went from 37 to 17 ms). `--startuptime` *appends* to the log, so `rm` it before each run; each run writes two "NVIM STARTED" lines, and the ~3 ms one is the small terminal front end, not the editor.
 
 ## When it breaks
 
