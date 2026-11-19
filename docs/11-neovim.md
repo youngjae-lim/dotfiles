@@ -214,7 +214,7 @@ Four places, each optional depending on the language:
 | On a new Mac | Reinstalls on first launch | `chezmoi apply` installs everything |
 
 **The guideline:**
-1. **Language tooling (servers, formatters, linters) goes in `mise/config.toml`**, with the right *backend*: `npm:` for JavaScript-based tools, `go:` for Go tools, `aqua:` for ready-made binaries from GitHub. One file, one updater, readable by agents.
+1. **Language tooling (servers, formatters, linters) goes in `mise/config.toml`**, with the right *backend*: `npm:` for JavaScript-based tools, `go:` for Go tools, `aqua:` for ready-made binaries listed in the aqua registry, and `github:owner/repo` for binaries straight from a project's GitHub releases (when aqua doesn't list it). One file, one updater, readable by agents.
 2. **Exception:** a tool that needs its language's own runtime from Homebrew goes in the **Brewfile** (`elixir-ls`, which brings Elixir).
 3. **Project tools come from the project.** Prettier, ESLint, Pint and PHPStan versions in `node_modules/.bin` or `vendor/bin` win over the global ones.
 4. **Neovim never installs anything.** It only uses what's on your PATH.
@@ -228,4 +228,6 @@ Four places, each optional depending on the language:
 - **No Copilot suggestions:** `:LspCopilotSignIn` in any file.
 - **Elixir server never starts:** run `elixir-ls` once in a terminal and answer the prompt to install Hex.
 - **A plugin update broke something:** undo it (see [Update plugins](#update-plugins)).
+- **`mise install` says "aube install failed"** for an `npm:` tool: mise installs npm tools with its own package manager, aube, which by default refuses releases (and dependencies) that are only days old, among other safety rules. Run `MISE_VERBOSE=1 mise install <tool>` to see which rule hit; often waiting a few days, or pinning the previous version, fixes it.
+- **TypeScript:** the global fallback is pinned to **6**. TypeScript 7 is a native rewrite without the programming interface that Svelte and Astro tooling still need.
 - **Health check for everything:** `:checkhealth`.

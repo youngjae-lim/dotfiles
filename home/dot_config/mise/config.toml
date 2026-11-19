@@ -15,7 +15,7 @@ go = "1.26"
 "go:mvdan.cc/gofumpt" = "latest"                   # Go formatter
 "aqua:golangci/golangci-lint" = "latest"           # Go linter
 "npm:@vtsls/language-server" = "latest"            # JS/TS/React/Solid/TanStack
-"npm:typescript" = "latest"                        # used by vtsls and Astro
+"npm:typescript" = "6"                             # TS 7 (native) has no API yet; Svelte/Astro tools need 6
 "npm:svelte-language-server" = "latest"
 "npm:@astrojs/language-server" = "latest"
 "npm:@tailwindcss/language-server" = "latest"
@@ -35,7 +35,7 @@ go = "1.26"
 "aqua:artempyanykh/marksman" = "latest"            # Markdown notes
 "aqua:hadolint/hadolint" = "latest"                # Dockerfile linter
 "aqua:mvdan/sh" = "latest"                         # shfmt
-"aqua:avencera/rustywind" = "latest"               # Tailwind class sorting (Blade)
+"github:avencera/rustywind" = "latest"             # Tailwind class sorting (Blade); not in aqua
 
 [settings]
 idiomatic_version_file_enable_tools = ["node", "python", "go"]
