@@ -58,6 +58,32 @@ vim.lsp.config("lua_ls", {
   },
 })
 
+-- Copilot's npm package declares its command with a path outside the package,
+-- which mise's installer (aube) refuses to link, so there's no
+-- `copilot-language-server` on PATH. Use the native binary it ships instead
+-- (newest installed version). Remove this once `which copilot-language-server` works.
+if vim.fn.executable("copilot-language-server") == 0 then
+  local data = vim.env.MISE_DATA_DIR or vim.fs.joinpath(vim.env.HOME, ".local/share/mise")
+  local found = vim.fn.glob(
+    data
+      .. "/installs/npm-github-copilot-language-server/*/node_modules/.mise/*"
+      .. "/node_modules/@github/copilot-language-server-*/copilot-language-server",
+    false,
+    true
+  )
+  local best, best_v
+  for _, path in ipairs(found) do
+    local v = vim.version.parse(path:match("/npm%-github%-copilot%-language%-server/([^/]+)/") or "")
+    if v and (not best_v or vim.version.gt(v, best_v)) then
+      best, best_v = path, v
+    end
+  end
+  if best then
+    vim.lsp.config("copilot", { cmd = { best, "--stdio" } })
+    servers.copilot[1] = best
+  end
+end
+
 -- Switch on every server that's installed; skip the rest quietly
 local missing = {}
 for name, info in vim.spairs(servers) do
