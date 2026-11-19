@@ -46,4 +46,7 @@ map("<leader>gs", pick("git_status"), "Git status")
 map("<leader>gc", pick("git_commits"), "Git log")
 
 -- Colour scheme, with live preview (the choice is remembered: ui.lua)
-map("<leader>uC", pick("colorschemes"), "Colour scheme")
+map("<leader>uC", function()
+  require("config.themes").load_all() -- so the picker lists every installed theme
+  pick("colorschemes")()
+end, "Colour scheme")

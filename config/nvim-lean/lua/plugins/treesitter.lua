@@ -23,18 +23,11 @@ local parsers = {
   "regex", "diff", "gitcommit", "git_rebase", "gitignore",
 }
 
--- Parsers and their query files (the rules for colours, folds, indents) are
--- installed under stdpath("data")/site, and Neovim only finds them if that
--- folder is on the runtimepath. :checkhealth showed it missing there, which
--- left every installed language without colours, so make sure it is.
-local ts = require("nvim-treesitter")
-local site = vim.fs.joinpath(vim.fn.stdpath("data"), "site")
-ts.setup({ install_dir = site })
-if not vim.tbl_contains(vim.opt.runtimepath:get(), site) then
-  vim.opt.runtimepath:prepend(site)
-end
-
 -- Install only what's missing (runs in the background; a no-op when complete)
+-- Parsers go to stdpath("data")/site/parser, their queries (the rules for
+-- colours, folds, indents) to site/queries. That folder is on the runtimepath
+-- by default; :checkhealth's "not in runtimepath" line is a false alarm.
+local ts = require("nvim-treesitter")
 local installed = {}
 for _, lang in ipairs(ts.get_installed()) do
   installed[lang] = true

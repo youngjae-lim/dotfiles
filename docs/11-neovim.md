@@ -53,7 +53,8 @@ config/nvim-lean/
     │   ├── pack.lua         every plugin, in one list
     │   ├── keymaps.lua      keys that don't belong to a plugin
     │   ├── autocmds.lua     automatic actions (highlight on yank...)
-    │   └── defer.lua        small helpers for loading plugins later
+    │   ├── defer.lua        small helpers for loading plugins later
+    │   └── themes.lua       which plugin provides which colour scheme
     └── plugins/
         ├── ui.lua           colour scheme, statusline, buffer tabs, key hints, notifications
         ├── treesitter.lua   syntax parsers
@@ -92,7 +93,7 @@ config/nvim-lean/
 
 | When | What |
 |---|---|
-| Startup | mini.nvim modules, colour scheme, tree-sitter, language-server settings, blink.cmp |
+| Startup | mini.nvim modules, *your* colour scheme (the others load when you open the picker), tree-sitter, language-server settings, blink.cmp |
 | First file opened | conform (format on save), nvim-lint |
 | First time you type | auto-pairs |
 | First key press that needs it | fzf-lua (`<leader>f…`, `<leader>s…`), nvim-tree (`<leader>e`), outline (`<leader>cs`) |
@@ -179,6 +180,10 @@ All of these are lane 2: save the file, then restart Neovim (`:restart`, or quit
    ```
 3. **Restart.** `vim.pack` asks to install it; `nvim-pack-lock.json` changes. Commit both files.
 
+### Add a colour scheme
+
+Add its repository to the second (load-later) list in `config/pack.lua`, then add one line to `M.plugins` in `lua/config/themes.lua`: the colour scheme's name (or the start of it, like `tokyonight` for `tokyonight-night`) and the plugin's name. Restart, and it appears in `<leader>uC`.
+
 ### Remove a plugin
 
 Delete its line in `pack.lua` and its setup code, restart, then run `:lua vim.pack.del({ "repo" })` to delete its files. Commit the lockfile change.
@@ -223,7 +228,8 @@ Four places, each optional depending on the language:
 
 - **An error at startup naming `plugins/<x>.lua`:** that file failed; the rest of the editor still works. Open the file (`<leader>fc`) and read the message.
 - **A language feature doesn't work:** `:LspMissing`, then `:checkhealth vim.lsp`.
-- **No syntax colours in a language:** its parser may still be building (first start), or missing from `treesitter.lua`. `:checkhealth nvim-treesitter`.
+- **No syntax colours in a language:** its parser may still be building (first start), or missing from `treesitter.lua`. `:checkhealth nvim-treesitter`. Ignore its "install directory is not in runtimepath" line: the folder is on the runtimepath by default and the check misreports it. A quick real test: `:lua print(pcall(vim.treesitter.query.get, "go", "highlights"))` should print `true`.
+- **A colour scheme plugin breaks colours in some language:** themes can ship their own tree-sitter rules (an `after/queries` folder), which go stale when parsers change. catppuccin's CSS/JS/TS rules did; `lua/config/themes.lua` drops them. That file is also where a new theme is added.
 - **Completion menu is slow or warns about "Lua fallback":** blink.cmp couldn't download its matcher. Restart with internet access.
 - **No Copilot suggestions:** `:LspCopilotSignIn` in any file.
 - **Elixir server never starts:** run `elixir-ls` once in a terminal and answer the prompt to install Hex.

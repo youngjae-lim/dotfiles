@@ -36,13 +36,6 @@ vim.pack.add({
   -- completion menu; a release version so a prebuilt fuzzy-matcher binary is used
   { src = gh("saghen/blink.cmp"), version = vim.version.range("1.*") },
   gh("rafamadriz/friendly-snippets"), -- snippet collection, read by blink.cmp
-
-  -- Colour schemes: only the active one is applied. Pick with <leader>uC.
-  gh("ellisonleao/gruvbox.nvim"),
-  gh("folke/tokyonight.nvim"),
-  { src = gh("catppuccin/nvim"), name = "catppuccin" },
-  gh("rebelot/kanagawa.nvim"),
-  { src = gh("rose-pine/neovim"), name = "rose-pine" },
 })
 
 -- 2. Installed now, but loaded the first time they're needed (a key, a file
@@ -53,6 +46,14 @@ vim.pack.add({
   gh("hedyhli/outline.nvim"), -- symbols outline sidebar
   gh("stevearc/conform.nvim"), -- format on save
   gh("mfussenegger/nvim-lint"), -- linters that aren't language servers
+
+  -- Colour schemes: the one in use loads at startup, the rest when you open
+  -- the picker (<leader>uC). Adding one? Also add it to lua/config/themes.lua.
+  gh("ellisonleao/gruvbox.nvim"),
+  gh("folke/tokyonight.nvim"),
+  { src = gh("catppuccin/nvim"), name = "catppuccin" },
+  gh("rebelot/kanagawa.nvim"),
+  { src = gh("rose-pine/neovim"), name = "rose-pine" },
 }, {
   load = function() end, -- register only; don't load yet
 })

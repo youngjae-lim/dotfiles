@@ -15,7 +15,11 @@ local function saved_theme()
   return name
 end
 
-if not pcall(vim.cmd.colorscheme, saved_theme() or "gruvbox") then
+local themes = require("config.themes")
+local theme = saved_theme() or "gruvbox"
+themes.load_for(theme)
+if not pcall(vim.cmd.colorscheme, theme) then
+  themes.load_for("gruvbox")
   pcall(vim.cmd.colorscheme, "gruvbox")
 end
 
