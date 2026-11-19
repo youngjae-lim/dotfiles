@@ -81,21 +81,23 @@ A layout that works well: `T` on the 32-inch, `B` or `W` on the 27-inch.
 
 ### Focus border
 
-The focused window gets a **soft green outline**, so you can always tell which window your keys will go to, even across two monitors. Unfocused windows get no outline.
+The focused window gets a **thick crimson outline**, so you can always tell which window your keys will go to, even across two monitors. Unfocused windows get no outline.
 
 It's drawn by **JankyBorders** (the `borders` command), a small separate program; AeroSpace can't draw borders itself. AeroSpace starts it, through this line near the top of `aerospace.toml`:
 
 ```toml
 after-startup-command = [
-  'exec-and-forget borders active_color=0xff8fbf7f inactive_color=0x00000000 width=4.0',
+  'exec-and-forget borders active_color=0xffd7263d inactive_color=0x00000000 width=12.0',
 ]
 ```
 
 | Setting | Means | Yours |
 |---|---|---|
-| `active_color` | Outline of the focused window, as `0xAARRGGBB`: `AA` is opacity (`ff` solid, `00` invisible), then red, green, blue | `0xff8fbf7f`: solid soft green |
+| `active_color` | Outline of the focused window, as `0xAARRGGBB`: `AA` is opacity (`ff` solid, `00` invisible), then red, green, blue | `0xffd7263d`: solid crimson |
 | `inactive_color` | Outline of the other windows | `0x00000000`: none |
-| `width` | Thickness in points | `4.0`: subtle |
+| `width` | Thickness in points | `12.0`: bold |
+
+**Choosing a colour:** pale colours (like the soft green this started with, `0xff8fbf7f`) vanish against light-mode windows; deeper, saturated ones show on both light and dark. Some tried on 2026-11-19: `0xffe67e80` soft rose, `0xffff6b6b` coral, `0xfffb4934` gruvbox red, `0xfffe8019` gruvbox orange, `0xffd7263d` crimson (chosen, with width 12).
 
 **To change it:** try a value live first. `borders width=6.0` or `borders active_color=0xff7fafdf` changes the running border straight away without touching any file, like Ghostty's `Cmd+-`. Then make it permanent with `cze ~/.config/aerospace/aerospace.toml`.
 

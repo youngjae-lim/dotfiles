@@ -20,7 +20,7 @@ AEROSPACE (Alt = Option = right Cmd)     SHELL
   Alt+Enter new Ghostty  Alt+Shift+= even  updater   notes --help   dot
   Alt+Shift+Enter full screen (never the green button)
   Alt+Shift+; then f  float ↔ tile    then r  reset layout
-  Alt+Shift+H/J/K/L  swap with neighbour   green outline = focused window
+  Alt+Shift+H/J/K/L  swap with neighbour   red outline = focused window
 
 WORKSPACES   T terminal · C code · D data · B browser · W work (Chrome + Teams) · R reading
              M messages · Z zoom · N notes · 1-9 scratch
