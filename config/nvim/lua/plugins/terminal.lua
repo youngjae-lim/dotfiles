@@ -1,6 +1,8 @@
 -- A terminal at the bottom that you can show and hide.
 --   <leader>tt   show / hide it (it's the same shell each time, so a running
 --                command keeps going while it's hidden)
+--   Ctrl+/       the same, and it also works while typing in the terminal
+--                (where Space just types a space)
 --   Esc Esc      inside it: back to normal Neovim keys (scroll, copy, move
 --                to another window). A single Esc still goes to the shell.
 -- Type `exit` in the shell to close it for good; the next <leader>tt starts
@@ -26,6 +28,7 @@ end
 
 local function toggle()
   if term.win and vim.api.nvim_win_is_valid(term.win) then
+    vim.cmd.stopinsert() -- leave terminal mode first if we're typing in it
     vim.api.nvim_win_hide(term.win)
     term.win = nil
     return
@@ -40,3 +43,6 @@ local function toggle()
 end
 
 vim.keymap.set("n", "<leader>tt", toggle, { desc = "Terminal (toggle)" })
+-- Terminals send Ctrl+/ as Ctrl+_, so map both spellings
+vim.keymap.set({ "n", "t" }, "<C-/>", toggle, { desc = "Terminal (toggle)" })
+vim.keymap.set({ "n", "t" }, "<C-_>", toggle, { desc = "Terminal (toggle)" })
