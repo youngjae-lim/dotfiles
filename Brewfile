@@ -26,6 +26,7 @@ brew "mise"
 brew "direnv"
 brew "uv"
 brew "neovim"
+brew "elixir-ls"   # Elixir language server (brings elixir + mix); used by Neovim
 brew "tmux"
 brew "bat"
 brew "eza"

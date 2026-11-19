@@ -103,7 +103,7 @@ The same thing as a table:
 
 | You changed… | Where it lives | Run `chezmoi apply`? | What makes it take effect |
 |---|---|---|---|
-| Neovim config or plugins (including `lazy-lock.json`, `:Lazy update`) | `config/nvim/` | **No.** Live link. | Restart Neovim |
+| Neovim config or plugins (including `nvim-pack-lock.json`, `<leader>pu` updates) | `config/nvim/` | **No.** Live link. | Restart Neovim |
 | VS Code `settings.json`, `keybindings.json` | `config/vscode/` | **No.** Live link. | Saves instantly, or reload the window |
 | VS Code `mcp.json` | `agents.yaml` (`mcpServers`) | **Yes.** Generated. | Reload the window |
 | Karabiner rules (changed in its app) | `config/karabiner/` | **No.** Live link. | Instant |

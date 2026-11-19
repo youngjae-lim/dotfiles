@@ -15,6 +15,7 @@ Youngjae's macOS dotfiles, managed by **chezmoi**. The repo lives at `~/Dotfiles
 | `home/dot_claude/hooks/dotfiles/` | Claude Code hooks: `guard-secrets.sh` (PreToolUse, blocks denyPaths) and `notify.sh` (macOS notification when Claude waits on you). Registered in `modify_settings.json.tmpl`, merged so other tools' hooks (herdr) survive. |
 | `home/dot_agents/skills/` | Agent skills → `~/.agents/skills` (Copilot + Gemini read it; `~/.claude/skills` symlinks to it). |
 | `home/.chezmoiscripts/` | `run_onchange_*` scripts: brew bundle, mise install, herdr integrations + Claude MCP. |
+| `config/nvim/` | Neovim config on 0.12's built-in `vim.pack` (no LazyVim). Plugins listed only in `lua/config/pack.lua`; language tools come from mise, never Mason. See `docs/11-neovim.md`. |
 | `config/` | Configs that apps rewrite themselves (nvim, karabiner, VS Code settings/keybindings). `~` symlinks **into** this dir, so in-app edits appear in `git diff`. VS Code's `mcp.json` is the exception: generated from `agents.yaml`. |
 | `Brewfile` | All Homebrew packages; applied automatically when it changes. |
 | `scripts/` | `check.sh` (validate everything), `check-agents.py` (agent-config parity), `macos-defaults.sh` (manual). |
