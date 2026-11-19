@@ -11,6 +11,7 @@ M.plugins = {
   catppuccin = "catppuccin",
   kanagawa = "kanagawa.nvim",
   ["rose-pine"] = "rose-pine",
+  everforest = "everforest",
 }
 
 local function add(plugin)
