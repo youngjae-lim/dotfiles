@@ -16,7 +16,10 @@ go = "1.26"
 "aqua:golangci/golangci-lint" = "latest"           # Go linter
 "npm:@vtsls/language-server" = "latest"            # JS/TS/React/Solid/TanStack
 "npm:typescript" = "6"                             # TS 7 (native) has no API yet; Svelte/Astro tools need 6
-"npm:svelte-language-server" = "latest"
+# svelte@4.2.20 is a 4.x maintenance backport published after 5.0.0 without
+# provenance, so mise's npm installer (aube) flags it as a "trust downgrade".
+# Excluded for that exact version only; review again if the pin changes.
+"npm:svelte-language-server" = { version = "latest", trust_policy_excludes = ["svelte@4.2.20"] }
 "npm:@astrojs/language-server" = "latest"
 "npm:@tailwindcss/language-server" = "latest"
 "npm:vscode-langservers-extracted" = "latest"      # HTML, CSS, JSON, ESLint servers
