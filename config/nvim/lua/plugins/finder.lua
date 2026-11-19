@@ -50,3 +50,6 @@ map("<leader>uC", function()
   require("config.themes").load_all() -- so the picker lists every installed theme
   pick("colorschemes")()
 end, "Colour scheme")
+
+-- Other files (e.g. plugins/notes.lua) build their own pickers with this
+return { pick = pick }

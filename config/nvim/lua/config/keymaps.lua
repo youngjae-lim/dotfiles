@@ -60,13 +60,7 @@ map("n", "<leader>uh", function()
   vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
 end, { desc = "Toggle inlay hints" })
 
--- Notes (the `notes` script in ~/.local/bin)
-map("n", "<leader>nf", function()
-  vim.fn.system({ "notes", "pdf", vim.fn.expand("%:p") })
-end, { desc = "Render note to PDF" })
-map("n", "<leader>np", function()
-  vim.fn.system({ "notes", "ppt", vim.fn.expand("%:p") })
-end, { desc = "Render note to slides" })
+-- Notes keys (<leader>n…) live in lua/plugins/notes.lua
 
 -- Plugins
 map("n", "<leader>pu", function()

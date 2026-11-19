@@ -72,6 +72,7 @@ config/nvim/
         ├── finder.lua       fuzzy finder
         ├── tree.lua         file tree + outline sidebars
         ├── terminal.lua     the bottom terminal (<leader>tt)
+        ├── notes.lua        find/search notes, render to PDF or slides
         └── sessions.lua     reopen a project's files
 ```
 
@@ -129,6 +130,8 @@ The "later" plugins are registered in the second list in `config/pack.lua` and l
 | `<leader>cf` | Format now (saving also formats; `<leader>uf` toggles that) |
 | `ys` / `ds` / `cs` | Add / delete / change surrounding (`ysiw"`, `ds"`, `cs"'`) |
 | `]h` / `[h`, `<leader>gg` | Next / previous git change, lazygit |
+| `<leader>nf` / `<leader>ng` | Find a note / search inside your notes (Google Drive `Notes/`) |
+| `<leader>nr` / `<leader>np` | Render this note to PDF / slides. Daily notes (`nt`) re-render to PDF by themselves on every save |
 | `<leader>tt` or `Ctrl+/` | Show / hide a terminal at the bottom. Inside it, `Space` just types a space, so use `Ctrl+/` to hide it; `Esc Esc` = back to normal keys |
 | `<leader>uC` | Colour scheme picker (live preview, remembered) |
 | `<leader>qs` | Restore this folder's last session |
@@ -141,7 +144,7 @@ The "later" plugins are registered in the second list in `config/pack.lua` and l
 
 ### Rules for adding your own keys
 
-- **Leader groups:** `b` buffer, `c` code, `f` find, `g` git, `n` notes, `p` plugins, `q` quit/session, `s` search, `u` toggle. Put a new key in the group it belongs to.
+- **Leader groups:** `b` buffer, `c` code, `f` find, `g` git, `n` notes, `p` plugins, `q` quit/session, `s` search, `t` terminal, `u` toggle. Put a new key in the group it belongs to.
 - **Never use `Alt`:** AeroSpace takes every `Alt` key before Neovim sees it.
 - **Never use `Ctrl+H/J/K/L`:** with Caps Lock as Control, Karabiner turns them into arrow keys.
 - **`Ctrl+B` is herdr's** inside herdr. Neovim never receives it there.

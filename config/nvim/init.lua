@@ -27,7 +27,7 @@ end
 
 -- Needed to draw the first screen (colours, statusline, tree-sitter) or
 -- cheap enough not to matter.
-load({ "ui", "treesitter", "editing", "git", "format", "lint", "finder", "tree", "sessions", "terminal" })
+load({ "ui", "treesitter", "editing", "git", "format", "lint", "finder", "tree", "sessions", "terminal", "notes" })
 
 -- Completion and language servers are the slowest to set up (~15 ms), and
 -- nothing needs them before you can see the file. Set them up right after the
