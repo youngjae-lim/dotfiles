@@ -120,7 +120,16 @@ after-startup-command = [
 
 ## Karabiner and Hammerspoon
 
-- **Karabiner-Elements** changes what keys do. Caps Lock = `Esc` when tapped, `Ctrl` when held. `Ctrl+H/J/K/L` = arrow keys. Its config is in lane 2 (`config/karabiner/`): change it in the Karabiner app and the change shows up in `git diff`.
+- **Karabiner-Elements** changes what keys do. Its config is in lane 2 (`config/karabiner/`): change it in the Karabiner app and the change shows up in `git diff`. Your remaps:
+
+  | Key | Becomes | Why |
+  |---|---|---|
+  | Caps Lock | `Esc` when tapped, `Ctrl` when held | Esc for Vim, Ctrl without reaching for the corner |
+  | Right `Cmd` | Right `Option` (= `Alt`) | AeroSpace's `Alt` key under your right thumb |
+  | `Ctrl+H/J/K/L` | Arrow keys | arrows on the home row, in every app |
+
+  Left `Cmd` is untouched, so `Cmd+C`, `Cmd+Tab` and friends work as usual. Ghostty sends `Option` to the terminal as `Alt` (`macos-option-as-alt = true` in its config), so `Alt` shortcuts in herdr and the shell work too. Because `Ctrl+H/J/K/L` turn into arrows before any app sees them, Neovim can't use those keys (or `Ctrl+K`), which is why its windows are switched with the arrow keys.
+  To see what Karabiner sends, open **Karabiner-EventViewer** and press keys: it shows them *after* remapping.
 - **Hammerspoon** runs small Lua scripts that automate macOS. Yours shows a green bar while Korean input is active, and switches to English when you press `Esc` in Vim. Config: `home/dot_hammerspoon/` (lane 1). Reload it from its menu-bar icon → Reload Config.
 
 ## Tailscale + Ovis: your agents on your phone
