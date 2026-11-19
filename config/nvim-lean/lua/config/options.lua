@@ -41,3 +41,10 @@ opt.iskeyword:append("-") -- treat dash-separated-words as one word
 vim.schedule(function()
   opt.clipboard = "unnamedplus"
 end)
+
+-- Plugins written in Node, Perl, Python or Ruby ("remote plugins") aren't used
+-- here. Switching their hosts off skips a search at startup and silences
+-- :checkhealth's warnings about them.
+for _, lang in ipairs({ "node", "perl", "python3", "ruby" }) do
+  vim.g["loaded_" .. lang .. "_provider"] = 0
+end
