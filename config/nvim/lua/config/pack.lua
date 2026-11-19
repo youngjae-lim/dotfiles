@@ -54,6 +54,7 @@ vim.pack.add({
   { src = gh("catppuccin/nvim"), name = "catppuccin" },
   gh("rebelot/kanagawa.nvim"),
   { src = gh("rose-pine/neovim"), name = "rose-pine" },
+  gh("sainnhe/everforest"),
 }, {
   load = function() end, -- register only; don't load yet
 })

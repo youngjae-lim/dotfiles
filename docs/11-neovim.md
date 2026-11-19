@@ -91,7 +91,7 @@ config/nvim/
 | Fuzzy finder | **fzf-lua** |
 | File tree, outline | **nvim-tree.lua**, **outline.nvim** |
 | Statusline, buffer tabs, key hints, icons, notifications, surround, pairs, text objects, git signs, sessions, zoom | **mini.nvim** (one plugin, many modules) |
-| Colour schemes | gruvbox (default), tokyonight, catppuccin, kanagawa, rose-pine |
+| Colour schemes | gruvbox (default), tokyonight, catppuccin, kanagawa, rose-pine, everforest |
 | Undo history | Neovim (`:Undotree`) |
 
 ## What loads when (why it starts fast)
