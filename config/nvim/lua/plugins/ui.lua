@@ -91,6 +91,7 @@ vim.schedule(function()
       { mode = "n", keys = "<Leader>p", desc = "+plugins" },
       { mode = "n", keys = "<Leader>q", desc = "+quit/session" },
       { mode = "n", keys = "<Leader>s", desc = "+search" },
+      { mode = "n", keys = "<Leader>t", desc = "+terminal" },
       { mode = "n", keys = "<Leader>u", desc = "+toggle" },
     },
   })
