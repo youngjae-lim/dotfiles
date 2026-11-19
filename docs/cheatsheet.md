@@ -38,6 +38,7 @@ NEOVIM   (Space = leader; press it and wait for the key-hint popup)
   Space ca  code action      ]d [d  next/prev problem Space cd line problems
   Space cf  format           ys ds cs  surround      ]h [h  git changes
   Space gg  lazygit          Space uC  theme         Space qs restore session
+  Space tt / Ctrl+/  terminal show/hide (Ctrl+/ works inside it; Esc Esc = normal keys)
   Arrows move between windows (Shift+arrows resize)  ;a ;e  line start/end
   Typing: Enter accept menu · Tab accept Copilot · Ctrl+G next suggestion
 ```

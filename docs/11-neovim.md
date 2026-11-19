@@ -71,6 +71,7 @@ config/nvim/
         ├── lint.lua         linters
         ├── finder.lua       fuzzy finder
         ├── tree.lua         file tree + outline sidebars
+        ├── terminal.lua     the bottom terminal (<leader>tt)
         └── sessions.lua     reopen a project's files
 ```
 
@@ -128,6 +129,7 @@ The "later" plugins are registered in the second list in `config/pack.lua` and l
 | `<leader>cf` | Format now (saving also formats; `<leader>uf` toggles that) |
 | `ys` / `ds` / `cs` | Add / delete / change surrounding (`ysiw"`, `ds"`, `cs"'`) |
 | `]h` / `[h`, `<leader>gg` | Next / previous git change, lazygit |
+| `<leader>tt` or `Ctrl+/` | Show / hide a terminal at the bottom. Inside it, `Space` just types a space, so use `Ctrl+/` to hide it; `Esc Esc` = back to normal keys |
 | `<leader>uC` | Colour scheme picker (live preview, remembered) |
 | `<leader>qs` | Restore this folder's last session |
 | `<leader>mx` | Maximise / restore the window |
