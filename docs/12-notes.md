@@ -130,6 +130,19 @@ Your phone doesn't keep its own copy of the notes. It opens a terminal **on your
 
 **Keeping the Mac reachable:** a sleeping Mac can't answer. If it's a laptop, keep it plugged in and turn on System Settings → Battery → Options → **Prevent automatic sleeping on power adapter when the display is off**. With the lid closed, it stays awake while it's on power with an external display connected.
 
+**If the phone is lost.** The phone holds a key that opens your Mac, so protect it in advance and know how to cut it off:
+
+- *In advance:*
+  - a strong screen lock on the phone (Android encrypts the phone's storage once a lock is set);
+  - a **passphrase on the SSH key**: `ssh-keygen -p -f ~/.ssh/id_ed25519` in Termux. Termux then asks for it each time you connect, and a stolen key file is useless without it;
+  - Samsung's **Find My Mobile** (or Google's Find Hub) switched on, so you can lock or wipe the phone remotely.
+- *When it's gone*, in this order:
+  1. Remove the phone from your Tailscale network: [login.tailscale.com/admin/machines](https://login.tailscale.com/admin/machines) → the phone → **Remove**. From that moment it can't reach your Mac at all.
+  2. Remove its key on the Mac: open `~/.ssh/authorized_keys` and delete the line that ends with the phone's key name (Termux keys end in something like `u0_a123@localhost`).
+  3. Lock or wipe the phone with Find My Mobile.
+
+The phone holds no GitHub or notes credentials: saving happens on the Mac. So those two steps cut off everything.
+
 **Your agents too:** from the same SSH session, `herdr` attaches to your running agents session, the full terminal view next to what Ovis shows.
 
 ## When it breaks
