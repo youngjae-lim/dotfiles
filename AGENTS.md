@@ -15,7 +15,7 @@ Youngjae's macOS dotfiles, managed by **chezmoi**. The repo lives at `~/Dotfiles
 | `home/dot_claude/hooks/dotfiles/` | Claude Code hooks: `guard-secrets.sh` (PreToolUse, blocks denyPaths) and `notify.sh` (macOS notification when Claude waits on you). Registered in `modify_settings.json.tmpl`, merged so other tools' hooks (herdr) survive. |
 | `home/dot_agents/skills/` | Agent skills → `~/.agents/skills` (Copilot + Gemini read it; `~/.claude/skills` symlinks to it). |
 | `home/.chezmoiscripts/` | `run_onchange_*` scripts: brew bundle, mise install, herdr integrations + Claude MCP. |
-| `config/nvim-lean/` | Lean Neovim config on 0.12's `vim.pack` (trial: `vl`). Plugins listed only in `lua/config/pack.lua`; language tools come from mise, never Mason. See `docs/11-neovim.md`. |
+| `config/nvim/` | Neovim config on 0.12's built-in `vim.pack` (no LazyVim). Plugins listed only in `lua/config/pack.lua`; language tools come from mise, never Mason. See `docs/11-neovim.md`. |
 | `config/` | Configs that apps rewrite themselves (nvim, karabiner, VS Code settings/keybindings). `~` symlinks **into** this dir, so in-app edits appear in `git diff`. VS Code's `mcp.json` is the exception: generated from `agents.yaml`. |
 | `Brewfile` | All Homebrew packages; applied automatically when it changes. |
 | `scripts/` | `check.sh` (validate everything), `check-agents.py` (agent-config parity), `macos-defaults.sh` (manual). |
@@ -40,6 +40,6 @@ chezmoi execute-template < file.tmpl # render one template
 The pre-commit hook (`.githooks/pre-commit`) runs gitleaks on staged changes. Never bypass it with `--no-verify`.
 
 ## Style
-- Lua: stylua (`config/nvim/stylua.toml`, `config/nvim-lean/stylua.toml`, `home/dot_hammerspoon/stylua.toml`).
+- Lua: stylua (`config/nvim/stylua.toml`, `home/dot_hammerspoon/stylua.toml`).
 - Shell: bash/zsh, `set -euo pipefail` in scripts, pass shellcheck. Scripts in `~/.local/bin` and hooks run under macOS `/bin/bash` 3.2: no `${x^}`, `mapfile`, or empty arrays under `set -u`.
 - Commits: Conventional Commits, scoped by tool, e.g. `feat(zsh): add wt helper`.

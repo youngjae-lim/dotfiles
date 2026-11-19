@@ -2,7 +2,7 @@
 
 [← A day with this setup](10-daily-workflow.md) · [Back to start](README.md)
 
-This chapter explains your Neovim config in `config/nvim-lean/`: what's in it, why, and how to change it yourself. It's written so you can own every line.
+This chapter explains your Neovim config in `config/nvim/`: what's in it, why, and how to change it yourself. It's written so you can own every line.
 
 > **Neovim** is the editor. A **config** is the Lua code it runs at startup to set options, keys and plugins. A **plugin** is someone else's Lua code that adds a feature (a file tree, a fuzzy finder).
 
@@ -12,20 +12,25 @@ Neovim 0.12 (released March 2026) builds in a lot that used to need plugins: a *
 
 > **Language server** (LSP): a separate program that understands one language (`gopls` for Go, `intelephense` for PHP) and tells the editor about errors, definitions and completions. **Tree-sitter**: a fast parser that understands code structure, used for syntax colours and indentation.
 
-## Trying it next to LazyVim
+## Where it lives
 
-Both configs live side by side. `NVIM_APPNAME` tells Neovim which config folder to use, and each gets its own plugins and data:
+`~/.config/nvim` is a link to `config/nvim/` (lane 2), so edits take effect the next time you start Neovim, with no `chezmoi apply`. Plugins, parsers and other downloaded data live outside the repo, in `~/.local/share/nvim/`.
 
-| Command | Runs | Config folder |
-|---|---|---|
-| `nvim` | your current LazyVim setup | `~/.config/nvim` → `config/nvim/` |
-| `vl` | the lean config | `~/.config/nvim-lean` → `config/nvim-lean/` |
+**On a new Mac:** the first `nvim` start installs the plugins (`vim.pack` asks; answer yes), blink.cmp downloads its fuzzy matcher, and nvim-treesitter builds about 40 parsers in the background (a minute or two). Restart once that's done; after that, starts are fast. Then `:LspCopilotSignIn` once.
 
-Both folders are **linked** (lane 2): edit either side, no `chezmoi apply`.
+### Coming from LazyVim
 
-**First start (`vl`):** `vim.pack` asks to install the plugins (answer yes), blink.cmp downloads its fuzzy matcher, and nvim-treesitter builds about 40 parsers in the background (a minute or two). Restart once everything's done. After that, starts are fast.
+Until November 2026 this was a LazyVim setup (about 58 plugins). It was replaced by this config after a side-by-side trial: same file, about 43 ms to the first screen versus 276 ms. The old config is still in git history if you ever want to look something up: `git log --oneline -- config/nvim/lazyvim.json` shows the commit that removed it.
 
-**When you're happy** (we'll do this together): `config/nvim-lean/` replaces `config/nvim/`, `vl` goes away, and LazyVim is deleted.
+### Trying a different config safely
+
+`NVIM_APPNAME` makes Neovim use `~/.config/<name>` and its own data folders, so a second config can't touch the first:
+
+```sh
+NVIM_APPNAME=nvim-test nvim     # uses ~/.config/nvim-test and ~/.local/share/nvim-test
+```
+
+That's how this config was trialled (as `vl`) before it replaced LazyVim.
 
 ## How the files fit together
 
@@ -43,7 +48,7 @@ flowchart TD
 ```
 
 ```
-config/nvim-lean/
+config/nvim/
 ├── init.lua                 entry point: loads the files below, in order
 ├── nvim-pack-lock.json      exact plugin versions (written by vim.pack; commit it)
 ├── stylua.toml              Lua formatting rules
@@ -101,11 +106,7 @@ config/nvim-lean/
 
 The "later" plugins are registered in the second list in `config/pack.lua` and loaded with `packadd` by their file in `plugins/`.
 
-**Measure it:**
-```sh
-rm -f /tmp/st.log; NVIM_APPNAME=nvim-lean nvim --startuptime /tmp/st.log +q; tail -1 /tmp/st.log
-```
-The first number on the last line is the startup time in milliseconds.
+**Measure it:** see [Measuring startup](#measuring-startup) below.
 
 ## Keys you'll use
 
@@ -194,7 +195,7 @@ Delete its line in `pack.lua` and its setup code, restart, then run `:lua vim.pa
 2. Read it, then `:write` to apply, or close the tab to cancel.
 3. Restart and use it for a bit; then commit `nvim-pack-lock.json`.
 
-**Undo an update:** `git checkout -- config/nvim-lean/nvim-pack-lock.json`, then `:lua vim.pack.update(nil, { target = "lockfile" })` puts every plugin back to the versions in the lockfile.
+**Undo an update:** `git checkout -- config/nvim/nvim-pack-lock.json`, then `:lua vim.pack.update(nil, { target = "lockfile" })` puts every plugin back to the versions in the lockfile.
 
 ### Add a language
 
@@ -229,7 +230,7 @@ Four places, each optional depending on the language:
 `--headless` (no screen) timings are misleading: LazyVim, for example, puts much of its work off until the screen appears, so headless runs skip it. Measure with a real file and a real screen; Neovim quits by itself after 300 ms:
 
 ```sh
-vl --startuptime /tmp/lean.log some/file.go +'au UIEnter * ++once lua vim.defer_fn(function() vim.cmd.qa() end, 300)'
+rm -f /tmp/lean.log; nvim --startuptime /tmp/lean.log some/file.go +'au UIEnter * ++once lua vim.defer_fn(function() vim.cmd.qa() end, 300)'
 grep "NVIM STARTED" /tmp/lean.log | tail -1     # total, in ms (first column)
 sort -k2 -nr /tmp/lean.log | head -12           # slowest steps first
 ```

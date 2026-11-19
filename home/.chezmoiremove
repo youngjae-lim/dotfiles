@@ -1,0 +1,4 @@
+# Paths (relative to ~) that `chezmoi apply` deletes. Each line says why.
+
+# The lean Neovim trial link; the config moved to ~/.config/nvim (2026-11-18).
+.config/nvim-lean

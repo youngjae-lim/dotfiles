@@ -6,7 +6,7 @@ python = "3.13"
 go = "1.26"
 
 # --- Language tooling: servers, formatters, linters ---------------------------
-# Used by Neovim (config/nvim-lean), and on PATH for the shell and AI agents too.
+# Used by Neovim (config/nvim), and on PATH for the shell and AI agents too.
 # Rule: language tooling lives here; the Brewfile is for everything else.
 # Projects' own versions (node_modules/.bin, vendor/bin) win where they exist.
 # `mise upgrade` updates them; Neovim's :LspMissing shows what's absent.

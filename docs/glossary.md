@@ -125,7 +125,7 @@ A chezmoi file that updates *part* of a settings file an app also writes to, ins
 A program that holds many terminals in one window and keeps them running in the background. herdr is yours; tmux is the fallback. ([Chapter 4](04-terminal.md))
 
 ### NVIM_APPNAME
-An environment variable that tells Neovim which config folder to use (`~/.config/$NVIM_APPNAME`). `vl` runs the lean config this way, next to the old one. ([Chapter 11](11-neovim.md#trying-it-next-to-lazyvim))
+An environment variable that tells Neovim which config folder to use (`~/.config/$NVIM_APPNAME`) and where to keep its data. Handy for trying a new config next to the current one; that's how the lean config was trialled (as `vl`) before replacing LazyVim. ([Chapter 11](11-neovim.md#trying-a-different-config-safely))
 
 ### Origin, remote branch
 **origin** is git's name for the copy of the repo on GitHub. A **remote branch** like `origin/main` is your Mac's record of where that branch is on GitHub, updated by `git pull` or `git fetch`. `git branch -r` lists them. ([Chapter 2](02-chezmoi-basics.md#cleaning-up-branches))
@@ -137,7 +137,7 @@ A **pane** is one terminal. A **tab** is a layout of panes. A **workspace** is o
 The list of folders the shell searches when you type a command. If the wrong version of something runs, PATH is usually why. ([Chapter 4](04-terminal.md#zsh-your-shell))
 
 ### Plugin (Neovim)
-Someone else's Lua code that adds a feature to Neovim. Listed in `config/nvim-lean/lua/config/pack.lua` and installed by `vim.pack`. ([Chapter 11](11-neovim.md))
+Someone else's Lua code that adds a feature to Neovim. Listed in `config/nvim/lua/config/pack.lua` and installed by `vim.pack`. ([Chapter 11](11-neovim.md))
 
 ### Prefix key
 A key you press first, then let go, before a shortcut. herdr's is `Ctrl+B`; tmux's is `Ctrl+F`. ([Chapter 4](04-terminal.md))

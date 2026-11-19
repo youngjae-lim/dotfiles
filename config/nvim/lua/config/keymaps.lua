@@ -1,82 +1,74 @@
--- Keymaps are automatically loaded on the VeryLazy event
--- Default keymaps that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/keymaps.lua
--- Add any additional keymaps here
-local keymap = vim.keymap
-local opts = { noremap = true, silent = true }
+-- General key mappings. Plugin keys live next to their plugin in lua/plugins/.
+--
+-- Rules for this setup (see docs/11-neovim.md):
+--   * Leader is Space. Groups: b buffer, c code, f find, g git, n notes,
+--     q quit/session, s search, u toggle (UI), p plugins.
+--   * Never Alt: AeroSpace takes every Alt key first.
+--   * Never Ctrl+H/J/K/L: Karabiner turns them into arrow keys.
+--   * Inside herdr, Ctrl+B belongs to herdr.
+local map = vim.keymap.set
 
--- Move window
--- NOTE: On my mac, <C-h/j/k/l> is mapped to arrow keys using Karabiner.
-keymap.set("n", "<left>", "<C-w>h")
-keymap.set("n", "<right>", "<C-w>l")
-keymap.set("n", "<up>", "<C-w>k")
-keymap.set("n", "<down>", "<C-w>j")
+-- Move by screen line on wrapped lines (unless a count is given, e.g. 5j)
+map({ "n", "x" }, "j", "v:count == 0 ? 'gj' : 'j'", { expr = true, desc = "Down" })
+map({ "n", "x" }, "k", "v:count == 0 ? 'gk' : 'k'", { expr = true, desc = "Up" })
 
--- Resize window using :vertical and :resize
--- Window is the one that is currently in focus
-keymap.set("n", "<S-left>", ":vertical resize -2<CR>", opts)
-keymap.set("n", "<S-right>", ":vertical resize +2<CR>", opts)
-keymap.set("n", "<S-down>", ":resize -2<CR>", opts)
-keymap.set("n", "<S-up>", ":resize +2<CR>", opts)
+-- Line start / end
+map("n", ";a", "^", { desc = "First non-blank character" })
+map("n", ";e", "$", { desc = "End of line" })
 
--- Next, Previous buffer
--- NOTE: Not working
--- keymap.set("n", "<tab>", ":tabnext<Return>", opts)
--- keymap.set("n", "<S-tab>", ":tabprev<Return>", opts)
+-- Windows: arrows move between them, Shift+arrows resize
+map("n", "<Left>", "<C-w>h", { desc = "Window left" })
+map("n", "<Right>", "<C-w>l", { desc = "Window right" })
+map("n", "<Up>", "<C-w>k", { desc = "Window up" })
+map("n", "<Down>", "<C-w>j", { desc = "Window down" })
+map("n", "<S-Left>", "<cmd>vertical resize -2<cr>", { desc = "Narrower" })
+map("n", "<S-Right>", "<cmd>vertical resize +2<cr>", { desc = "Wider" })
+map("n", "<S-Down>", "<cmd>resize -2<cr>", { desc = "Shorter" })
+map("n", "<S-Up>", "<cmd>resize +2<cr>", { desc = "Taller" })
+map("n", "<leader>-", "<cmd>split<cr>", { desc = "Split below" })
+map("n", "<leader>|", "<cmd>vsplit<cr>", { desc = "Split right" })
+map("n", "<leader>mx", function()
+  require("mini.misc").zoom()
+end, { desc = "Maximise / restore window" })
 
--- Opens the previous picker
-vim.keymap.set(
-  "n",
-  "<leader>sx",
-  require("telescope.builtin").resume,
-  { noremap = true, silent = true, desc = "Resume" }
-)
+-- Buffers
+map("n", "<Tab>", "<cmd>bnext<cr>", { desc = "Next buffer" })
+map("n", "<S-Tab>", "<cmd>bprevious<cr>", { desc = "Previous buffer" })
+map("n", "<leader>bd", function()
+  require("mini.bufremove").delete()
+end, { desc = "Delete buffer (keep window)" })
+map("n", "<leader>bo", "<cmd>%bdelete|edit#|bdelete#<cr>", { desc = "Delete other buffers" })
 
--- Run convert_md_note_to_ppt.sh when <leader>np is pressed
-vim.keymap.set("n", "<leader>np", function()
-  vim.fn.system("notes ppt " .. vim.fn.shellescape(vim.fn.expand("%:p")))
-end, { noremap = true, silent = true, desc = "Convert markdown note to ppt" })
+-- Save / quit
+map({ "n", "x" }, "<C-s>", "<cmd>write<cr><esc>", { desc = "Save file" })
+map("n", "<leader>qq", "<cmd>quitall<cr>", { desc = "Quit all" })
 
--- Debug go test
-vim.keymap.set("n", "<leader>dgt", function()
-  require("dap-go").debug_test()
-end, { noremap = true, silent = true, desc = "Debug go test" })
+-- Editing
+map("n", "<Esc>", "<cmd>nohlsearch<cr><esc>", { desc = "Clear search highlight" })
+map("x", "<", "<gv", { desc = "Indent left (keep selection)" })
+map("x", ">", ">gv", { desc = "Indent right (keep selection)" })
 
--- Debug last go test
--- NOTE: Understand this better
-vim.keymap.set("n", "<leader>dgl", function()
-  require("dap-go").debug_last()
-end, { noremap = true, silent = true, desc = "Debug last go test" })
+-- Diagnostics (errors and warnings)
+map("n", "<leader>cd", vim.diagnostic.open_float, { desc = "Line diagnostics" })
 
--- Debug python test
--- NOTE: Understand this better
-vim.keymap.set("n", "<leader>dpy", function()
-  require("dap-python").test_method()
-end, { noremap = true, silent = true, desc = "Debug python test" })
+-- Toggles
+map("n", "<leader>uw", "<cmd>set wrap!<cr>", { desc = "Toggle wrap" })
+map("n", "<leader>ud", function()
+  vim.diagnostic.enable(not vim.diagnostic.is_enabled())
+end, { desc = "Toggle diagnostics" })
+map("n", "<leader>uh", function()
+  vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
+end, { desc = "Toggle inlay hints" })
 
--- Go to the first non-blank character of the line
-vim.keymap.set(
-  "n",
-  ";a",
-  "^",
-  { noremap = true, silent = true, desc = "Go to the first non-blank character of the line" }
-)
+-- Notes (the `notes` script in ~/.local/bin)
+map("n", "<leader>nf", function()
+  vim.fn.system({ "notes", "pdf", vim.fn.expand("%:p") })
+end, { desc = "Render note to PDF" })
+map("n", "<leader>np", function()
+  vim.fn.system({ "notes", "ppt", vim.fn.expand("%:p") })
+end, { desc = "Render note to slides" })
 
--- Go to the end of the line
-vim.keymap.set("n", ";e", "$", { noremap = true, silent = true, desc = "Go to the end of the line" })
-
--- toggleterm keymaps
--- toggle terminal
--- vim.keymap.set("n", "<leader>tt", function()
---   require("toggleterm").toggle()
--- end, { noremap = true, silent = true, desc = "Toggle terminal" })
-
--- open terminal
--- vim.keymap.set(
---   "n",
---   "<leader>to",
---   ":ToggleTerm direction=vertical <CR>",
---   { noremap = true, silent = true, desc = "Open terminal" }
--- )
-
--- close terminal
--- vim.keymap.set("n", "<leader>tc", ":ToggleTerm ", { noremap = true, silent = true, desc = "Close terminal" })
+-- Plugins
+map("n", "<leader>pu", function()
+  vim.pack.update()
+end, { desc = "Update plugins (review, then :write)" })

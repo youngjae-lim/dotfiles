@@ -47,7 +47,7 @@ fi
 echo
 echo "== stylua"
 if have stylua; then
-  if stylua --check config/nvim config/nvim-lean home/dot_hammerspoon; then echo "ok   lua formatting"; else status=1; fi
+  if stylua --check config/nvim home/dot_hammerspoon; then echo "ok   lua formatting"; else status=1; fi
 fi
 
 echo

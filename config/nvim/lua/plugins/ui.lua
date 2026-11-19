@@ -2,7 +2,7 @@
 -- key hints. All from mini.nvim except the colour schemes.
 
 -- Colour scheme: gruvbox by default; <leader>uC picks another (live preview)
--- and the choice is remembered in ~/.local/state/nvim-lean/colorscheme.
+-- and the choice is remembered in ~/.local/state/nvim/colorscheme.
 local theme_file = vim.fn.stdpath("state") .. "/colorscheme"
 
 local function saved_theme()

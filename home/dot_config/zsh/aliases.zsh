@@ -25,6 +25,3 @@ alias czd='chezmoi diff'
 alias cza='chezmoi apply'
 alias cze='chezmoi edit --apply'
 
-# Lean Neovim config (config/nvim-lean), side by side with the current one.
-# NVIM_APPNAME picks the config folder (~/.config/nvim-lean) and its own data.
-alias vl='NVIM_APPNAME=nvim-lean nvim'

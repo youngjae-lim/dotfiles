@@ -9,7 +9,7 @@ My macOS setup, built for working with AI coding agents. Managed with [chezmoi](
 | Terminal | [Ghostty](https://ghostty.org) |
 | Agent runtime / multiplexer | [herdr](https://herdr.dev) (tmux as fallback) |
 | Agents | Claude Code, GitHub Copilot CLI, Gemini CLI, Copilot in VS Code |
-| Editors | Neovim ([LazyVim](https://lazyvim.org)) + VS Code |
+| Editors | Neovim (lean config on the built-in `vim.pack`, [docs](docs/11-neovim.md)) + VS Code |
 | Shell | zsh (vi-mode, hand-rolled prompt and plugin loader) |
 | Runtimes | [mise](https://mise.jdx.dev) (node, python, go) + Laravel Herd (PHP) |
 | Secrets | 1Password CLI via chezmoi templates |
