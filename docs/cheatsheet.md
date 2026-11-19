@@ -13,7 +13,7 @@ HERDR  (Ctrl+B, let go, then…)           CLAUDE CODE
   c new tab    n / p tabs  w workspaces    !cmd shell     /clear /compact
   Shift+N new workspace    Alt+G lazygit   /skills /mcp /permissions /hooks
 
-AEROSPACE (Alt = Option)                 SHELL
+AEROSPACE (Alt = Option = right Cmd)     SHELL
   Alt+H/J/K/L focus   +Shift move        wt <branch> [agent]   tt   ?? <question>
   Alt+<letter> go     +Shift send there  wt ls · wt rm <b> · wt prune · agents-init
   Alt+Tab back   Alt+/ tiles  Alt+, stack Esc v  edit command in nvim
@@ -25,9 +25,24 @@ AEROSPACE (Alt = Option)                 SHELL
 WORKSPACES   T terminal · C code · D data · B browser · W work (Chrome + Teams) · R reading
              M messages · Z zoom · N notes · 1-9 scratch
              any monitor; Alt+Shift+Tab moves a workspace to the other one
+
+KEYBOARD (Karabiner)
+  Caps Lock   tap = Esc, hold = Ctrl       Right Cmd = Option (Alt)
+  Ctrl+H/J/K/L = arrow keys, everywhere    Left Cmd unchanged
+
+NEOVIM   (Space = leader; press it and wait for the key-hint popup)
+  Space Space  find files     Space /  search text   Space e  file tree
+  Space fr     recent files   Space fb buffers       Space cs outline
+  Tab / S-Tab  next/prev buf  Space bd close buffer  Space mx zoom window
+  gd  definition   grr references   K hover docs     Space cr rename
+  Space ca  code action      ]d [d  next/prev problem Space cd line problems
+  Space cf  format           ys ds cs  surround      ]h [h  git changes
+  Space gg  lazygit          Space uC  theme         Space qs restore session
+  Arrows move between windows (Shift+arrows resize)  ;a ;e  line start/end
+  Typing: Enter accept menu · Tab accept Copilot · Ctrl+G next suggestion
 ```
 
-Chapters: [herdr](04-terminal.md#herdr-where-your-agents-live) · [Claude Code](05-ai-agents.md#keys-and-commands-worth-knowing) · [AeroSpace](09-desktop.md#aerospace-window-tiling) · [shell](08-languages-and-tools.md#your-shell-shortcuts) · [wt](06-worktrees.md)
+Chapters: [herdr](04-terminal.md#herdr-where-your-agents-live) · [Claude Code](05-ai-agents.md#keys-and-commands-worth-knowing) · [AeroSpace](09-desktop.md#aerospace-window-tiling) · [keyboard](09-desktop.md#karabiner-and-hammerspoon) · [shell](08-languages-and-tools.md#your-shell-shortcuts) · [wt](06-worktrees.md) · [Neovim](11-neovim.md#keys-youll-use)
 
 ## Changing your config
 
