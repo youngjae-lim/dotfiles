@@ -29,6 +29,7 @@ WORKSPACES   T terminal · C code · D data · B browser · W work (Chrome + Tea
 KEYBOARD (Karabiner)
   Caps Lock   tap = Esc, hold = Ctrl       Right Cmd = Option (Alt)
   Ctrl+H/J/K/L = arrow keys, everywhere    Left Cmd unchanged
+  Caps+Tab / Caps+Shift+Tab = next / previous tab (Chrome, most apps)
 
 NEOVIM   (Space = leader; press it and wait for the key-hint popup)
   Space Space  find files     Space /  search text   Space e  file tree
