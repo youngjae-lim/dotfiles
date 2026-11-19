@@ -14,9 +14,11 @@ local pick = require("plugins.finder").pick
 -- Same folder the script uses; NOTES_DIR overrides it there and here
 local notes_dir = vim.env.NOTES_DIR or vim.fs.joinpath(vim.env.HOME, "Notes")
 
--- Run `notes <args>` without freezing the editor; report the result
+-- Run `notes <args>` without freezing the editor; report the result.
+-- detach: keep rendering even if you quit Neovim right after saving
+-- (otherwise quitting stops pandoc halfway and no PDF appears).
 local function run(args, quiet)
-  vim.system(vim.list_extend({ "notes" }, args), { text = true }, function(res)
+  vim.system(vim.list_extend({ "notes" }, args), { text = true, detach = true }, function(res)
     vim.schedule(function()
       if res.code ~= 0 then
         vim.notify(("notes %s failed:\n%s"):format(args[1], res.stderr), vim.log.levels.ERROR)
