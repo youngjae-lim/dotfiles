@@ -33,6 +33,8 @@ mise doctor                 # health check
 ```
 mise also reads `.nvmrc`, `.python-version` and `.go-version` files, so older projects keep working.
 
+**mise also installs your language tooling:** language servers, formatters and linters for Neovim (and for agents and the shell) are listed in the same file, under "Language tooling". [Chapter 11](11-neovim.md#where-language-tools-come-from-mise-not-mason) has the rules for adding one.
+
 To change a **global** version, edit `home/dot_config/mise/config.toml` and run `chezmoi apply`; it installs the new version for you. Don't use `mise use -g`: it edits the copy in `~`, and the next apply overwrites it.
 
 **Try it.** `mkdir /tmp/mise-try && cd /tmp/mise-try && mise use node@22 && node -v && cd ~ && node -v`. The version changes when you leave the folder. Clean up: `rm -rf /tmp/mise-try`.

@@ -5,6 +5,38 @@ node = "24"
 python = "3.13"
 go = "1.26"
 
+# --- Language tooling: servers, formatters, linters ---------------------------
+# Used by Neovim (config/nvim-lean), and on PATH for the shell and AI agents too.
+# Rule: language tooling lives here; the Brewfile is for everything else.
+# Projects' own versions (node_modules/.bin, vendor/bin) win where they exist.
+# `mise upgrade` updates them; Neovim's :LspMissing shows what's absent.
+"aqua:tree-sitter/tree-sitter" = "latest"          # builds syntax parsers (nvim-treesitter needs >= 0.26.1)
+"go:golang.org/x/tools/gopls" = "latest"           # Go
+"go:mvdan.cc/gofumpt" = "latest"                   # Go formatter
+"aqua:golangci/golangci-lint" = "latest"           # Go linter
+"npm:@vtsls/language-server" = "latest"            # JS/TS/React/Solid/TanStack
+"npm:typescript" = "latest"                        # used by vtsls and Astro
+"npm:svelte-language-server" = "latest"
+"npm:@astrojs/language-server" = "latest"
+"npm:@tailwindcss/language-server" = "latest"
+"npm:vscode-langservers-extracted" = "latest"      # HTML, CSS, JSON, ESLint servers
+"npm:@olrtg/emmet-language-server" = "latest"
+"npm:intelephense" = "latest"                      # PHP / Laravel / Blade
+"npm:yaml-language-server" = "latest"
+"npm:dockerfile-language-server-nodejs" = "latest"
+"npm:bash-language-server" = "latest"
+"npm:@github/copilot-language-server" = "latest"   # Copilot suggestions in Neovim
+"npm:prettier" = "latest"                          # fallback when a project has none
+"npm:blade-formatter" = "latest"
+"npm:markdownlint-cli" = "latest"
+"npm:stylelint" = "latest"
+"aqua:LuaLS/lua-language-server" = "latest"
+"aqua:tamasfe/taplo" = "latest"                    # TOML server + formatter
+"aqua:artempyanykh/marksman" = "latest"            # Markdown notes
+"aqua:hadolint/hadolint" = "latest"                # Dockerfile linter
+"aqua:mvdan/sh" = "latest"                         # shfmt
+"aqua:avencera/rustywind" = "latest"               # Tailwind class sorting (Blade)
+
 [settings]
 idiomatic_version_file_enable_tools = ["node", "python", "go"]
 experimental = false

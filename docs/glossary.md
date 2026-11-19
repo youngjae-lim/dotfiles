@@ -94,8 +94,14 @@ A text format for settings and data, built from `{"name": "value"}`. Most apps' 
 ### Lane
 This guide's name for the three ways a file reaches your home folder: copied, linked or generated. ([Chapter 1](01-big-picture.md#three-ways-a-file-gets-to-your-mac))
 
+### Language server (LSP)
+A separate program that understands one language (`gopls` for Go, `intelephense` for PHP) and tells the editor about errors, definitions, references and completions. LSP, the Language Server Protocol, is the standard they speak. Yours are installed by mise. ([Chapter 11](11-neovim.md))
+
 ### Linter, formatter
 A **linter** points out likely mistakes in code (shellcheck for shell scripts). A **formatter** rewrites code into a consistent style (stylua for Lua).
+
+### Mason
+A Neovim plugin that installs language servers inside Neovim. Not used here: language tools come from mise, so the shell and agents get them too. ([Chapter 11](11-neovim.md#where-language-tools-come-from-mise-not-mason))
 
 ### MCP (Model Context Protocol), MCP server
 A standard way to plug extra tools into an AI agent. An **MCP server** is one such tool: either a web address (`type: http`) or a small program the agent starts on your Mac (`type: stdio`). Yours: `context7` and `time`. ([Chapter 5](05-ai-agents.md#adding-an-mcp-server))
@@ -118,6 +124,9 @@ A chezmoi file that updates *part* of a settings file an app also writes to, ins
 ### Multiplexer (terminal multiplexer)
 A program that holds many terminals in one window and keeps them running in the background. herdr is yours; tmux is the fallback. ([Chapter 4](04-terminal.md))
 
+### NVIM_APPNAME
+An environment variable that tells Neovim which config folder to use (`~/.config/$NVIM_APPNAME`). `vl` runs the lean config this way, next to the old one. ([Chapter 11](11-neovim.md#trying-it-next-to-lazyvim))
+
 ### Origin, remote branch
 **origin** is git's name for the copy of the repo on GitHub. A **remote branch** like `origin/main` is your Mac's record of where that branch is on GitHub, updated by `git pull` or `git fetch`. `git branch -r` lists them. ([Chapter 2](02-chezmoi-basics.md#cleaning-up-branches))
 
@@ -126,6 +135,9 @@ A **pane** is one terminal. A **tab** is a layout of panes. A **workspace** is o
 
 ### PATH
 The list of folders the shell searches when you type a command. If the wrong version of something runs, PATH is usually why. ([Chapter 4](04-terminal.md#zsh-your-shell))
+
+### Plugin (Neovim)
+Someone else's Lua code that adds a feature to Neovim. Listed in `config/nvim-lean/lua/config/pack.lua` and installed by `vim.pack`. ([Chapter 11](11-neovim.md))
 
 ### Prefix key
 A key you press first, then let go, before a shortcut. herdr's is `Ctrl+B`; tmux's is `Ctrl+F`. ([Chapter 4](04-terminal.md))
@@ -181,8 +193,14 @@ A program that arranges windows side by side automatically. Yours is **AeroSpace
 ### TOML
 Another settings-file format, made of `name = value` lines and `[sections]`. Ghostty, AeroSpace and mise use it.
 
+### Tree-sitter
+A fast parser that understands code structure; Neovim uses it for syntax colours and indentation. nvim-treesitter installs a parser per language. ([Chapter 11](11-neovim.md))
+
 ### Vault (1Password)
 A folder of items in 1Password. Your terminal secrets are in the vault named **Dev**. ([Chapter 7](07-secrets.md))
+
+### vim.pack
+Neovim's built-in plugin manager (0.12+). Installs plugins, records their versions in `nvim-pack-lock.json`, and shows updates for you to approve. ([Chapter 11](11-neovim.md#update-plugins))
 
 ### Worktree
 A second checkout of the same repo, in another folder, on another branch. Lets several agents work at once without clashing. ([Chapter 6](06-worktrees.md))

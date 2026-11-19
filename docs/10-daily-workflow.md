@@ -1,6 +1,6 @@
 # 10. A day with this setup
 
-[← Windows, keyboard and phone](09-desktop.md) · [Back to start](README.md)
+[← Windows, keyboard and phone](09-desktop.md) · Next: [Neovim →](11-neovim.md)
 
 ## A typical day
 
