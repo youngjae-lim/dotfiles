@@ -214,7 +214,7 @@ EOF
 	chmod +x "$NOTES_DIR/.githooks/pre-commit"
 	git_notes config core.hooksPath .githooks
 	echo "notes: created $NOTES_DIR"
-	echo "next: notes-migrate (dry run), then: gh repo create notes --private --source \"$NOTES_DIR\" --remote origin"
+	echo "next: gh repo create notes --private --source \"$NOTES_DIR\" --remote origin && notes save"
 }
 
 main() {

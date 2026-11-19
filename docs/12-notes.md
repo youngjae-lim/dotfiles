@@ -25,7 +25,7 @@ flowchart LR
 - **Git gives you history.** Every `notes save` records a version. You can see how any note changed, and get back anything you deleted.
 - **GitHub is the backup**, and later the source the website reads from.
 - **PDFs are made from notes, not stored.** Git ignores them; they're rebuilt whenever you save a note.
-- **Google Drive keeps your books** (`bs`) and the old copies of your notes, as an archive.
+- **Google Drive keeps your books** (`bs`) and your notes from before November 2026, as an archive.
 - **Private until public.** A note goes on the website only if its front matter says `public: true`. Forgetting the flag keeps a note private, which is the safe mistake.
 
 Why not keep the notes in Google Drive and add git there? Drive syncs git's internal files one at a time and can corrupt the history. A notes folder outside Drive, pushed to GitHub, avoids that.
@@ -82,7 +82,7 @@ Writing a note (`Ctrl+S`) also re-renders its PDF in the background, so the PDF 
 
 ## First-time setup
 
-Do this once, in order. Nothing touches Google Drive except reading.
+Do this once, in order.
 
 1. **Create the repo:**
    ```sh
@@ -90,26 +90,14 @@ Do this once, in order. Nothing touches Google Drive except reading.
    ```
    This makes `~/Notes` with `daily/`, `attachments/`, a `.gitignore` for PDFs, and the same secret scanner (gitleaks) your dotfiles use, which checks every save for passwords and keys.
 
-2. **Preview the import from Google Drive** (a dry run that copies nothing):
-   ```sh
-   notes-migrate
-   ```
-   It lists every note it would copy, and where to. Daily notes `Notes/src/note-2026-01-02.md` become `daily/2026-01-02.md`, and `Markdown/<folder>/<name>.md` becomes `<folder>/<name>.md`. Images next to notes come along, so their links keep working. The end of the list shows what it **won't** copy: rendered PDFs, images over 1 MB, other file types. Those stay in Drive.
-
-3. **Import:**
-   ```sh
-   notes-migrate --apply
-   ```
-   Every note gets front matter with `public: false` (notes that already had front matter just get `public: false` added). Notes already in `~/Notes` are skipped, so running it twice is safe.
-
-4. **Look through `~/Notes`** (`omn`, or `Space n f` in Neovim). Fix anything odd. Nothing is in git yet, so this is the moment to delete a note you don't want to keep.
-
-5. **Create the private GitHub repo and save the first version:**
+2. **Create the private GitHub repo and save the first version:**
    ```sh
    gh repo create notes --private --source ~/Notes --remote origin
-   notes save "Import notes from Google Drive"
+   notes save "Start notes repo"
    ```
    The first command creates `github.com/<you>/notes`, **private**, and connects `~/Notes` to it. The second records everything and pushes it. Check it on GitHub: the repo should show a lock icon.
+
+**Old notes stay in Google Drive.** The notes from before November 2026 (`Notes/src/note-….md` and `Markdown/`) weren't moved: the new repo starts fresh. They're still there to read, and the Drive copy of a note can be brought over by hand at any time: copy the file into `~/Notes`, add front matter (the example above), then `notes save`.
 
 ## Editing from your Android phone
 
