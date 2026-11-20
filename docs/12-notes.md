@@ -56,9 +56,9 @@ See also [Go tips](tips.md). ![diagram](images/channels.png)
 
 | In the terminal | Does |
 |---|---|
-| `nt` | open today's daily note (`daily/2026-11-19.md`), with a new time heading |
+| `nt` | open today's daily note (`daily/2026-11-19.md`) at the end, ready to type |
 | `note` | create or open a note: asks for a folder and a name |
-| `omn` | pick any note (fuzzy search) and open it |
+| `omn` | pick any note (with a preview) and open it to read; nothing is added to it |
 | `ns` | pick a rendered PDF and open it in zathura |
 | `on` | open the latest daily-note PDF |
 | `bs` | pick a book from Google Drive `Books/` |
@@ -75,6 +75,7 @@ See also [Go tips](tips.md). ![diagram](images/channels.png)
 | `Space n r` / `Space n p` | render this note to PDF / slides now |
 | `Space n h` | this note's history: pick a version, see what changed |
 | `Space n c` | save all notes to GitHub (asks for a message; `Esc` cancels) |
+| `;t` (while typing) / `Space n t` | add a small time stamp: `## Standup;t` becomes `## Standup · *2026-11-20 08:55*`. Type `;t` quickly; if you're slower, put a space before and after it (`## Standup ;t `) and it expands when you type the space. `Space n t` adds one to the end of the current line |
 
 Writing a note (`Ctrl+S`) also re-renders its PDF in the background, so the PDF is always current.
 
