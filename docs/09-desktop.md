@@ -34,7 +34,7 @@ Each monitor shows **one** workspace at a time. Here the 32-inch shows `T` (Clau
 
 | Action | Keys |
 |---|---|
-| **New Ghostty window** | `Alt+Enter` |
+| **New Ghostty window** | `Alt+Enter` (a new window in the running Ghostty, so there's one Dock icon) |
 | **Make this window fill the screen** (press again to go back) | `Alt+Shift+Enter` |
 | Focus window left/down/up/right | `Alt+H` `Alt+J` `Alt+K` `Alt+L` |
 | Move window left/down/up/right (swaps places with its neighbour) | `Alt+Shift+H/J/K/L` |
@@ -74,6 +74,7 @@ A layout that works well: `T` on the 32-inch, `B` or `W` on the 27-inch.
 
 **The portrait 27-inch.** Your config sets `default-root-container-orientation = 'auto'`: on a wide monitor, windows sit side by side; on a tall one, they **stack top and bottom**. So the same workspace looks different depending on which monitor shows it. `Alt+/` flips between side by side and stacked if you want the other arrangement.
 
+- **One Ghostty in the Dock.** `Alt+Enter` asks the running Ghostty for a new window (through its AppleScript support, Ghostty 1.3+), so every terminal window belongs to one app. Opening a separate copy of the app each time, as `open -n` did, added a Dock icon per window. The first time, macOS asks whether AeroSpace may control Ghostty: allow it (System Settings → Privacy & Security → Automation, if you need to change it later).
 - **Ghostty has no automatic rule** on purpose. `Alt+Enter` opens a new terminal *where you are*; with a rule, every new terminal would jump to `T`.
 - **Work and personal stay apart.** `W` holds everything for work (Work Chrome, Teams); `B` and `M` are personal. A Teams **call** opens in its own window on `W`; to take it full screen on the big monitor, send it to `Z` with `Alt+Shift+Z`, then move `Z` over with `Alt+Shift+Tab`.
 - **Chrome's two profiles** are told apart by the end of the window title: `(Work)` goes to `W`, everything else to `B`. Chrome sometimes sets the title a moment after the window appears, so a Work window occasionally lands on `B`: press `Alt+Shift+W`.
