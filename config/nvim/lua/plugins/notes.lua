@@ -7,10 +7,10 @@
 --   <leader>nh   history of this note (every saved version; Enter shows the change)
 --   <leader>nc   commit all notes and push them to GitHub (`notes save`;
 --                asks for a short message)
---   ;ts          (while typing in a markdown file) add a small time stamp:
---                "## Standup;ts" becomes "## Standup · *2026-11-20 08:55*".
+--   ;t           (while typing in a markdown file) add a small time stamp:
+--                "## Standup;t" becomes "## Standup · *2026-11-20 08:55*".
 --                Typed quickly it works anywhere; typed slowly, put a space
---                before it and one after ("Standup ;ts "), and it expands then.
+--                before it and one after ("Standup ;t "), and it expands then.
 --   <leader>nt   the same, at the end of the current line
 -- Every note re-renders to PDF in the background when you write it, so `on`
 -- and the other PDF commands always open the latest.
@@ -64,10 +64,12 @@ vim.api.nvim_create_autocmd("FileType", {
   pattern = "markdown",
   desc = "Time stamp keys in markdown",
   callback = function(ev)
-    -- Fast: a key sequence (each key within 'timeoutlen', 300 ms)
-    vim.keymap.set("i", ";ts", stamp, { buffer = ev.buf, expr = true, desc = "Insert time stamp" })
-    -- Slow: an abbreviation, which expands when you type a space or Enter after it
-    vim.keymap.set("ia", ";ts", function()
+    -- Fast: a key sequence (the second key within 'timeoutlen', 300 ms)
+    vim.keymap.set("i", ";t", stamp, { buffer = ev.buf, expr = true, desc = "Insert time stamp" })
+    -- Slow: an abbreviation, which expands when you type a space or Enter after
+    -- it. (Abbreviations starting with a symbol may end in only one letter,
+    -- which is why the trigger is ;t and not ;ts.)
+    vim.keymap.set("ia", ";t", function()
       return stamp(true)
     end, { buffer = ev.buf, expr = true, desc = "Insert time stamp" })
     vim.keymap.set("n", "<leader>nt", function()

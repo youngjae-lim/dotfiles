@@ -65,7 +65,7 @@ EOF
 }
 
 # Open a note to write in: at the end, on a new line, typing. Nothing is
-# added for you; type your own heading, and `;ts` adds a time stamp
+# added for you; type your own heading, and `;t` adds a time stamp
 # (config/nvim/lua/plugins/notes.lua). Neovim re-renders the PDF on save.
 edit_at_end() {
 	nvim -c "norm Go" -c "norm zz" -c "startinsert" "$1"
