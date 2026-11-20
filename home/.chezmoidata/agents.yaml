@@ -27,6 +27,8 @@ agents:
     - go vet
     - go fmt
     - go mod tidy
+    - mix test
+    - mix format
     - gofmt
     - golangci-lint
     - npm test
