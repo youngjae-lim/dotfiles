@@ -4,5 +4,5 @@ set -euo pipefail
 
 app=$(find /System/Applications /System/Applications/Utilities /Applications /System/Library/CoreServices \
 	-maxdepth 1 -name '*.app' 2>/dev/null |
-	fzf --reverse --border=rounded --height=50% --header='Pick an application to launch.') || exit 0
+	fzf --header='Pick an application to launch' --delimiter=/ --with-nth=-1) || exit 0 # show names only
 open "$app"

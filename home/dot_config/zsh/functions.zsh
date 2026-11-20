@@ -1,18 +1,20 @@
 # Small shell functions.
 
-_fzf_pick() { fzf --reverse --border=rounded --cycle --height="${2:-50%}" --header="$1"; }
+# Look and feel come from FZF_DEFAULT_OPTS (env.zsh); $2 caps the height
+_fzf_pick() { fzf --height="~${2:-60%}" --header="$1" "${@:3}"; }
+_tree_preview='eza --tree --level=2 --color=always --icons=always {}'
 
 cdf() {
   local selected
-  selected=$(find * -maxdepth 1 -type d 2>/dev/null | fzf --reverse --border=rounded --cycle --height=50% \
-    --header='Pick a directory to navigate to' --preview='tree -C {} | head -n 200')
+  selected=$(find * -maxdepth 1 -type d 2>/dev/null |
+    _fzf_pick 'Pick a directory to navigate to' 60% --preview="$_tree_preview")
   [[ -z $selected ]] && echo 'Nothing was selected :(' || cd "$selected"
 }
 
 fav() {
   local dirs=("$GOOGLE_DRIVE_DIR" "$DOTFILES_DIR" "$PROJECTS_DIR" "$NVIM_DIR" "$SHELL_TRASH_DIR")
   local selected
-  selected=$(printf "%s\n" "${dirs[@]}" | _fzf_pick 'Pick a directory to navigate to' 30%)
+  selected=$(printf "%s\n" "${dirs[@]}" | _fzf_pick 'Pick a directory to navigate to' 60% --preview="$_tree_preview")
   [[ -z $selected ]] && echo 'Nothing was selected :(' || cd "$selected"
 }
 

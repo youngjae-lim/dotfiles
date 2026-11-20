@@ -14,6 +14,16 @@ export SHELL_TRASH_DIR="$HOME/.shell/trash"
 export SHELL_PLUGIN_DIR="$HOME/.shell/zsh-plugins"
 export BUN_INSTALL="$HOME/.bun"
 
+# One look for every fzf picker (notes, apps, updater, cdf…): separate boxes for
+# the search line, header and list, no outer frame, and at most 60% of the
+# screen (~ = shrink to fit short lists). Colours are terminal palette numbers,
+# so they follow the Ghostty theme. Docs: chapter 8, "fzf".
+export FZF_DEFAULT_OPTS="--style=full --border=none --height=~60% --layout=reverse --cycle \
+--info=inline-right --highlight-line --prompt='❯ ' --pointer='▌' --marker='✓' \
+--color=bg+:0,fg+:15:bold,hl:3:bold,hl+:3:bold,border:8,label:4:bold,header:4 \
+--color=prompt:5,pointer:5,marker:2,info:8,spinner:5"
+export FZF_DEFAULT_COMMAND="fd --type f --hidden --exclude .git"
+
 # mise shims give non-interactive shells (agents, editors, scripts) the same
 # runtimes; interactive shells switch to `mise activate` in ~/.zshrc.
 typeset -U path PATH

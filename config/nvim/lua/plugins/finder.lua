@@ -6,7 +6,12 @@ local defer = require("config.defer")
 local setup = defer.once(function()
   defer.packadd("fzf-lua")
   local fzf = require("fzf-lua")
-  fzf.setup({ fzf_colors = true })
+  fzf.setup({
+    fzf_colors = true, -- colours from the Neovim theme
+    -- fzf-lua draws its own window; don't let the shell's picker style
+    -- (FZF_DEFAULT_OPTS in zsh env.zsh) add boxes inside it
+    fzf_opts = { ["--style"] = "default", ["--border"] = "none", ["--height"] = "100%" },
+  })
   fzf.register_ui_select() -- code actions and other choices use fzf-lua too
 end)
 
