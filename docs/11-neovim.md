@@ -133,6 +133,7 @@ The "later" plugins are registered in the second list in `config/pack.lua` and l
 | `<leader>nf` / `<leader>ng` | Find a note / search inside your notes (`~/Notes`) |
 | `<leader>nr` / `<leader>np` | Render this note to PDF / slides. Every note also re-renders to PDF by itself when you write it |
 | `<leader>nh` / `<leader>nc` | This note's history / save all notes to GitHub ([chapter 12](12-notes.md)) |
+| `;ts` (typing) / `<leader>nt` | Add a time stamp in a markdown file |
 | `<leader>tt` or `Ctrl+/` | Show / hide a terminal at the bottom. Inside it, `Space` just types a space, so use `Ctrl+/` to hide it; `Esc Esc` = back to normal keys |
 | `<leader>uC` | Colour scheme picker (live preview, remembered) |
 | `<leader>qs` | Restore this folder's last session |

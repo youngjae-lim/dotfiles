@@ -64,10 +64,16 @@ public: false
 EOF
 }
 
-# Open a note at the end with a new timestamped heading, in insert mode.
-# Neovim re-renders the PDF on every save (config/nvim/lua/plugins/notes.lua).
-edit_with_stamp() {
-	nvim -c "norm Go" -c "norm Go## $(date '+%m-%d-%Y %H:%M')" -c "norm G2o" -c "norm zz" -c "startinsert" "$1"
+# Open a note to write in: at the end, on a new line, typing. Nothing is
+# added for you; type your own heading, and `;ts` adds a time stamp
+# (config/nvim/lua/plugins/notes.lua). Neovim re-renders the PDF on save.
+edit_at_end() {
+	nvim -c "norm Go" -c "norm zz" -c "startinsert" "$1"
+}
+
+# Open a note to read: cursor at the end, the file unchanged.
+view_at_end() {
+	nvim + "$1"
 }
 
 render_pdf() {
@@ -96,7 +102,7 @@ cmd_today() {
 	file="$DAILY_DIR/$(date +%Y-%m-%d).md"
 	mkdir -p "$DAILY_DIR"
 	[[ -f $file ]] || front_matter "Notes for $(date +%Y-%m-%d)" >"$file"
-	edit_with_stamp "$file"
+	edit_at_end "$file"
 }
 
 cmd_new() {
@@ -108,7 +114,7 @@ cmd_new() {
 	path="$NOTES_DIR/$dir/$name.md"
 	mkdir -p "$(dirname "$path")"
 	[[ -f $path ]] || front_matter "$name" >"$path"
-	edit_with_stamp "$path"
+	edit_at_end "$path"
 	echo "File path: $path"
 }
 
@@ -118,7 +124,7 @@ cmd_open() {
 	file=$(cd "$NOTES_DIR" && rg --files --glob '*.md' --glob '!README.md' | sort -r |
 		pick 'Pick a note to open' --height=85% --preview 'notes preview {}' --preview-window=right,65%) || true
 	[[ -n $file ]] || die "no file selected"
-	edit_with_stamp "$NOTES_DIR/$file"
+	view_at_end "$NOTES_DIR/$file"
 }
 
 open_pdf_from() {

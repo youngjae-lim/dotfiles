@@ -7,6 +7,9 @@
 --   <leader>nh   history of this note (every saved version; Enter shows the change)
 --   <leader>nc   commit all notes and push them to GitHub (`notes save`;
 --                asks for a short message)
+--   ;ts          (while typing in a markdown file) add a small time stamp:
+--                "## Standup;ts" becomes "## Standup · *2026-11-20 08:55*"
+--   <leader>nt   the same, at the end of the current line
 -- Every note re-renders to PDF in the background when you write it, so `on`
 -- and the other PDF commands always open the latest.
 local pick = require("plugins.finder").pick
@@ -50,6 +53,21 @@ map("<leader>nc", function()
     end
   end)
 end, "Save notes to GitHub")
+
+-- Time stamps: in italics, so they read as a small note next to your text
+local function stamp()
+  return " · *" .. os.date("%Y-%m-%d %H:%M") .. "*"
+end
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "markdown",
+  desc = "Time stamp keys in markdown",
+  callback = function(ev)
+    vim.keymap.set("i", ";ts", stamp, { buffer = ev.buf, expr = true, desc = "Insert time stamp" })
+    vim.keymap.set("n", "<leader>nt", function()
+      vim.api.nvim_set_current_line(vim.api.nvim_get_current_line() .. stamp())
+    end, { buffer = ev.buf, desc = "Add time stamp to line" })
+  end,
+})
 
 vim.api.nvim_create_autocmd("BufWritePost", {
   pattern = notes_dir .. "/*.md", -- * also matches subfolders here
