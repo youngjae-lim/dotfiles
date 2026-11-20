@@ -1,9 +1,12 @@
 # Generates ~/.config/chezmoi/chezmoi.toml on `chezmoi init`.
 sourceDir = {{ joinPath .chezmoi.homeDir "Dotfiles" | quote }}
 
+# Personal values are asked once per machine by `chezmoi init` and saved only
+# in that machine's ~/.config/chezmoi/chezmoi.toml, so they stay out of this
+# public repo. (promptStringOnce asks only if the value isn't saved already.)
 [data]
-  name = "Youngjae Lim"
-  email = "limyoungjae@gmail.com"
+  name = {{ promptStringOnce . "name" "Your full name (for git commits)" | quote }}
+  email = {{ promptStringOnce . "email" "Your email (for git commits)" | quote }}
 
 [diff]
   pager = "delta"

@@ -105,7 +105,7 @@ One difference to know: chezmoi's script runs `brew bundle --no-upgrade`, which 
 
 ## chezmoi's own settings
 
-- **`home/.chezmoi.toml.tmpl`** holds your name, email and diff tool. chezmoi turns it into its real config file, `~/.config/chezmoi/chezmoi.toml`, but only when you run `chezmoi init`. So after editing it, run `chezmoi init` once, then `apply`. If you forget, chezmoi warns *"config file template has changed, run chezmoi init"*.
+- **`home/.chezmoi.toml.tmpl`** holds chezmoi's settings (diff tool, editor) and the *questions* for your name and email. chezmoi turns it into its real config file, `~/.config/chezmoi/chezmoi.toml`, but only when you run `chezmoi init`. The first `init` on a machine **asks** for your name and email (`promptStringOnce`) and saves the answers only in that machine's config, so they never appear in this public repo; later `init`s reuse the saved answers. To change one, edit `~/.config/chezmoi/chezmoi.toml` (or delete the line and run `chezmoi init` to be asked again). See `chezmoi data` for every value templates can use. So after editing it, run `chezmoi init` once, then `apply`. If you forget, chezmoi warns *"config file template has changed, run chezmoi init"*.
 - **`home/.chezmoiignore`** lists files chezmoi should skip, for example the Mac-only ones on a Linux machine. Takes effect on the next `apply`.
 
 Next: [The terminal →](04-terminal.md)
