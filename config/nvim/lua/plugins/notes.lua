@@ -8,7 +8,9 @@
 --   <leader>nc   commit all notes and push them to GitHub (`notes save`;
 --                asks for a short message)
 --   ;ts          (while typing in a markdown file) add a small time stamp:
---                "## Standup;ts" becomes "## Standup · *2026-11-20 08:55*"
+--                "## Standup;ts" becomes "## Standup · *2026-11-20 08:55*".
+--                Typed quickly it works anywhere; typed slowly, put a space
+--                before it and one after ("Standup ;ts "), and it expands then.
 --   <leader>nt   the same, at the end of the current line
 -- Every note re-renders to PDF in the background when you write it, so `on`
 -- and the other PDF commands always open the latest.
@@ -55,14 +57,19 @@ map("<leader>nc", function()
 end, "Save notes to GitHub")
 
 -- Time stamps: in italics, so they read as a small note next to your text
-local function stamp()
-  return " · *" .. os.date("%Y-%m-%d %H:%M") .. "*"
+local function stamp(no_space)
+  return (no_space and "" or " ") .. "· *" .. os.date("%Y-%m-%d %H:%M") .. "*"
 end
 vim.api.nvim_create_autocmd("FileType", {
   pattern = "markdown",
   desc = "Time stamp keys in markdown",
   callback = function(ev)
+    -- Fast: a key sequence (each key within 'timeoutlen', 300 ms)
     vim.keymap.set("i", ";ts", stamp, { buffer = ev.buf, expr = true, desc = "Insert time stamp" })
+    -- Slow: an abbreviation, which expands when you type a space or Enter after it
+    vim.keymap.set("ia", ";ts", function()
+      return stamp(true)
+    end, { buffer = ev.buf, expr = true, desc = "Insert time stamp" })
     vim.keymap.set("n", "<leader>nt", function()
       vim.api.nvim_set_current_line(vim.api.nvim_get_current_line() .. stamp())
     end, { buffer = ev.buf, desc = "Add time stamp to line" })

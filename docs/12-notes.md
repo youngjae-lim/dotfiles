@@ -75,7 +75,7 @@ See also [Go tips](tips.md). ![diagram](images/channels.png)
 | `Space n r` / `Space n p` | render this note to PDF / slides now |
 | `Space n h` | this note's history: pick a version, see what changed |
 | `Space n c` | save all notes to GitHub (asks for a message; `Esc` cancels) |
-| `;ts` (while typing) / `Space n t` | add a small time stamp: `## Standup;ts` becomes `## Standup · *2026-11-20 08:55*`. `Space n t` adds one to the end of the current line |
+| `;ts` (while typing) / `Space n t` | add a small time stamp: `## Standup;ts` becomes `## Standup · *2026-11-20 08:55*`. Type `;ts` quickly; if you're slower, put a space before and after it (`## Standup ;ts `) and it expands when you type the space. `Space n t` adds one to the end of the current line |
 
 Writing a note (`Ctrl+S`) also re-renders its PDF in the background, so the PDF is always current.
 
