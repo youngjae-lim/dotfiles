@@ -46,6 +46,19 @@ flowchart LR
     classDef secret fill:#fee2e2,stroke:#b91c1c,color:#450a0a
 ```
 
+**Not every list reaches every agent.** Each agent supports different kinds of settings, so each list in `agents.yaml` goes only where it can be expressed:
+
+| List in `agents.yaml` | Claude Code | Gemini CLI | Copilot CLI | VS Code |
+|---|---|---|---|---|
+| `allowCommands` (run without asking) | ✅ `Bash(mix test:*)` | ✅ `commandPrefix` | ❌ no settings file for it | ❌ |
+| `askCommands` (always ask) | ✅ | ✅ | ❌ (it asks anyway) | ❌ |
+| `denyCommands` (never) | ✅ | ✅ | single-word ones only (`sudo`, `op`) | ❌ |
+| `denyPaths` (never read or write) | ✅ + guard hook | ✅ | ✅ | ❌ |
+| `copilot.allowTools` | | | ✅ via the `copilot` wrapper | |
+| `mcpServers` (extra tools) | ✅ | ✅ | ✅ | ✅ |
+
+So **allowing a command for Copilot too** means adding it in two places: `allowCommands` (for Claude and Gemini) and `copilot.allowTools` as `shell(mix test)`. Copilot matches the command plus one more word, so `shell(mix test)` covers `mix test` and `mix test --failed`. To see where a change lands before applying it, run `chezmoi diff`: only the files that change are listed.
+
 **After changing `agents.yaml`**, run `scripts/check.sh`. It builds every agent's settings from the file and fails if any of them disagree with it, so a rule can't quietly go missing for one agent. Then `chezmoi apply`, `exec zsh`, and start a new agent session.
 
 ## What agents may do
