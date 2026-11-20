@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# ghostty-new-window: a new window in the running Ghostty, or start Ghostty.
+# `open -n -a Ghostty` started a separate copy of the app each time (one more
+# Dock icon per window). Ghostty 1.3+ can be told to open a window over
+# AppleScript instead. The first time, macOS asks whether AeroSpace may
+# control Ghostty: allow it. Bound to Alt+Enter in aerospace.toml.
+set -euo pipefail
+if [[ $(osascript -e 'application "Ghostty" is running') == true ]]; then
+	osascript -e 'tell application "Ghostty"
+		set cfg to new surface configuration
+		new window with configuration cfg
+		activate
+	end tell' >/dev/null
+else
+	open -a Ghostty # starting it opens its first window
+fi
