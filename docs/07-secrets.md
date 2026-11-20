@@ -85,6 +85,53 @@ With no secrets in the file (as now), chezmoi never asks.
 
 If the popup appears on a command that shouldn't need it (`git`, `check.sh`), something is calling `op` that shouldn't be: worth investigating.
 
+## Who can see a secret in your shell?
+
+**The short version:** a secret you `export` is handed to **every program you start from that shell**, including AI agents. So the fewer secrets your shell carries, and the shorter the time, the better.
+
+**How it works.** Every running program has an **environment**: a list of named values (`HOME`, `PATH`, `EDITOR`…) that it can read. When one program starts another, the new one gets a **copy** of that list. `export` adds a value to the list. So:
+
+```mermaid
+flowchart TD
+    S["secrets.zsh<br/>export API_KEY=…"]:::source --> Z["your zsh<br/>(has API_KEY)"]:::step
+    Z --> N["nvim"]:::output
+    Z --> A["claude / copilot / gemini<br/>(has API_KEY)"]:::warn
+    Z --> H["herdr<br/>(has API_KEY)"]:::step
+    H --> P["every herdr pane<br/>(has API_KEY)"]:::warn
+    Z --> E["exec zsh<br/>(still has API_KEY)"]:::warn
+    classDef source fill:#dbeafe,stroke:#1d4ed8,color:#0b1b3f
+    classDef step fill:#f1f5f9,stroke:#64748b,color:#1e293b
+    classDef output fill:#dcfce7,stroke:#15803d,color:#052e16
+    classDef warn fill:#fee2e2,stroke:#b91c1c,color:#450a0a
+```
+
+Every box under your shell got its own copy. `unset API_KEY` removes it from *this* shell only, not from copies already handed out.
+
+**What can actually see it:**
+
+| Who | Can see your shell's secrets? | Why |
+|---|---|---|
+| Programs you start from that shell, **including AI agents** | **Yes** | They inherit the environment. An agent running `env` sees everything. The guard hook stops agents reading `secrets.zsh`, but it can't take away what they inherited. |
+| herdr panes | **Yes**, until `herdr server stop` | Panes inherit herdr's environment, from whichever shell started herdr. |
+| Tools that print or log their environment (some crash reports, debug modes) | Sometimes | Whatever they log can end up in a file or a bug report. |
+| Anyone watching your screen when you run `env` | Yes | Avoid `env` / `printenv` while screen-sharing. |
+| Other user accounts on the Mac, other people on your network | **No** | Only programs running as *you* can read your programs' environments. |
+
+**Rules of thumb**, best first:
+
+1. **Give a secret to one command, not to the shell.** 1Password's `op run` fetches the secrets, runs one command with them, and that's it: your shell and your agents never get them. Put the references (never the values) in a file, then run the command through `op run`:
+   ```sh
+   # .env.op   (safe to commit: references only)
+   API_KEY=op://Dev/X/credential
+   ```
+   ```sh
+   op run --env-file .env.op -- npm run deploy
+   ```
+   As a bonus, `op run` hides the secret's value (`<concealed by 1Password>`) if the command ever prints it.
+2. **For one project, use direnv** (next section): the secret is there only while you're inside that project's folder.
+3. **Keep `secrets.zsh` for secrets that really must be everywhere.** Ideally it stays empty, as it is now.
+4. **Starting an agent?** Do it in a shell that never loaded secrets. If you `unset` something or removed it from `secrets.zsh`, open a **new** terminal tab (not `exec zsh`) before starting the agent.
+
 ## Secrets for one project: direnv
 
 For a key only one project needs, use **direnv** instead of your global shell. It loads a folder's `.envrc` file when you `cd` in, and unloads it when you leave:
