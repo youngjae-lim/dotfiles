@@ -35,6 +35,8 @@ op read "op://Dev/OPENAI_API_KEY/credential"   # print one secret
 
 > **Tip:** a command that starts with a **space** isn't saved in your shell history. Use that whenever you type a secret.
 
+**Reading a reference:** `op://Dev/OPENAI_API_KEY/credential` is **vault** / **item title** / **field**. It uses the item's *title* (the big name at the top of the item), not its "key name" field. If you're unsure, right-click the field in the 1Password app and choose **Copy Secret Reference**.
+
 **Adding a secret to your shell (3 steps):**
 1. Create it in 1Password (command above, or in the app).
 2. Add a line to `home/dot_config/zsh/private_secrets.zsh.tmpl`:
@@ -43,12 +45,14 @@ op read "op://Dev/OPENAI_API_KEY/credential"   # print one secret
    ```
 3. `chezmoi apply`, then open a new shell.
 
+The rendered file, `~/.config/zsh/secrets.zsh`, is readable only by you: `ls -l` shows `-rw-------`, while ordinary files show `-rw-r--r--`. That comes from the `private_` at the start of the template's name. To check what the template *would* produce without writing anything: `chezmoi execute-template '{{ onepasswordRead "op://Dev/NAME/credential" }}'` (it prints to the screen only).
+
 Right now the file has no secrets in it, just its comment lines, so it's ready for the first one.
 
 **Removing a secret you no longer need (5 steps):**
 1. `cze ~/.config/zsh/secrets.zsh` and **delete** the `export …` line. Save; `cze` applies it.
 2. Check: `grep NAME ~/.config/zsh/secrets.zsh` prints nothing, and `git diff` shows one red line.
-3. Clear it from shells that already loaded it: `unset NAME`. New windows won't have it. (herdr panes inherit herdr's environment, so they may keep it until `herdr server stop`.)
+3. Clear it from shells that already loaded it: `unset NAME`. New windows won't have it, but `exec zsh` does: an exported variable is part of the shell's *environment*, which the new zsh inherits. (herdr panes inherit herdr's environment, so they may keep it until `herdr server stop`.)
 4. Archive it in 1Password: `op item delete NAME --vault Dev --archive` (restorable from 1Password's Archive; leave off `--archive` to delete for good).
 5. Make sure nothing else uses it (`rg -l NAME ~/Projects ~/Dotfiles`), then `scripts/check.sh` and commit.
 
@@ -101,6 +105,7 @@ Scan any other repo with `gitleaks git`.
 
 - **1Password errors during `chezmoi apply`**: unlock the 1Password app, then check `op vault list` shows **Dev**. In the app, **Settings → Developer → Integrate with 1Password CLI** must be on.
 - **A new secret isn't in your shell**: did you `chezmoi apply` and open a **new** shell?
+- **`"NAME" isn't an item in the "Dev" vault`**: the reference doesn't match the item's title (often still the default, like "API Credential"), or the item is in another vault. `op item list --vault Dev` lists the titles.
 - **gitleaks blocks a commit**: it found something that looks like a secret. Remove it from the staged files (`git restore --staged <file>`), move the value to 1Password, and reference it instead.
 
 Next: [Languages and small tools →](08-languages-and-tools.md)
