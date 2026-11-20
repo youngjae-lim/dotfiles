@@ -37,7 +37,8 @@ die() {
 	exit 1
 }
 
-pick() { fzf --reverse --border=rounded --height=50% --header="$1"; }
+# Look and feel come from FZF_DEFAULT_OPTS (zsh env.zsh)
+pick() { fzf --header="$1" "${@:2}"; }
 
 need_repo() {
 	[[ -d $NOTES_DIR/.git ]] || die "$NOTES_DIR is not set up yet; run: notes init"
@@ -114,7 +115,8 @@ cmd_new() {
 cmd_open() {
 	local file
 	need_repo
-	file=$(cd "$NOTES_DIR" && rg --files --glob '*.md' | sort | pick 'Pick a note to open') || true
+	file=$(cd "$NOTES_DIR" && rg --files --glob '*.md' --glob '!README.md' | sort -r |
+		pick 'Pick a note to open' --height=85% --preview 'notes preview {}' --preview-window=right,65%) || true
 	[[ -n $file ]] || die "no file selected"
 	edit_with_stamp "$NOTES_DIR/$file"
 }
@@ -125,6 +127,12 @@ open_pdf_from() {
 	[[ -n $file ]] || die "no file selected"
 	zathura "$file" &
 	disown
+}
+
+# Preview for pickers: the note without its front matter, in colour
+cmd_preview() {
+	awk 'NR == 1 && /^---$/ { fm = 1; next } fm && /^---$/ { fm = 0; next } !fm' "$1" |
+		bat --style=plain --color=always --language=markdown
 }
 
 cmd_recent() {
@@ -234,6 +242,7 @@ main() {
 	sync) cmd_sync ;;
 	log) cmd_log "${1:-}" ;;
 	init) cmd_init ;;
+	preview) cmd_preview "${1:?usage: notes preview <file.md>}" ;;
 	-h | --help | help | '') usage ;;
 	*)
 		usage >&2
