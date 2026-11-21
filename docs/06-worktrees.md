@@ -68,6 +68,21 @@ wt prune                       # remove every clean worktree whose branch is mer
 
 Inside herdr, close the leftover workspace yourself after removing a worktree.
 
+## Reviewing an agent's work
+
+When the agent says it's done, check it yourself before pushing, in a shell **inside the worktree** (in herdr: `Ctrl+B` then `v` in the agent's workspace opens one there):
+
+```sh
+git log --oneline main..HEAD    # the commits it made
+git diff main                   # exactly what changed; anything unexpected is a question for the agent
+scripts/check.sh                # the checks really pass
+chezmoi --source "$PWD" diff ~/.config/zsh/agents.zsh   # preview one file in ~ from this worktree
+```
+
+**`--source` is for looking only.** It makes chezmoi treat the worktree as your repo, so a full `chezmoi --source "$PWD" diff` also shows your linked configs (Neovim, Karabiner, VS Code) "moving" into the worktree. **Never `apply` with `--source`**: those links would point into a folder that `wt prune` later deletes. Apply only from `~/Dotfiles`, after the pull request is merged and pulled. Name the file you care about, as above, to keep the preview short.
+
+**After merging:** in `~/Dotfiles`, run `git pull`, then `chezmoi apply`, then `wt prune`, then close the agent's herdr workspace. herdr may flag that workspace when its folder disappears; that's expected.
+
 ## Try it
 
 In a herdr pane inside a repo, run `wt try/worktree none` (`none` means "don't start an agent"). A new workspace appears in the sidebar. Run `git branch --show-current` there. To clean up: close that workspace, then `wt rm try/worktree`.

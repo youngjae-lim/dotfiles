@@ -97,7 +97,7 @@ flowchart TB
 | Close pane | `Ctrl+B` then `x` |
 | New tab / next / previous | `Ctrl+B` then `c` / `n` / `p` |
 | New workspace | `Ctrl+B` then `Shift+N`, or click **new** in the sidebar |
-| Pick a workspace | `Ctrl+B` then `w` |
+| Switch workspace | `Ctrl+B` then `w`: the sidebar becomes a list; arrows (or `j`/`k`) to move, `Enter` to switch, `Esc` to cancel. Or click it |
 | New git worktree workspace | `Ctrl+B` then `Shift+G` (or `wt`, [chapter 6](06-worktrees.md)) |
 | Lazygit popup | `Ctrl+B` then `Alt+G` |
 | Open a project as a workspace | `tt` (your project picker) |
@@ -114,6 +114,7 @@ The mouse works for everything: click panes, drag borders, right-click for menus
 
 **When it breaks**
 - *"Saved directory is unavailable"*: a workspace points at a deleted folder. Close it: right-click the workspace → close, or `herdr workspace list` then `herdr workspace close <id>`.
+- **A command behaves like an old version** (for example `wt prune` creates a branch called `prune`): that pane's shell started before the change and still has the old functions in memory. herdr keeps panes alive for days, so this happens after any change to `~/.config/zsh/`. Run `exec zsh` in the pane, or open a new one. `whence -v <name>` says where a command came from; `type -f <name>` shows the version the shell actually has.
 - Running `herdr` inside herdr is blocked on purpose. Use `tt` or a new workspace instead.
 - An agent shows the wrong status: `herdr agent list`, then `herdr agent explain <pane-id>`.
 - Config: `home/dot_config/herdr/config.toml`. After `chezmoi apply`, run `herdr server reload-config`.
