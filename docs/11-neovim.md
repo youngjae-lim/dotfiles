@@ -144,6 +144,8 @@ The "later" plugins are registered in the second list in `config/pack.lua` and l
 
 **While typing:** `Enter` accepts the menu item, `Tab` accepts Copilot's grey suggestion, `Ctrl+G` shows Copilot's next suggestion, `Ctrl+Space` opens the menu, `Ctrl+S` shows the function signature.
 
+**Chatting with Copilot** (or Claude) inside Neovim: there's no chat plugin on purpose. Open the bottom terminal (`Space t t`) and run `copilot`. It works in your project with the same permissions as everywhere else (`agents.yaml`), and keeps the conversation while hidden (`Ctrl+/`). One `Esc` reaches Copilot; two leave typing mode so you can scroll or copy (`i` to type again). If it edits a file you have open, `:checktime` reloads it.
+
 ### Rules for adding your own keys
 
 - **Leader groups:** `b` buffer, `c` code, `f` find, `g` git, `n` notes, `p` plugins, `q` quit/session, `s` search, `t` terminal, `u` toggle. Put a new key in the group it belongs to.

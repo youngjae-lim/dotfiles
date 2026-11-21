@@ -303,6 +303,7 @@ Two things follow from that:
 
 ```sh
 cd ~/Dotfiles
+git switch main && git pull           # 0. start from an up-to-date main
 git switch -c feat/bigger-gaps        # 1. make a branch and switch to it
 # 2. edit files in home/ (or ask an agent to)
 chezmoi diff && chezmoi apply         # 3. try it on your Mac
@@ -319,6 +320,19 @@ chezmoi status                        # 11. should print nothing: all in sync
 ```
 
 > **`git switch`**: change which branch your folder shows. `-c` creates a new branch first. **`git pull`**: fetch the latest commits from GitHub and add them to your current branch.
+
+**Why step 0 matters.** A branch started from an *old* `main` is missing whatever was merged since. Applying from it quietly undoes those changes on your Mac, because chezmoi applies the whole branch, not just your edit. (It happened once: a branch made before the fzf and notes changes would have put the old versions back. `chezmoi diff` showed it in time.) If you notice too late, rebase the branch onto the current `main` (`git rebase main` while on it), or start a fresh branch and redo the small change.
+
+**Checking what you're about to push.** `git diff` shows only changes you haven't committed yet. For commits that are made but not pushed:
+
+| You want to see | Command |
+|---|---|
+| a quick summary: branch, `[ahead N]` commits not pushed, changed files | `git status -sb` |
+| the commits GitHub doesn't have yet | `git log --oneline origin/main..HEAD` |
+| what those commits change | `git diff origin/main` |
+| the latest commit and its changes | `git show` (`q` to leave) |
+
+In `git status -sb`, each file has two letters: the **left** one is what's staged for the next commit, the **right** one is what's changed on disk since (`M` modified, `A` added, `D` deleted, `??` untracked).
 
 ### Branches you don't need to switch to
 

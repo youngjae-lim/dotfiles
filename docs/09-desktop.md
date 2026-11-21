@@ -1,6 +1,8 @@
 # 9. Windows, keyboard and phone
 
-[← Languages and small tools](08-languages-and-tools.md) · Next: [A day with this setup →](10-daily-workflow.md)
+[← Languages and small tools](08-languages-and-tools.md) · **Other phone apps.** herdr has an official phone app, and there are independent ones (Sherpr, Mussh…). They connect over SSH. The official one needs **herdr-core**, which comes with the Herdr *desktop* app, not the terminal version you use; it offers to install it when you connect, so decline. Ovis (agents) plus Termux (a full terminal, [chapter 12](12-notes.md#editing-from-your-android-phone)) already cover both jobs. If you try an independent app, give it its own SSH key so you can remove it alone.
+
+Next: [A day with this setup →](10-daily-workflow.md)
 
 ## AeroSpace: window tiling
 
