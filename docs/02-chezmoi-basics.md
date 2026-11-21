@@ -92,7 +92,8 @@ flowchart TD
     Q{"Which file did<br/>you change?"}:::step
     Q -->|"config/nvim, config/vscode settings,<br/>config/karabiner"| N["Lane 2: no apply.<br/>Just restart or reload the app."]:::output
     Q -->|"docs/, README, AGENTS.md,<br/>scripts/, install.sh"| X["Not copied anywhere.<br/>Just commit."]:::output
-    Q -->|"anything in home/,<br/>or the Brewfile"| Y["chezmoi diff, then chezmoi apply,<br/>then reload the app"]:::source
+    Q -->|"anything in home/"| Y["chezmoi diff, then chezmoi apply,<br/>then reload the app"]:::source
+    Q -->|"the Brewfile"| B["chezmoi status (R line),<br/>then chezmoi apply"]:::source
     Q -->|not sure| S["Run chezmoi status.<br/>Empty means nothing to apply."]:::step
     classDef source fill:#dbeafe,stroke:#1d4ed8,color:#0b1b3f
     classDef step fill:#f1f5f9,stroke:#64748b,color:#1e293b
@@ -133,8 +134,10 @@ The same thing as a table:
 These two never change anything:
 ```sh
 chezmoi status     # empty = nothing waiting to be applied
-chezmoi diff       # shows exactly what apply WOULD change
+chezmoi diff       # shows exactly what apply WOULD change in your files
 ```
+
+**Scripts only show in `status`.** Your chezmoi settings hide scripts from `chezmoi diff` (`[diff] exclude = ["scripts"]` in `.chezmoi.toml.tmpl`), so changing the Brewfile gives an empty diff. `chezmoi status` still lists the install script with **`R`** ("will run"), for example ` R .chezmoiscripts/darwin/10-brew-bundle.sh`: the script holds a fingerprint of the Brewfile, so any change to it makes the script due again. That script installs only what's missing (`brew bundle --no-upgrade`); it doesn't upgrade anything else.
 
 **The safe habit:** when in doubt, run `chezmoi apply`. It only touches files that differ, and `chezmoi diff` shows you first. The risky mistake is the opposite one: editing a copied file in `~` directly. That edit gets overwritten by the next apply.
 

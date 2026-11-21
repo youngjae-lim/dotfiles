@@ -1,4 +1,6 @@
 .DS_Store
 .vscode/
+# Files the Claude app saves when it sends you something
+Claude outputs/
 # Karabiner writes these next to karabiner.json
 config/karabiner/automatic_backups/
