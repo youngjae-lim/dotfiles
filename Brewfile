@@ -46,6 +46,7 @@ brew "stylua"
 brew "terminal-notifier" # Claude "waiting on you" alerts (hooks/dotfiles/notify.sh)
 brew "htop"
 brew "figlet"
+brew "exiftool"   # read/write photo metadata (EXIF, XMP, IPTC)
 
 # --- Languages & data (runtimes for node/python/go come from mise; PHP from Herd) ---
 brew "composer"

@@ -56,6 +56,7 @@ To change a **global** version, edit `home/dot_config/mise/config.toml` and run 
 | **fzf** | Fuzzy picker: type a few letters to filter a list | Used by `tt`, `fav`, `cdf`, `sshf`, `apps`, `updater`, `notes`. Its look (boxes, colours, height) is set once in `FZF_DEFAULT_OPTS` in `home/dot_config/zsh/env.zsh`; try a change live with `export FZF_DEFAULT_OPTS=…` first. `cdf`/`fav` preview folders, `omn` previews notes (daily notes newest first; front matter hidden). Scroll a preview with `Shift+↑/↓` or the mouse wheel. |
 | **ripgrep** (`rg`), **fd** | Fast search inside files, and for file names | Agents prefer them; so should you. |
 | **shellcheck**, **stylua** | Checkers for shell scripts and Lua files | `scripts/check.sh` runs both. |
+| **exiftool** | Reads and writes photo metadata (EXIF, XMP, IPTC) | `exiftool -a -G1 photo.jpg` lists every tag and where it lives. Writes keep a `_original` backup unless you add `-overwrite_original`. |
 
 ## Your shell shortcuts
 
