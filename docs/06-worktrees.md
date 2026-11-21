@@ -68,22 +68,115 @@ wt prune                       # remove every clean worktree whose branch is mer
 
 Inside herdr, close the leftover workspace yourself after removing a worktree.
 
-## Reviewing an agent's work
+## Worked example: add a feature with an agent, end to end
 
-When the agent says it's done, check it yourself before pushing, in a shell **inside the worktree** (in herdr: `Ctrl+B` then `v` in the agent's workspace opens one there):
+This is the loop you'll repeat for every change an agent makes, shown with a real one from November 2026: letting **Copilot** run `mix test` and `mix format` without asking. It takes about 15 minutes, most of it the agent working while you do something else.
 
-```sh
-git log --oneline main..HEAD    # the commits it made
-git diff main                   # exactly what changed; anything unexpected is a question for the agent
-scripts/check.sh                # the checks really pass
-chezmoi --source "$PWD" diff ~/.config/zsh/agents.zsh   # preview one file in ~ from this worktree
+```mermaid
+flowchart TD
+    A["1. herdr, in ~/Dotfiles on main<br/>git pull"]:::source --> B["2. wt feat/name<br/>new workspace + Claude"]:::source
+    B --> C["3. give the task<br/>watch the sidebar"]:::agent
+    C --> D["4. review in the worktree<br/>log, diff, check.sh"]:::step
+    D -->|"something's off"| C
+    D --> E["5. push + PR<br/>merge on GitHub"]:::step
+    E --> F["6. back in ~/Dotfiles<br/>git pull, chezmoi apply"]:::output
+    F --> G["7. wt prune<br/>close the workspace"]:::source
+    classDef source fill:#dbeafe,stroke:#1d4ed8,color:#0b1b3f
+    classDef step fill:#f1f5f9,stroke:#64748b,color:#1e293b
+    classDef output fill:#dcfce7,stroke:#15803d,color:#052e16
+    classDef agent fill:#ffedd5,stroke:#c2410c,color:#431407
 ```
 
-**`--source` is for looking only.** It makes chezmoi treat the worktree as your repo, so a full `chezmoi --source "$PWD" diff` also shows your linked configs (Neovim, Karabiner, VS Code) "moving" into the worktree. **Never `apply` with `--source`**: those links would point into a folder that `wt prune` later deletes. Apply only from `~/Dotfiles`, after the pull request is merged and pulled. Name the file you care about, as above, to keep the preview short.
+**herdr in one breath** (more in [chapter 4](04-terminal.md#herdr-where-your-agents-live)): the **sidebar** on the left lists **workspaces** (one per project or worktree), each holding **panes** (terminals). Keys start with the **prefix** `Ctrl+B`: hold Caps Lock, tap `B`, **let go**, then the action key. The mouse works for everything too.
 
-**After merging:** in `~/Dotfiles`, run `git pull`, then `chezmoi apply`, then `wt prune`, then close the agent's herdr workspace. herdr may flag that workspace when its folder disappears; that's expected.
+| You want to | Keys |
+|---|---|
+| Switch workspace | click it in the sidebar, or `Ctrl+B` `w`, then arrows or `j`/`k`, `Enter` |
+| Open a shell next to the agent | `Ctrl+B` `v` (splits right, in the same folder) |
+| Move between panes | `Ctrl+B` `h`/`j`/`k`/`l`, or click |
+| Close a workspace | right-click it in the sidebar |
+| Leave herdr, keeping everything running | `Ctrl+B` `q` |
 
-## Try it
+### 1. Start in herdr, in `~/Dotfiles`, on a fresh `main`
+
+In Ghostty (`Alt+Enter` for a new window):
+
+```sh
+herdr                                   # starts herdr, or reconnects to it
+cd ~/Dotfiles && git switch main && git pull
+exec zsh                                # only if this pane is old: loads the current wt
+```
+
+**Check:** the prompt shows `~/Dotfiles main`. Starting from an up-to-date `main` matters: a branch from an old `main` would undo newer changes when applied ([chapter 2](02-chezmoi-basics.md#the-routine-start-to-finish)).
+
+### 2. Create the agent's worktree
+
+```sh
+wt feat/copilot-mix                     # Claude; or: wt feat/x copilot / gemini / none
+```
+
+**Expect:** a new workspace in the sidebar named after the branch, herdr switched to it, and Claude starting in a folder under `~/.herdr/worktrees/Dotfiles/`. Your `~/Dotfiles` stays on `main`, untouched.
+
+### 3. Give the task, then let it work
+
+Be specific about **what**, **where**, **how to check** and **where to stop**:
+
+> Add `shell(mix test)` and `shell(mix format)` to `agents.copilot.allowTools` in `home/.chezmoidata/agents.yaml`, next to the other test runners. Run `scripts/check.sh`. Commit with a conventional commit message. Don't push.
+
+Watch the sidebar: each workspace shows **working**, **blocked** (waiting for you, for example to approve a `git commit`) or **done**. You can switch to another workspace, or leave herdr (`Ctrl+B` `q`), and come back; the agent keeps going. When it asks to run something, read it first: that's your `agents.yaml` rules at work ([chapter 5](05-ai-agents.md)).
+
+### 4. Review its work yourself
+
+When it says **done**, press `Ctrl+B` `v` in the agent's workspace to open a shell beside it. `pwd` should show the worktree folder. Then:
+
+```sh
+git log --oneline main..HEAD            # expect: one commit, feat(agents): …
+git diff main                           # expect: exactly the 2 lines you asked for
+scripts/check.sh                        # expect: all checks pass
+chezmoi --source "$PWD" diff ~/.config/zsh/agents.zsh   # expect: 2 new --allow-tool lines
+```
+
+The last line previews what the change will do to your Mac, using the worktree as the repo just this once. Name a file as shown: without one, chezmoi also shows your linked configs (Neovim, Karabiner, VS Code) "moving" into the worktree, which is noise. **Never run `apply` with `--source`**, or those links would point into a folder that step 7 deletes.
+
+If something's off (an extra change, a failing check), tell the agent in its pane and review again.
+
+### 5. Push and merge
+
+Still in the worktree shell:
+
+```sh
+git push -u origin feat/copilot-mix
+gh pr create --fill
+```
+
+Merge it on GitHub (the green button). GitHub deletes its copy of the branch by itself.
+
+### 6. Bring it home: pull and apply from `~/Dotfiles`
+
+Switch to the **Dotfiles** workspace (click it, or `Ctrl+B` `w`). **Check** the prompt says `~/Dotfiles main`, then:
+
+```sh
+git pull                                # the merged change arrives in ~/Dotfiles
+chezmoi apply                           # and reaches your Mac
+```
+
+**Check it landed:** `grep -c "shell(mix test)" ~/.config/zsh/agents.zsh` prints `1`. Shells that were already open still have the old `copilot` wrapper; open a new tab, or `exec zsh`, before using it.
+
+### 7. Clean up
+
+```sh
+wt prune                                # lists "remove feat/copilot-mix (PR merged)", asks, then removes it
+```
+
+Then close the agent's workspace: right-click it in the sidebar. herdr may flag it when its folder disappears; that's expected. **Check:** `wt ls` shows only `~/Dotfiles`, `git branch` shows only `main`.
+
+### What went wrong the first time, so it won't next time
+
+- **`wt prune` made a workspace called `prune`.** That pane's shell had started days earlier, with an older `wt` that didn't know `prune`. Fix: `exec zsh` in old panes (step 1). Clean-up: quit Claude in it, close the workspace, `wt rm prune --force`.
+- **The full `chezmoi --source` diff looked alarming.** Those were the linked configs, not the agent's change (step 4).
+- **`Ctrl+B` `w` showed no pop-up.** It turns the sidebar into the list instead (table above).
+
+## Try it (5 min, without an agent)
 
 In a herdr pane inside a repo, run `wt try/worktree none` (`none` means "don't start an agent"). A new workspace appears in the sidebar. Run `git branch --show-current` there. To clean up: close that workspace, then `wt rm try/worktree`.
 
