@@ -118,6 +118,8 @@ agents:
       - shell(pytest)
       - shell(uv run)
       - shell(ruff)
+      - shell(mix test)
+      - shell(mix format)
       - shell(shellcheck)
       - shell(stylua)
       - shell(scripts/check.sh)
