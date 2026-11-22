@@ -71,6 +71,6 @@ To change a **global** version, edit `home/dot_config/mise/config.toml` and run 
 | `Esc` then `v` | Edit the current command in Neovim. Great for long prompts. |
 | `dot`, `pro`, `fav`, `cdf` | Jump to dotfiles / projects / favourites / a subfolder |
 | `trash <file>` | Move to `~/.shell/trash` instead of deleting |
-| `drive-backup` | Encrypted backup of the external drive to Backblaze B2 with rclone; keys from 1Password `b2-drive-backup`. `drive-backup --dry-run` first, then `drive-backup`; `drive-backup check` verifies every file. To get files back: `drive-backup ls [folder]` to browse, then `drive-backup restore <path>`, which copies into `~/drive-restore/<date-time>/` (never onto the drive). Test a restore after the first upload. |
+| `drive-backup` | Encrypted backup of the external drive to Backblaze B2 with rclone; keys from 1Password `b2-drive-backup`. `drive-backup --dry-run` first, then `drive-backup`; `drive-backup check` verifies every file. To get files back: `drive-backup ls [folder]` to browse, then `drive-backup restore <path>`, which copies into `~/drive-restore/<date-time>/` (never onto the drive). Test a restore after the first upload. The routine, safety and fixes: [chapter 13](13-drive-backup.md). |
 
 Next: [Windows, keyboard and phone →](09-desktop.md)

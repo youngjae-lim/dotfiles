@@ -1,6 +1,6 @@
 # 12. Notes: markdown, history, PDFs, and your phone
 
-[← Neovim](11-neovim.md) · [Back to start](README.md)
+[← Neovim](11-neovim.md) · [Back to start](README.md) · Next: [Drive backup →](13-drive-backup.md)
 
 Your notes are plain markdown files in a **git repo at `~/Notes`**, backed up to a **private GitHub repo**. You write them in Neovim, turn them into PDFs or slides with pandoc, read them in zathura, and can edit them from your Android phone. Later, a personal website can publish the ones you mark public.
 
@@ -167,3 +167,5 @@ Nothing here needs the website, and it doesn't need to be decided now. When you 
 - load a Korean web font in small pieces, so pages stay fast.
 
 Your notes are ready for it as they are: markdown with front matter, standard links, small images next to the notes.
+
+Next: [Drive backup →](13-drive-backup.md)

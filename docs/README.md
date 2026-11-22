@@ -22,6 +22,7 @@ Read chapters 1 and 2 first; they explain the idea everything else rests on. Aft
 | 10 | [A day with this setup](10-daily-workflow.md) | How it all fits together, a four-week plan, and what to do when stuck | 10 min |
 | 11 | [Neovim: the lean config](11-neovim.md) | What's in your editor config, why, and how to change it yourself | 20 min |
 | 12 | [Notes](12-notes.md) | Markdown notes in git: history, PDFs, editing from your phone, and the website later | 15 min |
+| 13 | [Drive backup](13-drive-backup.md) | The external drive, encrypted, to Backblaze B2: the routine, getting files back, and what to do when it complains | 10 min |
 
 Also here:
 - [Glossary](glossary.md): every term, in plain words.

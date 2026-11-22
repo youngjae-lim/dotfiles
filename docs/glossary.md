@@ -22,6 +22,9 @@ The three buckets an agent's commands fall into: run without asking, always ask 
 ### Apply (`chezmoi apply`)
 Make your home folder match the repo: copy, generate and link the files that differ. ([Chapter 2](02-chezmoi-basics.md))
 
+### Backblaze B2
+Online storage you pay for by the gigabyte per month. Your external drive is backed up there, encrypted, by `drive-backup`. ([Chapter 13](13-drive-backup.md))
+
 ### Base, head (pull request)
 The **base** is the branch a pull request merges *into* (usually `main`); the **head** is the branch with the new work. `gh pr create --head <branch>` names the head. ([Chapter 2](02-chezmoi-basics.md#branches-you-dont-need-to-switch-to))
 
@@ -154,6 +157,9 @@ A request on GitHub to merge a branch, where the changes can be reviewed (and CI
 ### Push
 Send your commits to GitHub.
 
+### rclone
+A command-line program that copies and syncs files to cloud storage, and can encrypt them on the way. `drive-backup` is a small wrapper around it. ([Chapter 13](13-drive-backup.md))
+
 ### Repository (repo)
 A folder whose history git tracks. `~/Dotfiles` is one; so is each project in `~/Projects`.
 
@@ -213,6 +219,9 @@ A folder of items in 1Password. Your terminal secrets are in the vault named **D
 
 ### vim.pack
 Neovim's built-in plugin manager (0.12+). Installs plugins, records their versions in `nvim-pack-lock.json`, and shows updates for you to approve. ([Chapter 11](11-neovim.md#update-plugins))
+
+### Volume UUID
+A long ID macOS gives each disk volume, which stays the same even when the name shown in Finder changes ("My Passport for Mac 2"). `drive-backup` finds your drive by it. See it with `diskutil info /Volumes/<name>`. ([Chapter 13](13-drive-backup.md#how-it-stays-safe))
 
 ### Worktree
 A second checkout of the same repo, in another folder, on another branch. Lets several agents work at once without clashing. ([Chapter 6](06-worktrees.md))
