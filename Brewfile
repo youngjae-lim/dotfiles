@@ -47,6 +47,7 @@ brew "terminal-notifier" # Claude "waiting on you" alerts (hooks/dotfiles/notify
 brew "htop"
 brew "figlet"
 brew "exiftool"   # read/write photo metadata (EXIF, XMP, IPTC)
+brew "rclone"     # encrypted drive backups to Backblaze B2 (drive-backup)
 
 # --- Languages & data (runtimes for node/python/go come from mise; PHP from Herd) ---
 brew "composer"
