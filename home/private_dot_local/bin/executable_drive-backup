@@ -1,0 +1,164 @@
+#!/usr/bin/env bash
+# drive-backup: back up the external drive to Backblaze B2, encrypted.
+#
+#   drive-backup --dry-run              show what would upload and delete; changes nothing
+#   drive-backup                        sync the drive to B2
+#   drive-backup check                  compare every file on the drive with B2 (slow)
+#   drive-backup ls [path]              list what's in the backup (folders end in /)
+#   drive-backup restore <path> [dir]   copy a file or folder back out of B2, decrypted,
+#                                       into dir (default ~/drive-restore/<date-time>)
+#
+# rclone encrypts file contents and names before upload (crypt remote inside
+# the B2 bucket), so Backblaze only ever sees ciphertext. Keys come from
+# 1Password item Dev/b2-drive-backup through `op run`; nothing is written to
+# rclone.conf. Losing crypt-password or crypt-salt makes the backup unreadable.
+#
+# A sync makes B2 match the drive, deletions included. B2 keeps replaced and
+# deleted files for 30 days (bucket lifecycle rule), and --max-delete stops a
+# run that would delete a suspicious amount. Only file contents and modified
+# times are backed up, not Finder tags or other extended attributes.
+set -euo pipefail
+
+# The drive is found by its volume UUID (`diskutil info <disk>` shows it), not
+# by name: macOS sometimes mounts it as "My Passport for Mac 2", and another
+# drive with the same name must never be backed up in its place.
+VOLUME_UUID="5ADAD698-026F-3970-9245-A05DDE814C78"
+ITEM="op://Dev/b2-drive-backup"
+MAX_DELETE=500
+
+usage() { sed -n '2,9s/^# \{0,1\}//p' "$0"; }
+
+# Re-run inside `op run`, which turns the op:// references into values for
+# this one process only. --no-masking keeps rclone's output a terminal
+# (progress bar); rclone never prints these values.
+if [[ -z ${DRIVE_BACKUP_IN_OP:-} ]]; then
+	export DRIVE_BACKUP_IN_OP=1
+	export B2_KEY_ID="$ITEM/key-id"
+	export B2_APP_KEY="$ITEM/application-key"
+	export B2_BUCKET="$ITEM/bucket"
+	export CRYPT_PASSWORD="$ITEM/crypt-password"
+	export CRYPT_SALT="$ITEM/crypt-salt"
+	exec op run --no-masking -- "$0" "$@"
+fi
+
+mode=sync
+case "${1:-}" in
+"") ;;
+--dry-run) mode=dry-run ;;
+check) mode=check ;;
+ls) mode="ls" ;; # quoted: shellcheck reads a bare ls as the command
+restore)
+	mode=restore
+	if [[ -z ${2:-} ]]; then
+		echo "drive-backup: restore needs a path, e.g. drive-backup restore Photos/2020" >&2
+		exit 2
+	fi
+	;;
+-h | --help)
+	usage
+	exit 0
+	;;
+*)
+	usage >&2
+	exit 2
+	;;
+esac
+
+command -v rclone >/dev/null || {
+	echo "drive-backup: rclone is not installed" >&2
+	exit 1
+}
+
+# Where macOS mounted the drive right now; empty if it isn't connected.
+SOURCE=$(diskutil info "$VOLUME_UUID" 2>/dev/null | sed -n 's/^ *Mount Point: *//p' || true)
+[[ $SOURCE == /* ]] || SOURCE=""
+
+# A missing drive would look like an empty folder and sync would delete
+# everything in B2, so insist on the mounted, non-empty volume. (ls and
+# restore only read from B2, so they work without the drive, e.g. after
+# losing it.)
+if [[ $mode == sync || $mode == dry-run || $mode == check ]]; then
+	if [[ -z $SOURCE || ! -d $SOURCE ]]; then
+		echo "drive-backup: the backup drive (volume $VOLUME_UUID) is not connected" >&2
+		exit 1
+	fi
+	if [[ -z $(ls -A "$SOURCE") ]]; then
+		echo "drive-backup: $SOURCE is empty; refusing to sync" >&2
+		exit 1
+	fi
+fi
+
+# rclone reads remotes from RCLONE_CONFIG_<NAME>_<OPTION>. Passwords must be
+# "obscured"; feed them on stdin so they never appear in the process list.
+export RCLONE_CONFIG_B2_TYPE=b2
+export RCLONE_CONFIG_B2_ACCOUNT="$B2_KEY_ID"
+export RCLONE_CONFIG_B2_KEY="$B2_APP_KEY"
+export RCLONE_CONFIG_DRIVE_TYPE=crypt
+export RCLONE_CONFIG_DRIVE_REMOTE="b2:$B2_BUCKET/my-passport"
+RCLONE_CONFIG_DRIVE_PASSWORD=$(printf '%s' "$CRYPT_PASSWORD" | rclone obscure -)
+RCLONE_CONFIG_DRIVE_PASSWORD2=$(printf '%s' "$CRYPT_SALT" | rclone obscure -)
+export RCLONE_CONFIG_DRIVE_PASSWORD RCLONE_CONFIG_DRIVE_PASSWORD2
+unset B2_KEY_ID B2_APP_KEY CRYPT_PASSWORD CRYPT_SALT
+
+# macOS housekeeping folders: rebuilt by the system, never worth restoring.
+filters=(
+	--exclude "/.Spotlight-V100/**"
+	--exclude "/.Trashes/**"
+	--exclude "/.fseventsd/**"
+	--exclude "/.DocumentRevisions-V100/**"
+	--exclude "/.TemporaryItems/**"
+	--exclude ".DS_Store"
+)
+
+progress=()
+[[ -t 1 ]] && progress=(--progress)
+
+case $mode in
+check)
+	# Decrypts nothing locally: encrypts each local file's hash with the same
+	# key and compares it with B2's copy.
+	caffeinate -i rclone cryptcheck "$SOURCE" drive: "${filters[@]}" --one-way "${progress[@]}"
+	;;
+dry-run)
+	rclone sync "$SOURCE" drive: "${filters[@]}" --fast-list --dry-run
+	;;
+sync)
+	caffeinate -i rclone sync "$SOURCE" drive: "${filters[@]}" \
+		--fast-list --transfers 8 --max-delete "$MAX_DELETE" "${progress[@]}"
+	;;
+ls)
+	rclone lsf "drive:${2:-}"
+	;;
+restore)
+	# Paths are relative to the drive's top folder, as `drive-backup ls` shows
+	# them. Restores go to a new folder, never onto the drive itself, so a
+	# restore can't overwrite the originals.
+	path=${2#/}
+	path=${path%/}
+	if [[ -z $path ]]; then
+		echo "drive-backup: name a file or folder; restoring the whole drive at once isn't supported here" >&2
+		exit 2
+	fi
+	dest=${3:-"$HOME/drive-restore/$(date +%Y%m%d-%H%M%S)"}
+	[[ $dest == /* ]] || dest="$PWD/$dest"
+	if [[ -n $SOURCE ]]; then
+		case "$dest/" in
+		"$SOURCE"/*)
+			echo "drive-backup: restore into a folder outside $SOURCE" >&2
+			exit 1
+			;;
+		esac
+	fi
+	if ! info=$(rclone lsjson --stat "drive:$path" 2>/dev/null); then
+		echo "drive-backup: $path is not in the backup (see: drive-backup ls)" >&2
+		exit 1
+	fi
+	mkdir -p "$dest"
+	if [[ $info == *'"IsDir":true'* ]]; then
+		caffeinate -i rclone copy "drive:$path" "$dest/$path" --transfers 8 "${progress[@]}"
+	else
+		caffeinate -i rclone copyto "drive:$path" "$dest/$path" "${progress[@]}"
+	fi
+	echo "drive-backup: restored to $dest/$path"
+	;;
+esac
