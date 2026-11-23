@@ -15,8 +15,10 @@
 #
 # A sync makes B2 match the drive, deletions included. B2 keeps replaced and
 # deleted files for 30 days (bucket lifecycle rule), and --max-delete stops a
-# run that would delete a suspicious amount. Only file contents and modified
-# times are backed up, not Finder tags or other extended attributes.
+# run that would delete a suspicious amount: 500 files, or for one run after a
+# big deliberate clean-up, DRIVE_BACKUP_MAX_DELETE=5000 drive-backup. Only file
+# contents and modified times are backed up, not Finder tags or other extended
+# attributes.
 set -euo pipefail
 
 # The drive is found by its volume UUID (`diskutil info <disk>` shows it), not
@@ -24,7 +26,7 @@ set -euo pipefail
 # drive with the same name must never be backed up in its place.
 VOLUME_UUID="5ADAD698-026F-3970-9245-A05DDE814C78"
 ITEM="op://Dev/b2-drive-backup"
-MAX_DELETE=500
+MAX_DELETE=${DRIVE_BACKUP_MAX_DELETE:-500}
 
 usage() { sed -n '2,9s/^# \{0,1\}//p' "$0"; }
 

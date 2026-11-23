@@ -65,7 +65,7 @@ A restore never writes onto the drive (it refuses), so it can't overwrite origin
 
 - **Finds the drive by its volume UUID**, not its name. macOS sometimes mounts it as "My Passport for Mac 2"; another drive with the same name is ignored. To see the UUID: `diskutil info /Volumes/<name> | grep "Volume UUID"`.
 - **Refuses to run if the drive isn't connected or is empty.** Otherwise a missing drive would look like "everything was deleted" and the sync would empty the backup.
-- **`--max-delete 500`**: a run that would delete more than 500 files stops. rclone also skips all deletions if any upload failed.
+- **`--max-delete 500`**: a run that would delete more than 500 files stops (you can raise it for one run, below). rclone also skips all deletions if any upload failed.
 - **30 days of old versions** in the bucket (a lifecycle rule set in the Backblaze dashboard) undo mistakes that did sync.
 - **`caffeinate`** keeps the Mac from sleeping while it runs.
 
@@ -88,7 +88,7 @@ A restore never writes onto the drive (it refuses), so it can't overwrite origin
 - **"the backup drive (volume …) is not connected"**: plug it in. If it is plugged in, the UUID in the script doesn't match this drive (step 4 above).
 - **`storage_cap_exceeded` (403)**: the Backblaze account hit its storage cap. Raise it under Caps & Alerts (with a payment method on the account), then run `drive-backup` again; nothing was deleted.
 - **`NOTICE: Config file "…/rclone.conf" not found - using defaults`**: harmless. The script deliberately uses no config file, so the keys stay out of files.
-- **"too many deletes" / stopped by `--max-delete`**: more than 500 files would be removed. If you didn't mean to delete that much, stop and check the drive. If you did (you moved a big folder off), ask for help running it once with a higher limit.
+- **"too many deletes" / stopped by `--max-delete`**: more than 500 files would be removed. If you didn't mean to delete that much, stop and check the drive. If you did (you moved a big folder off), check with `drive-backup --dry-run | tail -20`, then run it once with a higher limit: `DRIVE_BACKUP_MAX_DELETE=5000 drive-backup`. The limit goes back to 500 on the next run.
 - **The total keeps growing during a run**: rclone is still scanning the drive while it uploads; the real total appears when the scan ends.
 - **It stopped overnight**: the Mac slept (lid closed on battery) or the drive disconnected. Run `drive-backup` again.
 - **"File name too long"**: encrypted names are longer than the originals, and B2 limits a full path to 1,024 bytes. Shorten that file's folder names on the drive.
