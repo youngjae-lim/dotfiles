@@ -21,12 +21,20 @@ Everything below is set up once, in this repo, and given to every agent:
 | Shared thing | Where it's written | What it does |
 |---|---|---|
 | **Instructions** | `home/.chezmoitemplates/agents.md` | "Who I am, how I work": Herd for PHP, conventional commits, ask before pushing… |
-| **Skills** | `home/dot_agents/skills/*/SKILL.md` | Step-by-step playbooks the agent loads **only when relevant**: `commit`, `code-review`, `pr-description`, `tdd`, `laravel-conventions`, `go-conventions`, `python-conventions`, `ts-js-conventions`, `notes-markdown`, `herdr` |
+| **Skills** | `home/dot_agents/skills/*/SKILL.md` | Step-by-step playbooks the agent loads **only when relevant**: `commit`, `code-review`, `pr-description`, `tdd`, `laravel-conventions`, `go-conventions`, `python-conventions`, `ts-js-conventions`, `notes-markdown`, `herdr`, plus 20 design and animation skills from Emil Kowalski (below) |
 | **Permissions** | `home/.chezmoidata/agents.yaml` | What runs without asking, what always asks, what's never allowed |
 | **Secret paths** | same `agents.yaml` | Files agents may never read or write |
 | **MCP servers** | same `agents.yaml` | Extra tools: `context7` (up-to-date library docs) and `time` (the current time in your timezone) |
 
 > **Skill**: a short instruction file an agent reads when the task matches, like a recipe card. **MCP** (Model Context Protocol): a standard way to plug extra tools into an agent. An **MCP server** is one such tool; it's either a web address (`http`) or a small program the agent starts on your Mac (`stdio`).
+
+### Design skills from Emil Kowalski
+
+Twenty of the skills come from [emilkowalski/skills](https://github.com/emilkowalski/skills) (MIT licence, a copy in each folder): `emil-design-eng` (the main one), `animate`, `review-animations`, `improve-animations`, `find-animation-opportunities`, `remove-animations`, `choreograph`, `animation-performance`, `animation-vocabulary`, `apple-design`, `gestures`, `mobile-native`, `break-ui`, `learn-taste`, `prototype`, `pick-ui-library`, `ask-sonner`, `ask-emil` (which tells you which one to use), and `animate-expo` and `write-swift` for native apps.
+
+- They were copied from upstream commit `64eb3de` (2026-11-15) after reading every file. Nothing in them runs code.
+- Their examples are React. Sections headed **"(local addition)"**, and the file `emil-design-eng/STACKS.md`, translate them to Svelte 5, Astro, htmx, Blade/Livewire and LiveView. Everything else is Emil's text, unchanged, except `ask-sonner`'s description, which also names svelte-sonner so agents pick it in Svelte projects.
+- **Updating:** download the new version, copy the folders over, then put the "(local addition)" sections and `STACKS.md` back. `git diff` shows exactly what to restore.
 
 ### One file, four agents
 
