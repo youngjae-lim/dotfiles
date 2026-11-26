@@ -28,6 +28,10 @@ MSG
   read -r _
 
   chezmoi init --apply --branch "$BRANCH" --source "$HOME/Dotfiles" "$REPO"
+  # Once more: during the first apply, herdr adds its hook to Claude's
+  # settings.json after chezmoi wrote it, which `chezmoi status` would show
+  # as MM until the next apply. This settles it, so a new machine ends clean.
+  chezmoi apply
   git -C "$HOME/Dotfiles" config core.hooksPath .githooks
   echo "Done. Open Ghostty and run: herdr"
 }
@@ -90,6 +94,10 @@ linux() {
   echo "==> Dotfiles (chezmoi asks for your name and email once; the Brewfile and"
   echo "    mise tools install now, which takes a while on older hardware)"
   chezmoi init --apply --branch "$BRANCH" --source "$HOME/Dotfiles" "$REPO"
+  # Once more: during the first apply, herdr adds its hook to Claude's
+  # settings.json after chezmoi wrote it, which `chezmoi status` would show
+  # as MM until the next apply. This settles it, so a new machine ends clean.
+  chezmoi apply
   git -C "$HOME/Dotfiles" config core.hooksPath .githooks
 
   echo "==> zsh as your login shell"
