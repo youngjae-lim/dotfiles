@@ -34,3 +34,14 @@
 	sort = -committerdate
 [help]
 	autocorrect = prompt
+{{- if ne .chezmoi.os "darwin" }}
+# The spare Ubuntu machines: git asks gh for GitHub logins (sign in once with
+# `gh auth login`). The same lines `gh auth setup-git` writes, kept here so
+# chezmoi doesn't remove them. On the Mac, Homebrew's git uses the keychain.
+[credential "https://github.com"]
+	helper =
+	helper = !/home/linuxbrew/.linuxbrew/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+	helper =
+	helper = !/home/linuxbrew/.linuxbrew/bin/gh auth git-credential
+{{- end }}

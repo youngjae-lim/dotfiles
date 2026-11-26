@@ -111,6 +111,7 @@ You don't have to remember to test on a spare: the GitHub check now also applies
 - **`brew: command not found` right after installing**: the shell started before Homebrew existed. Log out and back in, or run `exec zsh`.
 - **Still in bash after logging back in**: `getent passwd $USER` should end in `/usr/bin/zsh`. If not: `sudo chsh -s /usr/bin/zsh $USER`.
 - **Icons show as boxes** (in `eza`, `lf`, the prompt): the terminal's font has no icons. Install a Nerd Font (for example JetBrainsMono Nerd Font) and pick it in the terminal's settings.
+- **`chezmoi apply` says `.config/git/config has changed since chezmoi last wrote it`** after `gh auth login`: gh added its login lines to your git settings. The dotfiles now contain the same lines on Linux, so after `git pull` it's safe to answer `o` (overwrite); `git push` keeps using your GitHub login. (Press `d` first to see the difference.)
 - **`brew bundle` reported failures**: run the command it prints, `brew bundle --file="$HOME/Dotfiles/Brewfile"`, to see which package failed.
 - **mise tools take ages**: some (the Go tools) are compiled on the machine. Let it finish; later updates are quicker.
 - **`op`: "No accounts configured"**, or **"Integrate with 1Password CLI" isn't there**: turn on Settings → Security → "Unlock using system authentication" first (step 4 of "Then, once" above). Answer `n` if `op` offers to add an account manually; that's the SSH-only route.
