@@ -1,2 +1,7 @@
 # Managed by chezmoi. Login-shell setup.
-eval "$(/opt/homebrew/bin/brew shellenv)"
+# Homebrew: /opt/homebrew on the Mac, /home/linuxbrew/.linuxbrew on the spare
+# Ubuntu machines (docs chapter 14).
+for _brew in /opt/homebrew/bin/brew /home/linuxbrew/.linuxbrew/bin/brew; do
+  [[ -x $_brew ]] && { eval "$("$_brew" shellenv)"; break; }
+done
+unset _brew

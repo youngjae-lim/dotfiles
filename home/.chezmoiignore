@@ -1,8 +1,13 @@
 # Paths (relative to ~) chezmoi must not manage on some machines.
 {{ if ne .chezmoi.os "darwin" }}
+# Mac-only apps and settings (the spare Ubuntu machines: docs chapter 14)
 .config/aerospace
 .config/ghostty
 .config/karabiner
 .hammerspoon
 Library
+# Mac-only helpers: AppleScript, /Applications, Homebrew's zathura
+.local/bin/ghostty-new-window
+.local/bin/launcher
+.local/bin/zathura-link-plugins
 {{ end }}

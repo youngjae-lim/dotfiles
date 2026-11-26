@@ -76,9 +76,13 @@ updater() {
     case "$selected" in
       dotfiles*)      chezmoi update ;;
       'zsh plugins')  shell_upgrade ;;
-      homebrew)       brew update && brew upgrade && brew cleanup; zathura-link-plugins ;;
+      homebrew)       brew update && brew upgrade && brew cleanup
+                      (( $+commands[zathura-link-plugins] )) && zathura-link-plugins ;;
       'mise runtimes') mise upgrade ;;
-      'agent CLIs')   claude update; brew upgrade copilot-cli gemini-cli ;;
+      'agent CLIs')   claude update; brew upgrade gemini-cli
+                      # Copilot: a cask on the Mac, its own install script on Linux
+                      if [[ $OSTYPE == darwin* ]]; then brew upgrade --cask copilot-cli
+                      else curl -fsSL https://gh.io/copilot-install | bash; fi ;;
       herdr)          brew upgrade herdr ;;
     esac
     echo "-----"

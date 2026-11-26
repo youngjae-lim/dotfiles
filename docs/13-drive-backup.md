@@ -1,6 +1,6 @@
 # 13. Drive backup: the external drive to Backblaze B2
 
-[← Notes](12-notes.md) · [Back to start](README.md)
+[← Notes](12-notes.md) · [Back to start](README.md) · Next: [Spare Linux machines →](14-spare-linux.md)
 
 `drive-backup` copies your external drive ("My Passport for Mac") to **Backblaze B2**, encrypted, so a dead, lost or stolen drive doesn't mean lost photos. It's one command; this chapter explains what it does, the routine, how to get files back, and what to do when it complains.
 
@@ -53,7 +53,7 @@ drive-backup ls "Photos/2019/"
 drive-backup restore "Photos/2019/Trip"  # → ~/drive-restore/<date-time>/Photos/2019/Trip
 ```
 
-A restore never writes onto the drive (it refuses), so it can't overwrite originals. Check what came back by opening a few files, or compare with the original: `diff -r "<restored folder>" "<original folder>" && echo identical` (RAW files make this take minutes). Delete `~/drive-restore` when you're done.
+`ls` and `restore` also work on the spare Ubuntu machines, so the backup is still reachable if the MacBook is gone ([chapter 14](14-spare-linux.md#getting-backup-files-back-from-a-spare)). A restore never writes onto the drive (it refuses), so it can't overwrite originals. Check what came back by opening a few files, or compare with the original: `diff -r "<restored folder>" "<original folder>" && echo identical` (RAW files make this take minutes). Delete `~/drive-restore` when you're done.
 
 **Something you deleted from the drive** (and a backup ran since): B2 keeps deleted and replaced files for **30 days**. `restore` only sees the current backup, so getting an older version back takes an extra rclone option (`--b2-version-at <date>`) that the script doesn't offer yet; ask an agent or Claude to do it with you, soon, before the 30 days run out.
 
@@ -95,3 +95,5 @@ A restore never writes onto the drive (it refuses), so it can't overwrite origin
 - **1Password error**: unlock 1Password and run it again.
 
 **Cost:** B2 charges per gigabyte stored per month (check Backblaze's current price), plus downloads beyond a free allowance. Moving things you don't need backed up off the drive is the simplest way to keep it down.
+
+Next: [Spare Linux machines →](14-spare-linux.md)

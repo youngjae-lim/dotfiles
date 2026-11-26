@@ -19,6 +19,10 @@
 # big deliberate clean-up, DRIVE_BACKUP_MAX_DELETE=5000 drive-backup. Only file
 # contents and modified times are backed up, not Finder tags or other extended
 # attributes.
+#
+# On the spare Ubuntu machines only `ls` and `restore` work: the drive lives on
+# the Mac, so backing it up (and `check`) happens there. Restoring from Linux
+# is what makes the backup usable when the Mac itself is gone.
 set -euo pipefail
 
 # The drive is found by its volume UUID (`diskutil info <disk>` shows it), not
@@ -29,6 +33,20 @@ ITEM="op://Dev/b2-drive-backup"
 MAX_DELETE=${DRIVE_BACKUP_MAX_DELETE:-500}
 
 usage() { sed -n '2,9s/^# \{0,1\}//p' "$0"; }
+
+# Answer what needs no keys before asking 1Password for them.
+case "${1:-}" in
+-h | --help)
+	usage
+	exit 0
+	;;
+"" | --dry-run | check)
+	if [[ $(uname -s) != Darwin ]]; then
+		echo "drive-backup: backing up runs on the Mac the drive belongs to; here, use ls and restore" >&2
+		exit 1
+	fi
+	;;
+esac
 
 # Re-run inside `op run`, which turns the op:// references into values for
 # this one process only. --no-masking keeps rclone's output a terminal
@@ -71,7 +89,22 @@ command -v rclone >/dev/null || {
 	exit 1
 }
 
-# Where macOS mounted the drive right now; empty if it isn't connected.
+# Keep the computer awake for long transfers: caffeinate on the Mac,
+# systemd-inhibit on Linux when it's allowed (it can be refused, e.g. over SSH
+# without a desktop session), otherwise just run.
+awake() {
+	if command -v caffeinate >/dev/null; then
+		caffeinate -i "$@"
+	elif command -v systemd-inhibit >/dev/null &&
+		systemd-inhibit --what=sleep --who=drive-backup --why=test true 2>/dev/null; then
+		systemd-inhibit --what=sleep --who=drive-backup --why="rclone transfer" "$@"
+	else
+		"$@"
+	fi
+}
+
+# Where macOS mounted the drive right now; empty if it isn't connected (and
+# always empty on Linux, which has no diskutil).
 SOURCE=$(diskutil info "$VOLUME_UUID" 2>/dev/null | sed -n 's/^ *Mount Point: *//p' || true)
 [[ $SOURCE == /* ]] || SOURCE=""
 
@@ -119,13 +152,13 @@ case $mode in
 check)
 	# Decrypts nothing locally: encrypts each local file's hash with the same
 	# key and compares it with B2's copy.
-	caffeinate -i rclone cryptcheck "$SOURCE" drive: "${filters[@]}" --one-way "${progress[@]}"
+	awake rclone cryptcheck "$SOURCE" drive: "${filters[@]}" --one-way "${progress[@]}"
 	;;
 dry-run)
 	rclone sync "$SOURCE" drive: "${filters[@]}" --fast-list --dry-run
 	;;
 sync)
-	caffeinate -i rclone sync "$SOURCE" drive: "${filters[@]}" \
+	awake rclone sync "$SOURCE" drive: "${filters[@]}" \
 		--fast-list --transfers 8 --max-delete "$MAX_DELETE" "${progress[@]}"
 	;;
 ls)
@@ -157,9 +190,9 @@ restore)
 	fi
 	mkdir -p "$dest"
 	if [[ $info == *'"IsDir":true'* ]]; then
-		caffeinate -i rclone copy "drive:$path" "$dest/$path" --transfers 8 "${progress[@]}"
+		awake rclone copy "drive:$path" "$dest/$path" --transfers 8 "${progress[@]}"
 	else
-		caffeinate -i rclone copyto "drive:$path" "$dest/$path" "${progress[@]}"
+		awake rclone copyto "drive:$path" "$dest/$path" "${progress[@]}"
 	fi
 	echo "drive-backup: restored to $dest/$path"
 	;;

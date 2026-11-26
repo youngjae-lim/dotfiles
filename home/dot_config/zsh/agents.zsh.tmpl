@@ -32,7 +32,7 @@ copilot() {
 # An alias (not a function name) so zsh doesn't glob-expand `??` or the question.
 _copilot_ask() {
   [[ $# -gt 0 ]] || { echo "usage: ?? <question>"; return 1; }
-  command copilot -p "Answer briefly for macOS zsh. If a shell command answers it, show the command first. Do not run anything. Question: $*" \
+  command copilot -p "Answer briefly for {{ if eq .chezmoi.os "darwin" }}macOS{{ else }}Ubuntu Linux{{ end }} zsh. If a shell command answers it, show the command first. Do not run anything. Question: $*" \
     --deny-tool=shell --deny-tool=write -s
 }
 alias '??'='noglob _copilot_ask'

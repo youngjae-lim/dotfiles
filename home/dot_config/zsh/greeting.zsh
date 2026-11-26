@@ -111,7 +111,8 @@ function zsh_greeting() {
   echo -e "  " "$yellow"  " Zsh Open:\t"   "$bryellow$timestamp"     "$normal"
   echo -e "  " "$blue"    " Hostname:\t"   "$brmagenta$my_hostname"  "$normal"
   echo -e "  " "$magenta" " Uptime  :\t"   "$brblue$uptime"          "$normal"
-  echo -e "  " "$cyan"    "󱈏 Battery :\t"   "$batcolo$batlv%"         "$normal"
+  # Desktops (Mac Pro, Mac mini) have no battery: skip the line.
+  [[ $batlv != -1 ]] && echo -e "  " "$cyan"    "󱈏 Battery :\t"   "$batcolo$batlv%"         "$normal"
   # echo -e "  " "$green"   " Weather :\t"   "$brgreen$today_weather ($tomorrow_weather)"        "$normal"
   echo
 }

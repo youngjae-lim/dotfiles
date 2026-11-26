@@ -1,20 +1,39 @@
 #!/bin/bash
 # Re-runs whenever the Brewfile changes. Brewfile sha256: {{ joinPath .chezmoi.workingTree "Brewfile" | include | sha256sum }}
+# Runs on the Mac and on the spare Ubuntu machines (Homebrew on Linux); the
+# Brewfile's `if OS.mac?` block keeps Mac-only packages off Linux.
 set -uo pipefail
-command -v brew >/dev/null || eval "$(/opt/homebrew/bin/brew shellenv)"
+if ! command -v brew >/dev/null; then
+  for b in /opt/homebrew/bin/brew /home/linuxbrew/.linuxbrew/bin/brew; do
+    [[ -x $b ]] && eval "$("$b" shellenv)" && break
+  done
+fi
+if ! command -v brew >/dev/null; then
+  echo "chezmoi: Homebrew is not installed; skipping the Brewfile (install.sh installs it)" >&2
+  exit 0
+fi
 brewfile={{ joinPath .chezmoi.workingTree "Brewfile" | quote }}
 # Recent Homebrew refuses formulae from third-party taps until the tap is
 # trusted. Listing a tap in the Brewfile is the decision to trust it, so trust
 # every `tap "owner/repo"` line here instead of naming each one by hand.
 # (Older Homebrew has no `brew trust`; its error is ignored.)
+{{- if eq .chezmoi.os "darwin" }}
+# On the Mac that includes the indented taps inside `if OS.mac?`.
+tap_pattern='^ *tap "([^"]+)".*'
+{{- else }}
+# Off the Mac, only top-level taps: indented ones belong to the Mac-only block.
+tap_pattern='^tap "([^"]+)".*'
+{{- end }}
 while IFS= read -r tap; do
   brew tap "$tap" >/dev/null && brew trust "$tap" >/dev/null 2>&1
-done < <(sed -nE 's/^tap "([^"]+)".*/\1/p' "$brewfile")
+done < <(sed -nE "s/$tap_pattern/\\1/p" "$brewfile")
 if ! brew bundle --file="$brewfile" --no-upgrade; then
   echo "chezmoi: brew bundle reported failures (casks needing sudo?). Re-run it manually:" >&2
   echo "  brew bundle --file={{ joinPath .chezmoi.workingTree "Brewfile" }}" >&2
 fi
+{{- if eq .chezmoi.os "darwin" }}
 # zathura needs a link to its PDF plugin after every install or upgrade.
 # (Runs the repo's copy: ~/.local/bin may not be written yet at this point.)
 bash {{ joinPath .chezmoi.workingTree "home/private_dot_local/bin/executable_zathura-link-plugins" | quote }} || true
+{{- end }}
 exit 0

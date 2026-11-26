@@ -38,3 +38,53 @@ jobs:
 
       # shellcheck and jq come preinstalled on ubuntu-latest.
       - run: scripts/check.sh
+
+  # The spare Ubuntu machines (docs chapter 14): a real `chezmoi apply` into an
+  # empty home folder, with Mac-only files left out. Scripts are skipped here:
+  # the runner has its own Homebrew, and installing the Brewfile takes too long.
+  linux-apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install chezmoi
+        env:
+          CHEZMOI_VERSION: 2.74.1
+        run: |
+          bin="$HOME/.local/bin"
+          mkdir -p "$bin"
+          sh -c "$(curl -fsSL https://get.chezmoi.io)" -- -b "$bin" -t "v$CHEZMOI_VERSION"
+          echo "$bin" >>"$GITHUB_PATH"
+
+      - name: Apply into an empty home folder
+        run: |
+          home=$(mktemp -d)
+          cp -r "$GITHUB_WORKSPACE" "$home/Dotfiles"
+          export HOME=$home
+          chezmoi init --source "$home/Dotfiles" \
+            --promptString 'Your full name (for git commits)=CI' \
+            --promptString 'Your email (for git commits)=ci@example.com'
+          chezmoi apply --no-tty --exclude=scripts
+          status=0
+          for f in .zshrc .zprofile .config/zsh/env.zsh .config/git/config \
+            .claude/settings.json .claude/CLAUDE.md .local/bin/drive-backup; do
+            [[ -e $home/$f ]] || { echo "missing: $f"; status=1; }
+          done
+          for f in .config/aerospace .config/ghostty .hammerspoon Library \
+            .local/bin/launcher .local/bin/ghostty-new-window .local/bin/zathura-link-plugins; do
+            [[ ! -e $home/$f ]] || { echo "Mac-only file on Linux: $f"; status=1; }
+          done
+          [[ -L $home/.config/nvim ]] || { echo "not a link: .config/nvim"; status=1; }
+          grep -q 'Ubuntu Linux' "$home/.claude/CLAUDE.md" || { echo "CLAUDE.md doesn't describe Linux"; status=1; }
+          exit $status
+
+      - name: Brewfile keeps casks and taps inside `if OS.mac?`
+        run: |
+          awk '/^if OS.mac\?/ { mac = 1 } /^end/ { mac = 0 }
+            /^ *(cask|tap) / && !mac { print "outside if OS.mac?: " $0; bad = 1 }
+            END { exit bad }' Brewfile
+          # Homebrew on Linux reads it without errors (the runner has Homebrew).
+          if [[ -x /home/linuxbrew/.linuxbrew/bin/brew ]]; then
+            eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+            HOMEBREW_NO_AUTO_UPDATE=1 brew bundle list --file=Brewfile
+          fi

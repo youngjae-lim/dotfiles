@@ -1,5 +1,7 @@
 # Environment for every zsh. Sourced from ~/.zshenv, and again from ~/.zshrc
 # because macOS /etc/zprofile (path_helper) reorders PATH for login shells.
+# Shared by the Mac and the spare Ubuntu machines: paths that don't exist on
+# one of them are simply skipped by the shell.
 
 export XDG_CONFIG_HOME="$HOME/.config"
 export EDITOR=nvim
@@ -35,5 +37,7 @@ path=(
   "$HOME/.bun/bin"
   /opt/homebrew/bin
   /opt/homebrew/sbin
+  /home/linuxbrew/.linuxbrew/bin
+  /home/linuxbrew/.linuxbrew/sbin
   $path
 )
