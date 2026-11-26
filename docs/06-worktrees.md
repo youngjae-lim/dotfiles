@@ -87,7 +87,7 @@ flowchart TD
     classDef agent fill:#ffedd5,stroke:#c2410c,color:#431407
 ```
 
-**herdr in one breath** (more in [chapter 4](04-terminal.md#herdr-where-your-agents-live)): the **sidebar** on the left lists **workspaces** (one per project or worktree), each holding **panes** (terminals). Keys start with the **prefix** `Ctrl+B`: hold Caps Lock, tap `B`, **let go**, then the action key. The mouse works for everything too.
+**herdr in one breath** (more in [chapter 4](04-terminal.md#herdr-where-your-agents-live)): the **sidebar** on the left lists **workspaces** (one per project or worktree), each holding **panes** (terminals). Keys start with the **prefix** `Ctrl+B`: hold Caps Lock (Ctrl, on the M2), tap `B`, **let go**, then the action key. The mouse works for everything too.
 
 | You want to | Keys |
 |---|---|
@@ -112,7 +112,7 @@ exec zsh                                # only if this pane is old: loads the cu
 ### 2. Create the agent's worktree
 
 ```sh
-wt feat/copilot-mix                     # Claude; or: wt feat/x copilot / gemini / none
+wt feat/copilot-mix                     # Claude; or: wt feat/x copilot / none (gemini can't sign in, chapter 5)
 ```
 
 **Expect:** a new workspace in the sidebar named after the branch, herdr switched to it, and Claude starting in a folder under `~/.herdr/worktrees/Dotfiles/`. Your `~/Dotfiles` stays on `main`, untouched.
@@ -136,7 +136,7 @@ scripts/check.sh                        # expect: all checks pass
 chezmoi --source "$PWD" diff ~/.config/zsh/agents.zsh   # expect: 2 new --allow-tool lines
 ```
 
-The last line previews what the change will do to your Mac, using the worktree as the repo just this once. Name a file as shown: without one, chezmoi also shows your linked configs (Neovim, Karabiner, VS Code) "moving" into the worktree, which is noise. **Never run `apply` with `--source`**, or those links would point into a folder that step 7 deletes.
+The last line previews what the change will do to the M2, using the worktree as the repo just this once. Name a file as shown: without one, chezmoi also shows your linked configs (Neovim, Karabiner, VS Code) "moving" into the worktree, which is noise. **Never run `apply` with `--source`**, or those links would point into a folder that step 7 deletes.
 
 If something's off (an extra change, a failing check), tell the agent in its pane and review again.
 
@@ -157,7 +157,7 @@ Switch to the **Dotfiles** workspace (click it, or `Ctrl+B` `w`). **Check** the 
 
 ```sh
 git pull                                # the merged change arrives in ~/Dotfiles
-chezmoi apply                           # and reaches your Mac
+chezmoi apply                           # and reaches the M2's home folder
 ```
 
 **Check it landed:** `grep -c "shell(mix test)" ~/.config/zsh/agents.zsh` prints `1`. Shells that were already open still have the old `copilot` wrapper; open a new tab, or `exec zsh`, before using it.

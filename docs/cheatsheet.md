@@ -13,7 +13,7 @@ HERDR  (Ctrl+B, let go, then…)           CLAUDE CODE
   c new tab    n / p tabs  w workspaces    !cmd shell     /clear /compact
   Shift+N new workspace    Alt+G lazygit   /skills /mcp /permissions /hooks
 
-AEROSPACE (Alt = Option = right Cmd)     SHELL
+AEROSPACE (M2; Alt = Option = right Cmd) SHELL
   Alt+H/J/K/L focus   +Shift move        wt <branch> [agent]   tt   ?? <question>
   Alt+<letter> go     +Shift send there  wt ls · wt rm <b> · wt prune · agents-init
   Alt+Tab back   Alt+/ tiles  Alt+, stack Esc v  edit command in nvim
@@ -26,7 +26,7 @@ WORKSPACES   T terminal · C code · D data · B browser · W work (Chrome + Tea
              M messages · Z zoom · N notes · 1-9 scratch
              any monitor; Alt+Shift+Tab moves a workspace to the other one
 
-KEYBOARD (Karabiner)
+KEYBOARD (Karabiner, on the M2)
   Caps Lock   tap = Esc, hold = Ctrl       Right Cmd = Option (Alt)
   Ctrl+H/J/K/L = arrow keys, everywhere    Left Cmd unchanged
   Caps+Tab / Caps+Shift+Tab = next / previous tab (Chrome, most apps)
@@ -59,7 +59,7 @@ CHEZMOI                                  SECRETS
   chezmoi status  (empty = in sync)
   chezmoi re-add  keep an edit made in ~
 
-APPLY OR NOT?   (apply = use it on this Mac · commit = save it in git; separate)
+APPLY OR NOT?   (apply = use it on this computer · commit = save it in git; separate)
   config/nvim, config/vscode, config/karabiner → live links, NO apply
   agents.yaml                                  → scripts/check.sh, then apply
   anything else in home/, plus Brewfile        → chezmoi apply, then reload the app
@@ -68,6 +68,18 @@ APPLY OR NOT?   (apply = use it on this Mac · commit = save it in git; separate
 BEFORE COMMITTING
   scripts/check.sh   agent settings, shellcheck, stylua, gitleaks
 ```
+
+## Backup and the spares
+
+```
+DRIVE BACKUP  (the M2, drive plugged in)    UBUNTU SPARES  (Mac Pro, Mac mini)
+  drive-backup --dry-run | tail -20           chezmoi update   pull + apply
+  drive-backup        back up what changed    updater          same menu as the M2
+  drive-backup check  every few months        drive-backup ls · restore "<path>"
+  drive-backup ls · restore "<path>"          notes sync first, notes save last
+```
+
+Chapters: [drive backup](13-drive-backup.md) · [spares](14-spare-linux.md)
 
 Chapters: [chezmoi](02-chezmoi-basics.md) · [special files](03-how-files-are-made.md) · [secrets](07-secrets.md)
 
@@ -80,6 +92,6 @@ home/dot_agents/skills/            skills (all agents)
 home/dot_config/zsh/               shell
 home/dot_config/<app>/             most app configs (Ghostty, herdr, AeroSpace, mise…)
 config/nvim, config/vscode         editors (live links)
-Brewfile                           apps (installed automatically when it changes)
+Brewfile                           apps (installed when it changes; Mac-only ones inside if OS.mac?)
 scripts/check.sh                   run before every commit
 ```

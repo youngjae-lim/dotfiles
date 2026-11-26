@@ -19,7 +19,7 @@ flowchart LR
     classDef output fill:#dcfce7,stroke:#15803d,color:#052e16
 ```
 
-- **Encrypted before it leaves your Mac:** file contents *and* names. Backblaze only ever stores unreadable data.
+- **Encrypted before it leaves the M2:** file contents *and* names. Backblaze only ever stores unreadable data.
 - **Keys never sit in a file.** They live in 1Password (item `b2-drive-backup` in the Dev vault) and exist only inside the running command, through `op run` ([chapter 7](07-secrets.md#who-can-see-a-secret-in-your-shell)). 1Password may ask for Touch ID when a run starts.
 - **The drive is the source of truth.** B2 becomes a copy of whatever is on the drive at the last run, including deletions (with a 30-day undo, below).
 
@@ -38,7 +38,7 @@ Paths are relative to the top of the drive, as `ls` shows them; put quotes aroun
 
 ## The routine
 
-- **The first run uploads everything**: for a big drive it takes days. Run it in a **herdr pane** so it survives closing Ghostty (detach with `Ctrl+B` then `q`). Keep the Mac on power and the drive connected. `Ctrl+C` is safe: the next run carries on where it stopped.
+- **The first run uploads everything**: for a big drive it takes days. Run it in a **herdr pane** so it survives closing Ghostty (detach with `Ctrl+B` then `q`). Keep the M2 on power and the drive connected. `Ctrl+C` is safe: the next run carries on where it stopped.
 - **After that, run `drive-backup` whenever the drive changes**: after importing photos or scans, or about weekly if you use the drive a lot. Later runs send only what changed, so they take minutes.
 - **Every few months, `drive-backup check`.** It catches silent damage on either side.
 - **Anything added to the drive is only protected after the next run.**
@@ -53,7 +53,7 @@ drive-backup ls "Photos/2019/"
 drive-backup restore "Photos/2019/Trip"  # → ~/drive-restore/<date-time>/Photos/2019/Trip
 ```
 
-`ls` and `restore` also work on the spare Ubuntu machines, so the backup is still reachable if the MacBook is gone ([chapter 14](14-spare-linux.md#getting-backup-files-back-from-a-spare)). A restore never writes onto the drive (it refuses), so it can't overwrite originals. Check what came back by opening a few files, or compare with the original: `diff -r "<restored folder>" "<original folder>" && echo identical` (RAW files make this take minutes). Delete `~/drive-restore` when you're done.
+`ls` and `restore` also work on the spare Ubuntu machines, so the backup is still reachable if the M2 is gone ([chapter 14](14-spare-linux.md#getting-backup-files-back-from-a-spare)). A restore never writes onto the drive (it refuses), so it can't overwrite originals. Check what came back by opening a few files, or compare with the original: `diff -r "<restored folder>" "<original folder>" && echo identical` (RAW files make this take minutes). Delete `~/drive-restore` when you're done.
 
 **Something you deleted from the drive** (and a backup ran since): B2 keeps deleted and replaced files for **30 days**. `restore` only sees the current backup, so getting an older version back takes an extra rclone option (`--b2-version-at <date>`) that the script doesn't offer yet; ask an agent or Claude to do it with you, soon, before the 30 days run out.
 
@@ -67,7 +67,7 @@ drive-backup restore "Photos/2019/Trip"  # → ~/drive-restore/<date-time>/Photo
 - **Refuses to run if the drive isn't connected or is empty.** Otherwise a missing drive would look like "everything was deleted" and the sync would empty the backup.
 - **`--max-delete 500`**: a run that would delete more than 500 files stops (you can raise it for one run, below). rclone also skips all deletions if any upload failed.
 - **30 days of old versions** in the bucket (a lifecycle rule set in the Backblaze dashboard) undo mistakes that did sync.
-- **`caffeinate`** keeps the Mac from sleeping while it runs.
+- **`caffeinate`** keeps the M2 from sleeping while it runs (on the Ubuntu spares, a restore uses `systemd-inhibit` when it's allowed).
 
 ## What isn't backed up
 
@@ -75,10 +75,10 @@ drive-backup restore "Photos/2019/Trip"  # → ~/drive-restore/<date-time>/Photo
 - **macOS housekeeping folders** (`.Spotlight-V100`, `.Trashes`, `.fseventsd`…) and `.DS_Store` files.
 - **Anything not on the drive.** Folders you move off it are removed from the backup on the next run (with the 30-day undo).
 
-## Setting it up again (new Mac, or starting over)
+## Setting it up again (a new Mac, or starting over)
 
 1. **Install:** `rclone` is in the Brewfile and `drive-backup` in `~/.local/bin`, so `chezmoi apply` covers both.
-2. **1Password:** item `b2-drive-backup` in the **Dev** vault, with fields `key-id`, `application-key`, `bucket`, `crypt-password` and `crypt-salt`. **The crypt password and salt are the only way to read the backup**: lose them and the backup is unreadable. Keep your 1Password Emergency Kit somewhere safe, away from the Mac.
+2. **1Password:** item `b2-drive-backup` in the **Dev** vault, with fields `key-id`, `application-key`, `bucket`, `crypt-password` and `crypt-salt`. **The crypt password and salt are the only way to read the backup**: lose them and the backup is unreadable. Keep your 1Password Emergency Kit somewhere safe, away from your computers.
 3. **Backblaze:** a private bucket; a lifecycle rule keeping old versions for 30 days; an application key limited to that bucket; and **Caps & Alerts** set high enough (storage above the drive's size, and a download cap that won't block a big restore).
 4. **A different drive?** Put its volume UUID in `VOLUME_UUID` at the top of the script (`home/private_dot_local/bin/executable_drive-backup`).
 5. **Start:** `drive-backup --dry-run | tail -20`, then `drive-backup`, then a test restore of a small folder.
@@ -90,7 +90,7 @@ drive-backup restore "Photos/2019/Trip"  # → ~/drive-restore/<date-time>/Photo
 - **`NOTICE: Config file "…/rclone.conf" not found - using defaults`**: harmless. The script deliberately uses no config file, so the keys stay out of files.
 - **"too many deletes" / stopped by `--max-delete`**: more than 500 files would be removed. If you didn't mean to delete that much, stop and check the drive. If you did (you moved a big folder off), check with `drive-backup --dry-run | tail -20`, then run it once with a higher limit: `DRIVE_BACKUP_MAX_DELETE=5000 drive-backup`. The limit goes back to 500 on the next run.
 - **The total keeps growing during a run**: rclone is still scanning the drive while it uploads; the real total appears when the scan ends.
-- **It stopped overnight**: the Mac slept (lid closed on battery) or the drive disconnected. Run `drive-backup` again.
+- **It stopped overnight**: the M2 slept (lid closed on battery) or the drive disconnected. Run `drive-backup` again.
 - **"File name too long"**: encrypted names are longer than the originals, and B2 limits a full path to 1,024 bytes. Shorten that file's folder names on the drive.
 - **1Password error**: unlock 1Password and run it again.
 

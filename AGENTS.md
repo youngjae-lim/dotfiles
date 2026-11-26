@@ -20,7 +20,7 @@ Youngjae's macOS dotfiles, managed by **chezmoi**. The same repo sets up spare *
 | `Brewfile` | All Homebrew packages; applied automatically when it changes, on the Mac and on Linux (Homebrew on Linux). Casks, taps and Mac-only tools go **inside** the `if OS.mac?` block. |
 | `scripts/` | `check.sh` (validate everything), `check-agents.py` (agent-config parity), `macos-defaults.sh` (manual). |
 | `.github/workflows/check.yml` | CI: runs `scripts/check.sh` on every push, and applies the dotfiles into an empty Ubuntu home folder (`linux-apply`). |
-| `docs/` | Human docs, written for beginners: `README.md` (index), ten numbered chapters, `glossary.md`, `cheatsheet.md`. Update the chapter (and cheat sheet) that documents a workflow, keybinding or command when you change it. Define new jargon in `glossary.md`. Diagrams are Mermaid, using the colour classes listed in `docs/README.md`. |
+| `docs/` | Human docs, written for beginners: `README.md` (index), numbered chapters `01`–`14`, `glossary.md`, `cheatsheet.md`. The docs call the main Mac **the M2** and the Ubuntu machines **the Ubuntu spares** (Mac Pro, Mac mini); keep to those names. Update the chapter (and cheat sheet) that documents a workflow, keybinding or command when you change it. Define new jargon in `glossary.md`. Diagrams are Mermaid, using the colour classes listed in `docs/README.md`. |
 | `install.sh` | New-machine bootstrap: the Mac, or a spare Ubuntu machine (apt, Homebrew on Linux, 1Password CLI, Tailscale, agents). `DOTFILES_BRANCH` tries a branch. |
 
 ## Rules

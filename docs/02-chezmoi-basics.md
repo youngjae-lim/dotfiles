@@ -4,7 +4,7 @@
 
 **What it is.** chezmoi (say "shay-mwah", French for "at my place") is a **dotfiles manager**. It reads the files in `~/Dotfiles`, which it calls the **source**, and writes them into your home folder, the **target**. Along the way it can fill in values (your email, a secret), make links, and run setup scripts.
 
-**Why you have it.** One command sets up a new Mac. Secrets stay out of git. And one settings file can produce the configs for four different AI agents.
+**Why you have it.** One command sets up a new computer (the M2, or an Ubuntu spare). Secrets stay out of git. And one settings file can produce the configs for four different AI agents.
 
 ## The two commands that matter
 
@@ -45,7 +45,7 @@ A file you manage with chezmoi can exist in three versions at once. Each command
 ```mermaid
 flowchart LR
     C["Last commit<br/>(git history)"]:::step -->|"git checkout -- file<br/>throws away uncommitted edits"| R["Repo file<br/>~/Dotfiles/home/..."]:::source
-    R -->|"chezmoi apply"| H["Your Mac<br/>~/..."]:::output
+    R -->|"chezmoi apply"| H["Your home folder<br/>~/..."]:::output
     H -->|"chezmoi re-add<br/>keeps an edit made in ~"| R
     classDef source fill:#dbeafe,stroke:#1d4ed8,color:#0b1b3f
     classDef step fill:#f1f5f9,stroke:#64748b,color:#1e293b
@@ -54,11 +54,11 @@ flowchart LR
 
 | Command | Copies from → to | Use it when |
 |---|---|---|
-| `chezmoi apply` | repo → `~` | You changed the repo and want your Mac to use it |
+| `chezmoi apply` | repo → `~` | You changed the repo and want your M2 to use it |
 | `chezmoi re-add` | `~` → repo | You edited the copy in `~` by mistake and want to **keep** the edit |
 | `git checkout -- <file>` | last commit → repo | You want to **throw away** uncommitted edits in the repo. It doesn't touch `~`: run `chezmoi apply` afterwards. |
 
-**Committing is what makes a change safe.** Until you commit, `git checkout --` can wipe a change from the repo, and the next `apply` then removes it from your Mac too.
+**Committing is what makes a change safe.** Until you commit, `git checkout --` can wipe a change from the repo, and the next `apply` then removes it from your M2 too.
 
 ## Reading file names in `home/`
 
@@ -80,7 +80,7 @@ Prefixes stack: `private_dot_local/bin/executable_notes` is "`.local`, private" 
 
 `chezmoi apply` and `git commit` are **separate**:
 
-- **`chezmoi apply`** copies files from `~/Dotfiles` into your home folder, so your Mac *uses* the change.
+- **`chezmoi apply`** copies files from `~/Dotfiles` into your home folder, so your M2 *uses* the change.
 - **`git commit`** and **`git push`** *save* the change in history and on GitHub.
 
 > **Commit**: a saved snapshot of the repo, with a message saying what changed. **Push**: send your commits to GitHub.
@@ -137,7 +137,7 @@ chezmoi status     # empty = nothing waiting to be applied
 chezmoi diff       # shows exactly what apply WOULD change in your files
 ```
 
-**Scripts only show in `status`.** Your chezmoi settings hide scripts from `chezmoi diff` (`[diff] exclude = ["scripts"]` in `.chezmoi.toml.tmpl`), so changing the Brewfile gives an empty diff. `chezmoi status` still lists the install script with **`R`** ("will run"), for example ` R .chezmoiscripts/darwin/10-brew-bundle.sh`: the script holds a fingerprint of the Brewfile, so any change to it makes the script due again. That script installs only what's missing (`brew bundle --no-upgrade`); it doesn't upgrade anything else.
+**Scripts only show in `status`.** Your chezmoi settings hide scripts from `chezmoi diff` (`[diff] exclude = ["scripts"]` in `.chezmoi.toml.tmpl`), so changing the Brewfile gives an empty diff. `chezmoi status` still lists the install script with **`R`** ("will run"), for example ` R .chezmoiscripts/10-brew-bundle.sh`: the script holds a fingerprint of the Brewfile, so any change to it makes the script due again. That script installs only what's missing (`brew bundle --no-upgrade`); it doesn't upgrade anything else.
 
 **The safe habit:** when in doubt, run `chezmoi apply`. It only touches files that differ, and `chezmoi diff` shows you first. The risky mistake is the opposite one: editing a copied file in `~` directly. That edit gets overwritten by the next apply.
 
@@ -237,7 +237,7 @@ A few kinds of file work differently; [chapter 3](03-how-files-are-made.md) cove
 
 ## Working on a branch
 
-For anything bigger than a one-line tweak, make the change on a **branch** first, try it on your Mac, and merge it into `main` once it works. That way `main` always holds a setup you know is good.
+For anything bigger than a one-line tweak, make the change on a **branch** first, try it on your M2, and merge it into `main` once it works. That way `main` always holds a setup you know is good.
 
 ### Direct commit or pull request?
 
@@ -269,11 +269,11 @@ In a pull request, nothing reaches `main` until you press **Merge** (the red box
 | **Speed** | Fastest: three commands | A few more steps |
 | **When CI runs** | *After* the change is in `main`, so a failure means `main` is already broken | *Before* merging; a red ✗ stops you |
 | **Reviewing** | Only what you looked at locally | GitHub shows the full diff in one place; an agent can review it too (`/review` in Copilot, "review this PR" in Claude) |
-| **Trying it first** | You test on `main` directly | You test the branch on your Mac, and switch back if you don't like it |
+| **Trying it first** | You test on `main` directly | You test the branch on your M2, and switch back if you don't like it |
 | **Backing out** | Needs a new commit that undoes it (`git revert <commit>`) | Close the PR and delete the branch; `main` never knew |
 | **History** | One commit per change | One PR per feature, with a description of why |
 
-**Why it matters more for dotfiles than usual:** `main` is what `chezmoi update` installs on any other Mac, and on this one after `git pull`. A broken `main` means a broken setup wherever you apply it.
+**Why it matters more for dotfiles than usual:** `main` is what `chezmoi update` installs on the Ubuntu spares, and on the M2 after `git pull`. A broken `main` means a broken setup wherever you apply it.
 
 **Rule of thumb:**
 - **Direct commit:** a one-line tweak you've already tested and seen working: a font size, a gap size, an alias.
@@ -285,13 +285,13 @@ In a pull request, nothing reaches `main` until you press **Merge** (the red box
 
 > **`git revert <commit>`**: make a new commit that undoes an earlier one. It's the safe way to undo something already pushed, because it adds to history instead of rewriting it.
 
-### The one rule: your Mac follows the branch you're on
+### The one rule: your M2 follows the branch you're on
 
 chezmoi is like a **photocopier of whatever page is open**. `chezmoi apply` copies from the branch currently checked out in `~/Dotfiles`: not from GitHub, and not from "the latest" version.
 
 ```mermaid
 flowchart LR
-    F["~/Dotfiles on branch feat/x<br/>(checked out now)"]:::source -->|chezmoi apply| H["~ your Mac"]:::output
+    F["~/Dotfiles on branch feat/x<br/>(checked out now)"]:::source -->|chezmoi apply| H["~ your M2"]:::output
     M["~/Dotfiles on branch main<br/>(not checked out)"]:::step -.->|"used only after<br/>git switch main"| H
     classDef source fill:#dbeafe,stroke:#1d4ed8,color:#0b1b3f
     classDef step fill:#f1f5f9,stroke:#64748b,color:#1e293b
@@ -299,7 +299,7 @@ flowchart LR
 ```
 
 Two things follow from that:
-- **Merge before you switch back.** If you switch to `main` before the branch is merged and run `apply`, your Mac goes back to `main`'s version, and the new change seems to vanish.
+- **Merge before you switch back.** If you switch to `main` before the branch is merged and run `apply`, your M2 goes back to `main`'s version, and the new change seems to vanish.
 - **Switching back is also how you undo.** If you decide against a change, `git switch main` and `chezmoi apply` restore the old setup (see [Abandoning a branch](#abandoning-a-branch), below).
 
 ### The routine, start to finish
@@ -309,7 +309,7 @@ cd ~/Dotfiles
 git switch main && git pull           # 0. start from an up-to-date main
 git switch -c feat/bigger-gaps        # 1. make a branch and switch to it
 # 2. edit files in home/ (or ask an agent to)
-chezmoi diff && chezmoi apply         # 3. try it on your Mac
+chezmoi diff && chezmoi apply         # 3. try it on your M2
 # 4. reload the app and check it works
 scripts/check.sh                      # 5. run the checks
 git add -A && git commit -m "style(aerospace): bigger gaps"
@@ -324,7 +324,7 @@ chezmoi status                        # 11. should print nothing: all in sync
 
 > **`git switch`**: change which branch your folder shows. `-c` creates a new branch first. **`git pull`**: fetch the latest commits from GitHub and add them to your current branch.
 
-**Why step 0 matters.** A branch started from an *old* `main` is missing whatever was merged since. Applying from it quietly undoes those changes on your Mac, because chezmoi applies the whole branch, not just your edit. (It happened once: a branch made before the fzf and notes changes would have put the old versions back. `chezmoi diff` showed it in time.) If you notice too late, rebase the branch onto the current `main` (`git rebase main` while on it), or start a fresh branch and redo the small change.
+**Why step 0 matters.** A branch started from an *old* `main` is missing whatever was merged since. Applying from it quietly undoes those changes on your M2, because chezmoi applies the whole branch, not just your edit. (It happened once: a branch made before the fzf and notes changes would have put the old versions back. `chezmoi diff` showed it in time.) If you notice too late, rebase the branch onto the current `main` (`git rebase main` while on it), or start a fresh branch and redo the small change.
 
 **Checking what you're about to push.** `git diff` shows only changes you haven't committed yet. For commits that are made but not pushed:
 
@@ -357,7 +357,7 @@ git pull && git branch -d feat/bigger-gaps
 |---|---|
 | Push a branch, open its PR, delete it | No: name it |
 | Add commits to it (edit files) | **Yes** |
-| Try it on your Mac (`chezmoi apply`) | **Yes**: apply copies whatever your folder shows |
+| Try it on your M2 (`chezmoi apply`) | **Yes**: apply copies whatever your folder shows |
 | Fix a failed CI check or a conflict on an open PR | **Yes** |
 
 Staying on `main` also means a stray `chezmoi apply` can't copy a branch's files into `~`.
@@ -366,7 +366,7 @@ Staying on `main` also means a stray `chezmoi apply` can't copy a branch's files
 
 ### What `scripts/check.sh` checks
 
-Step 5 above runs **one command that runs four checks**, so you don't have to remember them separately. Each catches a different kind of mistake *before* it reaches your Mac or GitHub:
+Step 5 above runs **one command that runs four checks**, so you don't have to remember them separately. Each catches a different kind of mistake *before* it reaches your M2 or GitHub:
 
 | Check | Catches | Matters when you change… |
 |---|---|---|
@@ -395,7 +395,7 @@ gitGraph
 
 - `B` changed the Brewfile and `aerospace.toml`; `F` changed the brew script, `check.sh` and some docs. Neither commit contains the other.
 - Pressing **Merge** on GitHub made a **merge commit**, `M`, on `main`. `M` holds everything: `A` + `B` + `F`.
-- `git pull` brought `M` to the Mac, and `chezmoi apply` copied the combined result into `~`.
+- `git pull` brought `M` to the M2, and `chezmoi apply` copied the combined result into `~`.
 
 This works automatically as long as the two sides didn't change the **same lines**. If they did, git can't choose, and GitHub reports a conflict: see the next section.
 
@@ -439,7 +439,7 @@ Each line is: **the graph**, the **short commit ID** (enough to name it: `git sh
 
 ### Cleaning up branches
 
-A merged branch can leave **two** copies behind: yours (on your Mac) and GitHub's (shown as `origin/<branch>` in `git log` and `git branch -r`).
+A merged branch can leave **two** copies behind: yours (on your M2) and GitHub's (shown as `origin/<branch>` in `git log` and `git branch -r`).
 
 - **Your copy:** `git branch -d <branch>` after merging (step 10 of the routine).
 - **GitHub's copy:** this repo has **"Automatically delete head branches"** turned on (GitHub → repo **Settings → General → Pull Requests**), so GitHub deletes it when you merge. Your next `git pull` then forgets it too, because your git config has `fetch.prune = true`.
@@ -461,7 +461,7 @@ Nothing is lost in any of these cases: the branch keeps all its commits until yo
 
 ```sh
 git switch main
-chezmoi diff                 # shows your Mac going back to main's version
+chezmoi diff                 # shows your M2 going back to main's version
 chezmoi apply                # the change is undone
 git branch -D feat/bigger-gaps
 ```
@@ -488,7 +488,7 @@ Then reload the affected app, as after any apply.
 | `chezmoi re-add` | | You edited a copied file in `~` by mistake: copy it back into the repo |
 | `chezmoi source-path ~/.zshrc` | | Show which repo file produces a file in `~` |
 | `chezmoi managed` | | List everything chezmoi manages |
-| `chezmoi update` | | `git pull` + apply (use this on another Mac) |
+| `chezmoi update` | | `git pull` + apply (use this on the Ubuntu spares) |
 | `chezmoi doctor` | | Health check |
 | `dot` | | `cd ~/Dotfiles` |
 
@@ -542,14 +542,16 @@ git status                                        # nothing changed
 
 ## When it breaks
 
-- **A change disappeared after `apply`**: check which branch you're on with `git branch --show-current`. If it's `main` and the change is still on an unmerged branch, that's the [one rule](#the-one-rule-your-mac-follows-the-branch-youre-on) at work: merge the branch, or switch back to it.
+- **A change disappeared after `apply`**: check which branch you're on with `git branch --show-current`. If it's `main` and the change is still on an unmerged branch, that's the [one rule](#the-one-rule-your-m2-follows-the-branch-youre-on) at work: merge the branch, or switch back to it.
 - ***"…has changed since chezmoi last wrote it"***: you (or an app) edited the copy in `~`. Run `chezmoi diff` to look; then `chezmoi re-add` to keep your edit, or `chezmoi apply --force` to throw it away.
+- **`MM .claude/settings.json` in `chezmoi status`**: herdr added its hook to Claude's settings after chezmoi wrote them (on a new machine, and after a herdr update). Harmless: `chezmoi apply` merges them again and keeps herdr's hook ([merged files](03-how-files-are-made.md#merged-files-modify_)).
+- **`.config/git/config has changed since chezmoi last wrote it`** on an Ubuntu spare, after `gh auth login`: gh added its login lines, which the dotfiles already contain there; answering `o` (overwrite) is safe ([chapter 14](14-spare-linux.md#when-it-breaks)).
 - **A linked config (Neovim, VS Code, Karabiner) stopped showing changes in `git diff`**, or shows `MM` in `chezmoi status`: an app replaced the link with a file. Don't use `re-add` here; follow [When a link quietly turns into a file](#when-a-link-quietly-turns-into-a-file).
 - **A template error during apply**: see [chapter 3](03-how-files-are-made.md#templates).
 - **1Password errors on apply**: unlock the 1Password app, and check that `op vault list` shows **Dev**.
 - **git says *"Unable to create '…/.git/index.lock': File exists"*** (or another `.lock` file): a git command was interrupted and left its lock behind. First make sure no git command is still running in another tab or app. If none is, delete the file named in the message (`rm ~/Dotfiles/.git/index.lock`) and try again.
 - ***"head branch main is the same as base branch main"*** from `gh pr create`: you're on `main`. Name the branch: `gh pr create --head <branch> --fill` (see [Branches you don't need to switch to](#branches-you-dont-need-to-switch-to)).
-- **A Keychain prompt: *"git-credential-osxkeychain wants to use … github.com"*** when you push: git fetches your GitHub login from the macOS Keychain, and the Keychain asks again whenever the helper program changes, usually right after **git was upgraded** by Homebrew. Enter your Mac login password and choose **Always Allow**. Be suspicious only of a prompt that appears out of nowhere or names an app you don't recognise.
+- **A Keychain prompt: *"git-credential-osxkeychain wants to use … github.com"*** when you push: git fetches your GitHub login from the macOS Keychain, and the Keychain asks again whenever the helper program changes, usually right after **git was upgraded** by Homebrew. Enter your M2 login password and choose **Always Allow**. Be suspicious only of a prompt that appears out of nowhere or names an app you don't recognise.
 - **Docs**: <https://chezmoi.io/user-guide/command-overview/>
 
 Next: [How files are made →](03-how-files-are-made.md)

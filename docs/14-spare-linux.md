@@ -2,7 +2,7 @@
 
 [← Drive backup](13-drive-backup.md) · [Back to start](README.md)
 
-Your old Mac Pro and Mac mini run **Ubuntu** now and are spares: if the MacBook is in for repair, lost or busy, either one can carry on the work. They use **the same dotfiles**, so the shell, Neovim, mise, herdr and the agents behave the same there. What they leave out is the Mac desktop: AeroSpace, Karabiner, Hammerspoon, Ghostty's settings and the Mac apps.
+Your old Mac Pro and Mac mini run **Ubuntu** now and are spares (both set up on 2026-11-26): if your main computer, the M2 MacBook Pro (**the M2** in these docs), is in for repair, lost or busy, either one can carry on the work. They use **the same dotfiles**, so the shell, Neovim, mise, herdr and the agents behave the same there. What they leave out is the Mac desktop: AeroSpace, Karabiner, Hammerspoon, Ghostty's settings and the Mac apps.
 
 > **Ubuntu**: a widely used Linux system. **apt**: Ubuntu's own installer (`sudo apt install …`), used here only for the few things Homebrew can't provide. **Homebrew on Linux**: the same `brew` you know, installed in `/home/linuxbrew/.linuxbrew`, so one Brewfile serves every machine.
 
@@ -10,7 +10,7 @@ Your old Mac Pro and Mac mini run **Ubuntu** now and are spares: if the MacBook 
 
 ```mermaid
 flowchart LR
-    R["~/Dotfiles on GitHub<br/>one repo"]:::source --> M["MacBook Pro<br/>everything"]:::output
+    R["~/Dotfiles on GitHub<br/>one repo"]:::source --> M["M2 MacBook Pro<br/>everything"]:::output
     R --> S["Mac Pro, Mac mini (Ubuntu)<br/>the shared part"]:::output
     B["Brewfile: if OS.mac? … end<br/>.chezmoiignore: Mac-only files"]:::step -.->|"decide what<br/>each one gets"| S
     classDef source fill:#dbeafe,stroke:#1d4ed8,color:#0b1b3f
@@ -18,14 +18,14 @@ flowchart LR
     classDef output fill:#dcfce7,stroke:#15803d,color:#052e16
 ```
 
-| | MacBook | Spares (Ubuntu) |
+| | M2 MacBook | Spares (Ubuntu) |
 |---|---|---|
 | zsh, prompt, aliases, `wt`, `updater` | ✓ | ✓ |
 | Neovim, mise and the language tools | ✓ | ✓ |
 | herdr, Claude Code, Copilot CLI, Gemini CLI, skills, permissions | ✓ | ✓ (Copilot from its own install script) |
 | git, gh, lazygit, fzf, ripgrep, lf… (the Brewfile's shared part) | ✓ | ✓ |
 | `notes`, zathura | ✓ | ✓ with a desktop (zathura from apt) |
-| `drive-backup` | everything | `ls` and `restore` only (the drive belongs to the Mac) |
+| `drive-backup` | everything | `ls` and `restore` only (the drive belongs to the M2) |
 | AeroSpace, Karabiner, Hammerspoon, Ghostty settings, `launcher` | ✓ | — |
 | Postgres, MySQL, Docker, Herd (PHP), VS Code | ✓ | — |
 | Claude's "waiting on you" notifications | ✓ | — (quiet on Linux) |
@@ -65,36 +65,40 @@ DOTFILES_BRANCH=feat/linux-spares sh -c "$(curl -fsLS https://raw.githubusercont
 
 ## Keeping them current
 
-The MacBook is where you change the dotfiles. The spares only follow:
+The M2 is where you change the dotfiles. The spares only follow:
 
 ```sh
 chezmoi update     # git pull in ~/Dotfiles, then chezmoi apply
-updater            # the same menu as on the Mac: dotfiles, Homebrew, mise, agents…
+updater            # the same menu as on the M2: dotfiles, Homebrew, mise, agents…
 ```
 
 Do it when you sit down at one, or every few weeks. If you ever change something *on* a spare, it's the usual routine: branch, commit (the gitleaks check runs there too), push, pull request.
 
-## Reaching them from the MacBook
+## Reaching them from the M2
 
 They're on Tailscale (the Mac Pro is `100.70.94.76`), so the simplest way in is **Tailscale SSH**: no SSH server to set up and no keys to manage.
 
 ```sh
 sudo tailscale set --ssh          # once, on the spare
-ssh <your-ubuntu-username>@<spare's Tailscale name>   # from the MacBook
+ssh <your-ubuntu-username>@<spare's Tailscale name>   # from the M2
 ```
 
 Who may log in is set by the `ssh` section of your tailnet's access policy in the Tailscale admin console; if the connection is refused, look there. If that rule uses "check" mode, Tailscale asks you to confirm in the browser now and then. Inside, run `herdr` as usual; agents keep running when you disconnect (detach with `Ctrl+B` then `q`).
 
+## Notes on a spare
+
+The `notes` command is there, but your notes aren't: clone them once with `gh repo clone notes ~/Notes`, then `notes sync` when you sit down and `notes save` before you leave ([chapter 12](12-notes.md#notes-on-an-ubuntu-spare)).
+
 ## Getting backup files back from a spare
 
-If the MacBook is gone, a spare can still read the drive backup ([chapter 13](13-drive-backup.md)):
+If the M2 is gone, a spare can still read the drive backup ([chapter 13](13-drive-backup.md)):
 
 ```sh
 drive-backup ls
 drive-backup restore "Photos/2019"     # → ~/drive-restore/<date-time>/Photos/2019
 ```
 
-`drive-backup` on its own, `--dry-run` and `check` say "backing up runs on the Mac the drive belongs to": the drive is formatted for macOS and lives with the MacBook. 1Password must be signed in first (step 4 above).
+`drive-backup` on its own, `--dry-run` and `check` say "backing up runs on the Mac the drive belongs to": the drive is formatted for macOS and lives with the M2. 1Password must be signed in first (step 4 above).
 
 ## Changing the dotfiles without breaking the spares
 

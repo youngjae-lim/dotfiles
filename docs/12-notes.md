@@ -10,7 +10,7 @@ Your notes are plain markdown files in a **git repo at `~/Notes`**, backed up to
 
 ```mermaid
 flowchart LR
-    subgraph MAC["Your Mac"]
+    subgraph MAC["The M2"]
         NV["Neovim<br/>(nt, note, Space n…)"]:::source --> REPO["~/Notes<br/>(git repo)"]:::step
         REPO --> PDF["PDFs and slides<br/>(pdf/, presentation/)"]:::output
     end
@@ -79,7 +79,7 @@ See also [Go tips](tips.md). ![diagram](images/channels.png)
 
 Writing a note (`Ctrl+S`) also re-renders its PDF in the background, so the PDF is always current.
 
-**When to save:** whenever you've finished something worth keeping, and before you stop for the day. Saving is by hand on purpose: you decide what a version is. Until you save, changes exist only on your Mac.
+**When to save:** whenever you've finished something worth keeping, and before you stop for the day. Saving is by hand on purpose: you decide what a version is. Until you save, changes exist only on the M2.
 
 ## First-time setup
 
@@ -102,60 +102,72 @@ Do this once, in order.
 
 ## Editing from your Android phone
 
-Your phone doesn't keep its own copy of the notes. It opens a terminal **on your Mac** through Tailscale and runs Neovim there, the same as at your desk. So there's nothing to sync and nothing to conflict. The one condition is that **the Mac must be awake**.
+Your phone doesn't keep its own copy of the notes. It opens a terminal **on the M2** through Tailscale and runs Neovim there, the same as at your desk. So there's nothing to sync and nothing to conflict. The one condition is that **the M2 must be awake**.
 
 > **SSH** (secure shell): a way to open a terminal on another computer over the network, encrypted. **Termux**: a terminal app for Android, which includes the `ssh` command. **SSH key**: a pair of files that proves who you are without a password; the private half stays on the phone.
 
 **One-time setup:**
 
-1. **On the Mac: turn on Remote Login.** System Settings → General → Sharing → **Remote Login** on. Under "Allow access for", choose **Only these users** and keep just yourself.
-2. **Find the Mac's Tailscale address:** run `tailscale status` on the Mac. The first line starts with its address (`100.x.y.z`) followed by its name. Use the **address**: Termux looks up names with its own public name servers, not Tailscale's, so the name fails there with "No address associated with hostname". A device's Tailscale address doesn't change. Also check that the phone's line doesn't say `offline`; if it does, switch on the Tailscale app on the phone.
+1. **On the M2: turn on Remote Login.** System Settings → General → Sharing → **Remote Login** on. Under "Allow access for", choose **Only these users** and keep just yourself.
+2. **Find the M2's Tailscale address:** run `tailscale status` on the M2. The first line starts with its address (`100.x.y.z`) followed by its name. Use the **address**: Termux looks up names with its own public name servers, not Tailscale's, so the name fails there with "No address associated with hostname". A device's Tailscale address doesn't change. Also check that the phone's line doesn't say `offline`; if it does, switch on the Tailscale app on the phone.
 3. **On the phone: install Termux.** The Termux project recommends installing it from F-Droid or its GitHub releases. Open it and run:
    ```sh
    pkg update && pkg install openssh
    ssh-keygen -t ed25519            # press Enter to accept the defaults
-   ssh-copy-id <you>@<mac-address>     # asks your Mac password once, then installs the key
+   ssh-copy-id <you>@<mac-address>     # asks your M2 login password once, then installs the key
    ```
 4. **Connect:**
    ```sh
    ssh <you>@<mac-address>
    ```
-   You're now in your Mac's shell. Type `nt`, `omn` or `nvim`, and `exit` when you're done. To make it one word, run `echo 'alias mac="ssh <you>@<mac-address>"' >> ~/.bashrc` in Termux once. From then on, typing `mac` connects.
-5. **Recommended: turn off password logins.** Remote Login also listens on your home Wi-Fi, so once the key works, allow keys only. On the Mac:
+   You're now in the M2's shell. Type `nt`, `omn` or `nvim`, and `exit` when you're done. To make it one word, run `echo 'alias mac="ssh <you>@<mac-address>"' >> ~/.bashrc` in Termux once. From then on, typing `mac` connects.
+5. **Recommended: turn off password logins.** Remote Login also listens on your home Wi-Fi, so once the key works, allow keys only. On the M2:
    ```sh
    printf 'PasswordAuthentication no\nKbdInteractiveAuthentication no\n' | sudo tee /etc/ssh/sshd_config.d/100-keys-only.conf
    ```
    Then switch Remote Login off and on again to apply it. Test from Termux again before closing anything.
 
-**Typing on the phone:** Termux shows an extra row of keys with `ESC`, `CTRL`, `TAB` and arrows, which is enough for Vim. (Caps Lock as Ctrl is a Mac thing; on the phone, use that row.)
+**Typing on the phone:** Termux shows an extra row of keys with `ESC`, `CTRL`, `TAB` and arrows, which is enough for Vim. (Caps Lock as Ctrl is Karabiner on the M2; on the phone, use that row.)
 
-**Keeping the Mac reachable:** a sleeping Mac can't answer. If it's a laptop, keep it plugged in and turn on System Settings → Battery → Options → **Prevent automatic sleeping on power adapter when the display is off**. With the lid closed, it stays awake while it's on power with an external display connected.
+**Keeping the M2 reachable:** a sleeping laptop can't answer. Keep it plugged in and turn on System Settings → Battery → Options → **Prevent automatic sleeping on power adapter when the display is off**. With the lid closed, it stays awake while it's on power with an external display connected.
 
-**If the phone is lost.** The phone holds a key that opens your Mac, so protect it in advance and know how to cut it off:
+**If the phone is lost.** The phone holds a key that opens the M2, so protect it in advance and know how to cut it off:
 
 - *In advance:*
   - a strong screen lock on the phone (Android encrypts the phone's storage once a lock is set);
   - a **passphrase on the SSH key**: `ssh-keygen -p -f ~/.ssh/id_ed25519` in Termux. Termux then asks for it each time you connect, and a stolen key file is useless without it;
   - Samsung's **Find My Mobile** (or Google's Find Hub) switched on, so you can lock or wipe the phone remotely.
 - *When it's gone*, in this order:
-  1. Remove the phone from your Tailscale network: [login.tailscale.com/admin/machines](https://login.tailscale.com/admin/machines) → the phone → **Remove**. From that moment it can't reach your Mac at all.
-  2. Remove its key on the Mac: open `~/.ssh/authorized_keys` and delete the line that ends with the phone's key name (Termux keys end in something like `u0_a123@localhost`).
+  1. Remove the phone from your Tailscale network: [login.tailscale.com/admin/machines](https://login.tailscale.com/admin/machines) → the phone → **Remove**. From that moment it can't reach the M2 at all.
+  2. Remove its key on the M2: open `~/.ssh/authorized_keys` and delete the line that ends with the phone's key name (Termux keys end in something like `u0_a123@localhost`).
   3. Lock or wipe the phone with Find My Mobile.
 
-The phone holds no GitHub or notes credentials: saving happens on the Mac. So those two steps cut off everything.
+The phone holds no GitHub or notes credentials: saving happens on the M2. So those steps cut off everything.
+
+**The Ubuntu spares** are on Tailscale too, so Termux can reach them the same way (with their own address and key). Their notes are separate copies, though; see the next section.
 
 **Your agents too:** from the same SSH session, `herdr` attaches to your running agents session, the full terminal view next to what Ovis shows.
+
+## Notes on an Ubuntu spare
+
+The Mac Pro and Mac mini ([chapter 14](14-spare-linux.md)) have the `notes` command and the Neovim keys, but not the notes themselves. To write notes on one, get your copy once:
+
+```sh
+gh repo clone notes ~/Notes      # your private notes repo (gh must be signed in)
+```
+
+Then it's the same as on the M2, with one habit added, because now **two computers** hold copies: run `notes sync` when you sit down, and `notes save` before you stand up. Do the same on the M2 the next time you use it. Forgetting is how a conflict happens (below). Two things stay M2-only for now: rendering PDFs (pandoc uses `xelatex` and the Noto Serif KR font, which the spares don't have), and `bs`, which reads your books from Google Drive.
 
 ## When it breaks
 
 - **`notes save` says the commit was refused by gitleaks:** the scanner found something that looks like a password or key. Remove it from the note and save again. Never skip the check with `--no-verify`.
-- **`notes save` says "saved locally (no GitHub remote yet)":** step 5 of the first-time setup hasn't been done. The version is safe on your Mac; it goes to GitHub with your next save after the repo exists.
-- **`notes sync` stops with a conflict:** the same lines changed on two computers. Open the file, keep the right text, delete the `<<<<<<<`, `=======`, `>>>>>>>` lines, then run `git -C ~/Notes add -A && git -C ~/Notes rebase --continue`. (If you only edit on this Mac, from the desk or over SSH, this can't happen.)
+- **`notes save` says "saved locally (no GitHub remote yet)":** step 2 of the first-time setup hasn't been done. The version is safe on the M2; it goes to GitHub with your next save after the repo exists.
+- **`notes sync` stops with a conflict:** the same lines changed on two computers. Open the file, keep the right text, delete the `<<<<<<<`, `=======`, `>>>>>>>` lines, then run `git -C ~/Notes add -A && git -C ~/Notes rebase --continue`. (If you only edit on the M2, from the desk or over SSH, this can't happen.)
 - **A PDF doesn't update:** `Space n r` renders it by hand and shows the error if pandoc fails. A common cause is a character the PDF font can't draw (it covers English and Korean).
 - **zathura says "Found no plugins" or "Could not determine file type"** (`on`, `ns`, `bs`): a Homebrew upgrade of zathura lost the link to its PDF plugin. Run `zathura-link-plugins`. The brew bundle script and `updater` (homebrew) already do this after every change, so it should only happen after a plain `brew upgrade`.
-- **`ssh` from the phone says "No address associated with hostname":** you used the Mac's name; use its `100.x.y.z` address (see step 2 above).
-- **`ssh` from the phone says "connection refused" or times out:** the Mac is asleep, Remote Login is off, or Tailscale isn't connected on one side.
-- **"Permission denied (publickey)" from the phone:** the key isn't installed on the Mac; rerun `ssh-copy-id` (it needs password logins on for that one run, so undo step 5 temporarily if you already did it).
+- **`ssh` from the phone says "No address associated with hostname":** you used the M2's name; use its `100.x.y.z` address (see step 2 above).
+- **`ssh` from the phone says "connection refused" or times out:** the M2 is asleep, Remote Login is off, or Tailscale isn't connected on one side.
+- **"Permission denied (publickey)" from the phone:** the key isn't installed on the M2; rerun `ssh-copy-id` (it needs password logins on for that one run, so undo step 5 temporarily if you already did it).
 
 ## Later: the website
 

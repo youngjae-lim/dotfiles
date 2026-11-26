@@ -2,6 +2,8 @@
 
 This folder explains every part of this setup, from zero. You don't need to know chezmoi, git worktrees, AI agents or any other tool here before you start. Every unfamiliar word is explained the first time it appears, and all of them are collected in the [glossary](glossary.md).
 
+> **Your computers, by name.** **The M2** is your M2 MacBook Pro, the main computer, on macOS: it gets everything, and it's where you change the dotfiles. **The Mac Pro** and **the Mac mini** are old Macs running Ubuntu, called **the Ubuntu spares**; they get the shared part ([chapter 14](14-spare-linux.md)). When a chapter says "macOS" or "the Mac", it means the M2.
+
 > **Dotfiles** are the settings files for your command-line tools. They're called that because their names start with a dot (`.zshrc`, `.gitconfig`), which hides them in Finder and in `ls`. "My dotfiles" usually means a git repository that holds all of them, so you can keep a history and set up a new computer quickly.
 
 ## Reading order
@@ -11,15 +13,15 @@ Read chapters 1 and 2 first; they explain the idea everything else rests on. Aft
 | # | Chapter | You'll learn | Time |
 |---|---|---|---|
 | 1 | [The big picture](01-big-picture.md) | What each tool does, and the one idea that makes the rest make sense | 10 min |
-| 2 | [chezmoi basics](02-chezmoi-basics.md) | How a change in `~/Dotfiles` reaches your Mac, and the everyday routine | 20 min |
+| 2 | [chezmoi basics](02-chezmoi-basics.md) | How a change in `~/Dotfiles` reaches your home folder, and the everyday routine | 20 min |
 | 3 | [How files are made](03-how-files-are-made.md) | Templates, generated files and scripts: the parts that look like magic | 20 min |
 | 4 | [The terminal: Ghostty, herdr, zsh](04-terminal.md) | The window, the sessions that keep running, and your shell | 20 min |
 | 5 | [AI agents](05-ai-agents.md) | Claude, Copilot and Gemini: what they share, what they may do, and how that's kept safe | 25 min |
 | 6 | [Git worktrees and `wt`](06-worktrees.md) | Running several agents at once without them getting in each other's way | 15 min |
 | 7 | [Secrets](07-secrets.md) | Where passwords and tokens live, and how they stay out of git | 10 min |
 | 8 | [Languages and small tools](08-languages-and-tools.md) | mise for node/python/go, and the helpers that make life easier | 15 min |
-| 9 | [Windows, keyboard and phone](09-desktop.md) | AeroSpace tiling, Karabiner, Hammerspoon, and approving agents from your phone | 15 min |
-| 10 | [A day with this setup](10-daily-workflow.md) | How it all fits together, a four-week plan, and what to do when stuck | 10 min |
+| 9 | [Windows, keyboard and phone](09-desktop.md) | AeroSpace tiling, Karabiner, Hammerspoon (the M2 only), and approving agents from your phone | 15 min |
+| 10 | [A day with this setup](10-daily-workflow.md) | How it all fits together, what to do now and then, a four-week plan, and what to do when stuck | 10 min |
 | 11 | [Neovim: the lean config](11-neovim.md) | What's in your editor config, why, and how to change it yourself | 20 min |
 | 12 | [Notes](12-notes.md) | Markdown notes in git: history, PDFs, editing from your phone, and the website later | 15 min |
 | 13 | [Drive backup](13-drive-backup.md) | The external drive, encrypted, to Backblaze B2: the routine, getting files back, and what to do when it complains | 10 min |

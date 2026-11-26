@@ -20,7 +20,7 @@ flowchart LR
     classDef output fill:#dcfce7,stroke:#15803d,color:#052e16
 ```
 
-**PHP is the exception**: it comes from **Laravel Herd**, not mise.
+**PHP is the exception**: it comes from **Laravel Herd**, not mise, and only on the M2. The Ubuntu spares have no PHP (or database servers).
 
 **The 20% you'll use**
 ```sh
@@ -66,11 +66,12 @@ To change a **global** version, edit `home/dot_config/mise/config.toml` and run 
 | `wt <branch>` | Worktree + agent ([chapter 6](06-worktrees.md)) |
 | `agents-init` | Write an `AGENTS.md` for the current project ([chapter 5](05-ai-agents.md#project-level-instructions-agentsmd)) |
 | `tt` | Open a project as a herdr workspace |
-| `updater` | Menu to update dotfiles, Homebrew, mise, agent CLIs, herdr, zsh plugins |
+| `updater` | Menu to update dotfiles, Homebrew, mise, agent CLIs, herdr, zsh plugins (on the spares, Copilot updates through its own install script) |
+| `apps` | Pick a macOS app with fzf and open it (the M2 only) |
 | `notes …` / `nt`, `note`, `omn`, `ns`, `on`, `bs` | Your notes in `~/Notes` (`notes --help`, [chapter 12](12-notes.md)). Inside Neovim: `Space n` keys |
 | `Esc` then `v` | Edit the current command in Neovim. Great for long prompts. |
 | `dot`, `pro`, `fav`, `cdf` | Jump to dotfiles / projects / favourites / a subfolder |
 | `trash <file>` | Move to `~/.shell/trash` instead of deleting |
-| `drive-backup` | Encrypted backup of the external drive to Backblaze B2 with rclone; keys from 1Password `b2-drive-backup`. `drive-backup --dry-run` first, then `drive-backup`; `drive-backup check` verifies every file. To get files back: `drive-backup ls [folder]` to browse, then `drive-backup restore <path>`, which copies into `~/drive-restore/<date-time>/` (never onto the drive). Test a restore after the first upload. The routine, safety and fixes: [chapter 13](13-drive-backup.md). |
+| `drive-backup` | Encrypted backup of the external drive to Backblaze B2 with rclone; keys from 1Password `b2-drive-backup`. `drive-backup --dry-run` first, then `drive-backup`; `drive-backup check` verifies every file. To get files back: `drive-backup ls [folder]` to browse, then `drive-backup restore <path>`, which copies into `~/drive-restore/<date-time>/` (never onto the drive). Test a restore after the first upload. On the Ubuntu spares, only `ls` and `restore` work. The routine, safety and fixes: [chapter 13](13-drive-backup.md). |
 
 Next: [Windows, keyboard and phone →](09-desktop.md)

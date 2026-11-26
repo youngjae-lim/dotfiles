@@ -12,6 +12,8 @@ You have three agents that run in the terminal, plus Copilot inside VS Code. The
 | Good at | Long multi-file changes, careful reasoning | GitHub work (PRs, issues, Actions), choosing among many models | Big context, quick questions |
 | One-shot (no chat) | `claude -p "..."` | `copilot -p "..."`, or your `?? question` | `gemini -p "..."` |
 
+> **Gemini can't sign in with a personal Google account any more.** Google stopped serving Gemini CLI to free, Google AI Pro and Ultra accounts in June 2026; signing in fails with "This client is no longer supported for Gemini Code Assist for individuals". Its replacement is **Antigravity CLI** (`agy`). Gemini's settings are still generated here, so it works again with a paid Gemini API key, and the shared rules are ready if you switch to Antigravity. Until you decide, use Claude and Copilot.
+
 > **CLI** (command-line interface): a program you use by typing in the terminal, as opposed to clicking in a window.
 
 ## What all four share
@@ -20,13 +22,13 @@ Everything below is set up once, in this repo, and given to every agent:
 
 | Shared thing | Where it's written | What it does |
 |---|---|---|
-| **Instructions** | `home/.chezmoitemplates/agents.md` | "Who I am, how I work": Herd for PHP, conventional commits, ask before pushing… |
+| **Instructions** | `home/.chezmoitemplates/agents.md` | "Who I am, how I work": Herd for PHP, conventional commits, ask before pushing… Its first lines differ by computer: on the Ubuntu spares, agents are told they're on Ubuntu, with no PHP or databases |
 | **Skills** | `home/dot_agents/skills/*/SKILL.md` | Step-by-step playbooks the agent loads **only when relevant**: `commit`, `code-review`, `pr-description`, `tdd`, `laravel-conventions`, `go-conventions`, `python-conventions`, `ts-js-conventions`, `notes-markdown`, `herdr`, plus 20 design and animation skills from Emil Kowalski (below) |
 | **Permissions** | `home/.chezmoidata/agents.yaml` | What runs without asking, what always asks, what's never allowed |
 | **Secret paths** | same `agents.yaml` | Files agents may never read or write |
 | **MCP servers** | same `agents.yaml` | Extra tools: `context7` (up-to-date library docs) and `time` (the current time in your timezone) |
 
-> **Skill**: a short instruction file an agent reads when the task matches, like a recipe card. **MCP** (Model Context Protocol): a standard way to plug extra tools into an agent. An **MCP server** is one such tool; it's either a web address (`http`) or a small program the agent starts on your Mac (`stdio`).
+> **Skill**: a short instruction file an agent reads when the task matches, like a recipe card. **MCP** (Model Context Protocol): a standard way to plug extra tools into an agent. An **MCP server** is one such tool; it's either a web address (`http`) or a small program the agent starts on your computer (`stdio`).
 
 ### Design skills from Emil Kowalski
 
@@ -105,7 +107,7 @@ flowchart TD
 
 > **Hook**: a small script an agent runs automatically at a fixed moment, such as "just before using a tool". Claude has two from this repo, in `~/.claude/hooks/dotfiles/`:
 > - `guard-secrets.sh` runs before every tool call and blocks any that touch a secret path.
-> - `notify.sh` shows a macOS notification when Claude is waiting for your answer, so an agent in a background pane doesn't sit unnoticed.
+> - `notify.sh` shows a macOS notification when Claude is waiting for your answer, so an agent in a background pane doesn't sit unnoticed. (On the M2 only; on the Ubuntu spares it stays quiet.)
 
 To see the guard work without involving an agent, feed it a pretend tool call. This doesn't read the file:
 ```sh
@@ -182,7 +184,7 @@ mcpServers:
   my-server:            # a web address
     type: http
     url: https://example.com/mcp
-  my-tool:              # a program on your Mac
+  my-tool:              # a program on your computer
     type: stdio
     command: uvx
     args: [some-mcp-package]

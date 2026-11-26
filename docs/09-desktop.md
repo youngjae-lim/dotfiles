@@ -1,8 +1,8 @@
 # 9. Windows, keyboard and phone
 
-[← Languages and small tools](08-languages-and-tools.md) · **Other phone apps.** herdr has an official phone app, and there are independent ones (Sherpr, Mussh…). They connect over SSH. The official one needs **herdr-core**, which comes with the Herdr *desktop* app, not the terminal version you use; it offers to install it when you connect, so decline. Ovis (agents) plus Termux (a full terminal, [chapter 12](12-notes.md#editing-from-your-android-phone)) already cover both jobs. If you try an independent app, give it its own SSH key so you can remove it alone.
+[← Languages and small tools](08-languages-and-tools.md) · Next: [A day with this setup →](10-daily-workflow.md)
 
-Next: [A day with this setup →](10-daily-workflow.md)
+Everything in this chapter except the phone part is **on the M2 only**: the Ubuntu spares use Ubuntu's own desktop, with no AeroSpace, Karabiner or Hammerspoon ([chapter 14](14-spare-linux.md)).
 
 ## AeroSpace: window tiling
 
@@ -119,6 +119,7 @@ after-startup-command = [
 - An app opens on the wrong workspace: check its bundle ID with `aerospace list-apps` against the rules in `aerospace.toml`. An app with no rule opens wherever you are.
 - **No border.** Is it running? `pgrep -l borders`. If not, restart AeroSpace (see [Focus border](#focus-border)). JankyBorders draws with private macOS interfaces, so a big macOS update can stop it until a fix ships: `brew upgrade borders`.
 - Keys do nothing: grant **Accessibility** permission (System Settings → Privacy & Security → Accessibility → AeroSpace).
+- **A floating window hangs off the edge of the portrait monitor** (1Password, for example): AeroSpace doesn't size floating windows; the app reopens at the size it last had, often set on the wide monitor. Drag it to fit once on the portrait monitor; the app remembers.
 - A window shouldn't tile (e.g. a dialog): it floats automatically for System Settings, 1Password and Karabiner. To add more, add an `[[on-window-detected]]` rule to `aerospace.toml`.
 - Run `~/Dotfiles/scripts/macos-defaults.sh` once. It sets the Mission Control options AeroSpace recommends (log out and back in afterwards).
 - **Conflict note:** `Alt+H/J/K/L` belong to AeroSpace everywhere. In Neovim, switch windows with the arrow keys or `Ctrl+W h/j/k/l`.
@@ -140,21 +141,21 @@ after-startup-command = [
 ## Tailscale + Ovis: your agents on your phone
 
 **What they are.**
-- **Tailscale** creates a **private network** between your own devices (Mac, phone), wherever they are. Nothing is exposed to the public internet.
-- **Ovis** is a web app running on your Mac, on top of herdr. It shows your agents as chats and turns their approval prompts into **Allow / Deny** buttons, with push alerts.
+- **Tailscale** creates a **private network** between your own devices (the M2, the Ubuntu spares, your phone), wherever they are. Nothing is exposed to the public internet.
+- **Ovis** is a web app running on the M2, on top of herdr. It shows your agents as chats and turns their approval prompts into **Allow / Deny** buttons, with push alerts.
 
 **Why you have them.** Start a long task, walk away, and approve the `git push` from your phone.
 
 ```mermaid
 flowchart LR
-    PH["Your phone<br/>(Ovis app)"]:::step <-->|"Tailscale<br/>private network"| OV["Ovis on your Mac<br/>port 7317"]:::step
+    PH["Your phone<br/>(Ovis app)"]:::step <-->|"Tailscale<br/>private network"| OV["Ovis on the M2<br/>port 7317"]:::step
     OV <--> HD["herdr"]:::step
     HD <--> AG["Your agents"]:::agent
     classDef step fill:#f1f5f9,stroke:#64748b,color:#1e293b
     classDef agent fill:#ffedd5,stroke:#c2410c,color:#431407
 ```
 
-**How it's wired:** Ovis listens on `http://127.0.0.1:7317`, which only your Mac can reach. `tailscale serve` publishes it as an HTTPS address that **only your Tailscale devices** can open. Find the address with `tailscale serve status`.
+**How it's wired:** Ovis listens on `http://127.0.0.1:7317`, which only the M2 itself can reach. `tailscale serve` publishes it as an HTTPS address that **only your Tailscale devices** can open. Find the address with `tailscale serve status`.
 
 **Daily use**
 1. Ovis starts with herdr. Make sure herdr is running (`herdr`, then detach).
@@ -166,5 +167,7 @@ flowchart LR
 - No alerts: in Ovis, **Settings → Alerts → Send test**.
 - Updating Ovis: rerun its installer with Homebrew's curl, because macOS's built-in curl trips an installer bug:
   `curl -fsSL https://ovis.sh/install.sh | PATH="/opt/homebrew/opt/curl/bin:$PATH" sh`
+
+**Other phone apps.** herdr has an official phone app, and there are independent ones (Sherpr, Mussh…). They connect over SSH. The official one needs **herdr-core**, which comes with the Herdr *desktop* app, not the terminal version you use; it offers to install it when you connect, so decline. Ovis (agents) plus Termux (a full terminal, [chapter 12](12-notes.md#editing-from-your-android-phone)) already cover both jobs. If you try an independent app, give it its own SSH key so you can remove it alone.
 
 Next: [A day with this setup →](10-daily-workflow.md)
