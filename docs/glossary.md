@@ -86,7 +86,7 @@ Git's name for "where you are now": the commit your folder shows. In `git log`, 
 Your personal folder, `/Users/youngjaelim`. `~/.zshrc` means "`.zshrc` in my home folder".
 
 ### Homebrew (`brew`)
-The usual way to install software on a Mac from the terminal. A **cask** is a Homebrew package that's a full app (Ghostty, Firefox) rather than a command-line tool.
+The usual way to install software on a Mac from the terminal. A **cask** is a Homebrew package that's a full app (Ghostty, Firefox) rather than a command-line tool. **Homebrew on Linux** is the same tool on the spare Ubuntu machines, in `/home/linuxbrew/.linuxbrew`; casks are Mac-only, so they sit inside the Brewfile's `if OS.mac?` block. ([Chapter 14](14-spare-linux.md))
 
 ### Hook
 A small script that runs automatically at a fixed moment. Claude's hooks here run before every tool call (the secret guard) and when Claude needs you (the notification). Git also has hooks: the **pre-commit hook** runs gitleaks before each commit. ([Chapter 5](05-ai-agents.md#how-secrets-are-protected-three-layers))
@@ -213,6 +213,9 @@ Another settings-file format, made of `name = value` lines and `[sections]`. Gho
 
 ### Tree-sitter
 A fast parser that understands code structure; Neovim uses it for syntax colours and indentation. nvim-treesitter installs a parser per language. ([Chapter 11](11-neovim.md))
+
+### Ubuntu, apt
+A widely used Linux system, on your spare Mac Pro and Mac mini. **apt** is its own installer (`sudo apt install …`); these dotfiles use it only for what Homebrew can't provide. ([Chapter 14](14-spare-linux.md))
 
 ### Vault (1Password)
 A folder of items in 1Password. Your terminal secrets are in the vault named **Dev**. ([Chapter 7](07-secrets.md))

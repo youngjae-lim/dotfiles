@@ -35,13 +35,17 @@ if have shellcheck; then
   for f in home/private_dot_local/bin/executable_*; do
     head -n1 "$f" | grep -qE '^#!.*(ba)?sh' && files+=("$f")
   done
-  # Templated shell scripts are checked after rendering.
+  # Templated shell scripts are checked after rendering, once as the Mac sees
+  # them and once as the spare Ubuntu machines do.
   if command -v "$CHEZMOI" >/dev/null 2>&1; then
-    for t in home/.chezmoiscripts/run_onchange_after_30-agent-integrations.sh.tmpl \
-      home/.chezmoiscripts/darwin/run_onchange_before_10-brew-bundle.sh.tmpl \
-      home/dot_claude/hooks/dotfiles/executable_guard-secrets.sh.tmpl; do
-      out="$tmp/$(basename "$t" .tmpl)"
-      "$CHEZMOI" --source . execute-template <"$t" >"$out" && files+=("$out")
+    for os in darwin linux; do
+      for t in home/.chezmoiscripts/run_onchange_after_30-agent-integrations.sh.tmpl \
+        home/.chezmoiscripts/run_onchange_before_10-brew-bundle.sh.tmpl \
+        home/dot_claude/hooks/dotfiles/executable_guard-secrets.sh.tmpl; do
+        out="$tmp/$os-$(basename "$t" .tmpl)"
+        "$CHEZMOI" --source . execute-template --override-data "{\"chezmoi\":{\"os\":\"$os\"}}" \
+          <"$t" >"$out" && files+=("$out")
+      done
     done
   fi
   if shellcheck "${files[@]}"; then echo "ok   ${#files[@]} scripts"; else status=1; fi

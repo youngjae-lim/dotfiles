@@ -1,6 +1,6 @@
 # dotfiles
 
-My macOS setup, built for working with AI coding agents. Managed with [chezmoi](https://chezmoi.io).
+My macOS setup, built for working with AI coding agents. Managed with [chezmoi](https://chezmoi.io). The same repo also sets up spare Ubuntu machines with the shell, Neovim and agents ([docs](docs/14-spare-linux.md)).
 
 > **New to these tools?** Start with the [docs](docs/README.md): ten short chapters that explain everything from zero, a [glossary](docs/glossary.md) and a [cheat sheet](docs/cheatsheet.md).
 
@@ -27,6 +27,8 @@ The script installs Homebrew, chezmoi and 1Password, waits for you to turn on 1P
 ```sh
 ~/Dotfiles/scripts/macos-defaults.sh   # Dock/Finder/Spaces defaults
 ```
+
+**Spare Ubuntu machine:** the same command. On Linux it installs apt packages, Homebrew, 1Password's CLI, Tailscale and the agents, applies the shared part of the dotfiles, and makes zsh the login shell. See [chapter 14](docs/14-spare-linux.md).
 
 ## Daily use
 

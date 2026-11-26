@@ -91,7 +91,7 @@ Three rules follow from this:
 
 | You change | `apply` also runs | If it fails |
 |---|---|---|
-| `Brewfile` | Trusts every `tap` listed in the Brewfile, then `brew bundle` (installs new apps and tools) | It prints the exact command to rerun. Apps that need your password (like Tailscale) must be installed by you in a terminal. |
+| `Brewfile` | Trusts every `tap` listed in the Brewfile, then `brew bundle` (installs new apps and tools). On the spare Ubuntu machines it skips the Mac-only part ([chapter 14](14-spare-linux.md)) | It prints the exact command to rerun. Apps that need your password (like Tailscale) must be installed by you in a terminal. |
 | `home/dot_config/mise/config.toml` | `mise install` | `mise doctor` |
 | MCP servers in `agents.yaml` | Registers them with Claude Code, and removes ones you deleted | `claude mcp list` |
 

@@ -3,7 +3,7 @@
 Instructions for AI agents working **in this repository**. Global, cross-repo agent instructions are generated from `home/.chezmoitemplates/agents.md`.
 
 ## What this is
-Youngjae's macOS dotfiles, managed by **chezmoi**. The repo lives at `~/Dotfiles` (chezmoi `sourceDir`). It is **public**, so nothing secret may ever be committed.
+Youngjae's macOS dotfiles, managed by **chezmoi**. The same repo sets up spare **Ubuntu** machines with the shared part (shell, Neovim, mise, herdr, agents); see `docs/14-spare-linux.md`. The repo lives at `~/Dotfiles` (chezmoi `sourceDir`). It is **public**, so nothing secret may ever be committed.
 
 ## Layout
 | Path | Purpose |
@@ -17,18 +17,18 @@ Youngjae's macOS dotfiles, managed by **chezmoi**. The repo lives at `~/Dotfiles
 | `home/.chezmoiscripts/` | `run_onchange_*` scripts: brew bundle, mise install, herdr integrations + Claude MCP. |
 | `config/nvim/` | Neovim config on 0.12's built-in `vim.pack` (no LazyVim). Plugins listed only in `lua/config/pack.lua`; language tools come from mise, never Mason. See `docs/11-neovim.md`. |
 | `config/` | Configs that apps rewrite themselves (nvim, karabiner, VS Code settings/keybindings). `~` symlinks **into** this dir, so in-app edits appear in `git diff`. VS Code's `mcp.json` is the exception: generated from `agents.yaml`. |
-| `Brewfile` | All Homebrew packages; applied automatically when it changes. |
+| `Brewfile` | All Homebrew packages; applied automatically when it changes, on the Mac and on Linux (Homebrew on Linux). Casks, taps and Mac-only tools go **inside** the `if OS.mac?` block. |
 | `scripts/` | `check.sh` (validate everything), `check-agents.py` (agent-config parity), `macos-defaults.sh` (manual). |
-| `.github/workflows/check.yml` | CI: runs `scripts/check.sh` on every push. |
+| `.github/workflows/check.yml` | CI: runs `scripts/check.sh` on every push, and applies the dotfiles into an empty Ubuntu home folder (`linux-apply`). |
 | `docs/` | Human docs, written for beginners: `README.md` (index), ten numbered chapters, `glossary.md`, `cheatsheet.md`. Update the chapter (and cheat sheet) that documents a workflow, keybinding or command when you change it. Define new jargon in `glossary.md`. Diagrams are Mermaid, using the colour classes listed in `docs/README.md`. |
-| `install.sh` | New-machine bootstrap. |
+| `install.sh` | New-machine bootstrap: the Mac, or a spare Ubuntu machine (apt, Homebrew on Linux, 1Password CLI, Tailscale, agents). `DOTFILES_BRANCH` tries a branch. |
 
 ## Rules
 - **Secrets:** never write literal secrets. Use `{{ onepasswordRead "op://Dev/<item>/<field>" }}` in a `private_*.tmpl` file. Do not run `op` yourself; ask the user.
 - Edit the **source** in this repo, never the rendered file in `~`. Check with `chezmoi diff`; the user runs `chezmoi apply`.
 - Adding a file: `chezmoi add ~/.foo` (or `--template`) rather than creating source names by hand, unless you know the naming rules above.
 - Agent permission, secret-path or MCP changes go in `home/.chezmoidata/agents.yaml`, not in per-agent files. Never put secrets in it (no `env` values for MCP servers).
-- Keep `home/` macOS-first; guard OS-specific paths in `home/.chezmoiignore`.
+- Keep `home/` macOS-first, but don't break Linux: guard Mac-only files in `home/.chezmoiignore`, Mac-only packages in the Brewfile's `if OS.mac?` block, and differing text with `{{ if eq .chezmoi.os "darwin" }}`. `check.sh` renders templated scripts for both; render one for the Mac with `chezmoi execute-template --override-data '{"chezmoi":{"os":"darwin"}}'`.
 
 ## Validate before finishing
 ```sh
@@ -41,5 +41,5 @@ The pre-commit hook (`.githooks/pre-commit`) runs gitleaks on staged changes. Ne
 
 ## Style
 - Lua: stylua (`config/nvim/stylua.toml`, `home/dot_hammerspoon/stylua.toml`).
-- Shell: bash/zsh, `set -euo pipefail` in scripts, pass shellcheck. Scripts in `~/.local/bin` and hooks run under macOS `/bin/bash` 3.2: no `${x^}`, `mapfile`, or empty arrays under `set -u`.
+- Shell: bash/zsh, `set -euo pipefail` in scripts, pass shellcheck. Scripts in `~/.local/bin` and hooks also run on Linux; guard Mac-only commands (`diskutil`, `osascript`, `caffeinate`) or skip the file there. On the Mac they run under `/bin/bash` 3.2: no `${x^}`, `mapfile`, or empty arrays under `set -u`.
 - Commits: Conventional Commits, scoped by tool, e.g. `feat(zsh): add wt helper`.

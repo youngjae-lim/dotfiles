@@ -23,6 +23,7 @@ Read chapters 1 and 2 first; they explain the idea everything else rests on. Aft
 | 11 | [Neovim: the lean config](11-neovim.md) | What's in your editor config, why, and how to change it yourself | 20 min |
 | 12 | [Notes](12-notes.md) | Markdown notes in git: history, PDFs, editing from your phone, and the website later | 15 min |
 | 13 | [Drive backup](13-drive-backup.md) | The external drive, encrypted, to Backblaze B2: the routine, getting files back, and what to do when it complains | 10 min |
+| 14 | [Spare Linux machines](14-spare-linux.md) | The Mac Pro and Mac mini on Ubuntu: what they get, setting one up, keeping them current, reaching them over Tailscale | 10 min |
 
 Also here:
 - [Glossary](glossary.md): every term, in plain words.

@@ -3,10 +3,17 @@
 These apply to every repository. Repository `AGENTS.md` files override them.
 
 ## Environment
+{{- if eq .chezmoi.os "darwin" }}
 - macOS (Apple Silicon), zsh with vi-mode, Homebrew at `/opt/homebrew`.
 - Terminal: Ghostty. Agents usually run inside **herdr** panes (`HERDR_ENV=1`); use the `herdr` skill only when asked to drive panes/agents.
 - Runtimes come from **mise** (node, python, go). PHP comes from **Laravel Herd**. Respect `.tool-versions`, `.nvmrc`, `.python-version`, `mise.toml`.
 - Editors: Neovim (own config on built-in `vim.pack`, plugins in `config/nvim/lua/config/pack.lua`) and VS Code. `$EDITOR` is `nvim`.
+{{- else }}
+- Ubuntu Linux on an Intel Mac (a spare machine; the main one is a Mac), zsh with vi-mode, Homebrew at `/home/linuxbrew/.linuxbrew`, apt for system packages (ask before `sudo`).
+- Often reached over SSH. Agents usually run inside **herdr** panes (`HERDR_ENV=1`); use the `herdr` skill only when asked to drive panes/agents.
+- Runtimes come from **mise** (node, python, go). No PHP or database servers here (on the Mac those come from Laravel Herd and Homebrew). Respect `.tool-versions`, `.nvmrc`, `.python-version`, `mise.toml`.
+- Editor: Neovim (own config on built-in `vim.pack`, plugins in `config/nvim/lua/config/pack.lua`). `$EDITOR` is `nvim`.
+{{- end }}
 - Dotfiles are managed by chezmoi in `~/Dotfiles`. Never edit files under `~` that chezmoi manages; edit the source and run `chezmoi diff`.
 
 ## Working style
