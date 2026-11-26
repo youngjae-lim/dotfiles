@@ -22,7 +22,7 @@
 flowchart LR
     T["home/dot_config/git/config.tmpl<br/>email = #123;#123; .email #125;#125;"]:::source --> CZ["chezmoi apply<br/>fills in the blanks"]:::step
     D["Your data<br/>(from .chezmoi.toml.tmpl)"]:::source --> CZ
-    CZ --> O["~/.config/git/config<br/>email = limyoungjae@gmail.com"]:::output
+    CZ --> O["~/.config/git/config<br/>email = you@example.com"]:::output
     classDef source fill:#dbeafe,stroke:#1d4ed8,color:#0b1b3f
     classDef step fill:#f1f5f9,stroke:#64748b,color:#1e293b
     classDef output fill:#dcfce7,stroke:#15803d,color:#052e16
@@ -40,6 +40,7 @@ A typo in a template makes `apply` fail with an error naming the file. To see wh
 ```sh
 chezmoi execute-template < home/dot_config/git/config.tmpl
 ```
+To see what the *other* kind of computer would get, pretend to be it: add `--override-data '{"chezmoi":{"os":"linux"}}'` on the M2 (or `"darwin"` on a spare). `scripts/check.sh` checks the scripts both ways.
 
 - Your name and email come from `home/.chezmoi.toml.tmpl`, not from the git template.
 - `private_secrets.zsh.tmpl` reads from 1Password whenever it has secrets in it, so expect a popup ([why](07-secrets.md#why-does-1password-keep-asking)). After changing it, open a new shell.
@@ -47,7 +48,7 @@ chezmoi execute-template < home/dot_config/git/config.tmpl
 
 ## Generated files
 
-**What it is.** Some settings are written **once** and turned into **several** files. You edit the one source; chezmoi writes all the outputs. These are lane 3 from [chapter 1](01-big-picture.md#three-ways-a-file-gets-to-your-mac).
+**What it is.** Some settings are written **once** and turned into **several** files. You edit the one source; chezmoi writes all the outputs. These are lane 3 from [chapter 1](01-big-picture.md#three-ways-a-file-gets-to-your-home-folder).
 
 **Why.** Claude, Copilot, Gemini and VS Code each want their settings in a different file and format. Keeping four copies in step by hand is how mistakes creep in.
 

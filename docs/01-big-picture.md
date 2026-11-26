@@ -14,21 +14,32 @@ If you remember one thing from these docs, make it this:
 
 Two words you'll see everywhere:
 
-- **Home folder** (written `~`): your personal folder, `/Users/youngjaelim`. `~/.zshrc` means "the file `.zshrc` in my home folder".
+- **Home folder** (written `~`): your personal folder: `/Users/youngjaelim` on the M2, `/home/youngjae-lim` on the Ubuntu spares. `~/.zshrc` means "the file `.zshrc` in my home folder".
 - **Repository** (or **repo**): a folder whose history is tracked by **git**. `~/Dotfiles` is a repo, and a copy of it lives on GitHub.
 
 ```mermaid
 flowchart LR
-    R["~/Dotfiles<br/>(the repo: you edit here)"]:::source -->|chezmoi apply| H["~ your home folder<br/>(the output: your Mac uses this)"]:::output
+    R["~/Dotfiles<br/>(the repo: you edit here)"]:::source -->|chezmoi apply| H["~ your home folder<br/>(the output: your computer uses this)"]:::output
     R -->|git push| G["GitHub<br/>(backup and history)"]:::step
     classDef source fill:#dbeafe,stroke:#1d4ed8,color:#0b1b3f
     classDef step fill:#f1f5f9,stroke:#64748b,color:#1e293b
     classDef output fill:#dcfce7,stroke:#15803d,color:#052e16
 ```
 
-Notice the two arrows are separate. `chezmoi apply` makes your Mac **use** a change. `git push` **saves** it on GitHub. Neither one does the other's job. [Chapter 2](02-chezmoi-basics.md) covers both.
+Notice the two arrows are separate. `chezmoi apply` makes the computer you run it on **use** a change. `git push` **saves** it on GitHub. Neither one does the other's job. [Chapter 2](02-chezmoi-basics.md) covers both.
 
-## Three ways a file gets to your Mac
+## Your computers
+
+The same repo sets up more than one computer:
+
+| Called here | What it is | Gets |
+|---|---|---|
+| **The M2** | Your M2 MacBook Pro, on macOS: the main computer | Everything. It's where you change the dotfiles |
+| **The Mac Pro**, **the Mac mini** | Old Macs running Ubuntu: **the Ubuntu spares** | The shared part: shell, Neovim, mise, herdr, agents ([chapter 14](14-spare-linux.md)) |
+
+Most chapters describe the M2. Where something differs on the spares, the chapter says so. Chapter 9 (windows and keys) is about the M2 only.
+
+## Three ways a file gets to your home folder
 
 Every file in the repo reaches your home folder in one of three ways. We call them **lanes**. Once you know which lane a file is in, you know how to change it.
 
@@ -98,7 +109,7 @@ The same picture in words, from the outside in:
 1. **AeroSpace** arranges your app windows side by side automatically. ([Chapter 9](09-desktop.md))
 2. **Ghostty** is the terminal app: the window where you type commands. ([Chapter 4](04-terminal.md))
 3. **herdr** runs inside Ghostty. It's like tabs and splits that **keep running when you close the window**, and it shows whether each AI agent is busy, done, or waiting for you. ([Chapter 4](04-terminal.md))
-4. **AI agents** (Claude Code, Copilot CLI, Gemini CLI) run in herdr panes. They all read the **same** instructions and safety rules. ([Chapter 5](05-ai-agents.md))
+4. **AI agents** (Claude Code, Copilot CLI, and Gemini CLI, which can't sign in with a personal account any more) run in herdr panes. They all read the **same** instructions and safety rules. ([Chapter 5](05-ai-agents.md))
 5. **zsh** is your shell, the program that reads what you type. ([Chapter 4](04-terminal.md))
 6. **mise** puts the right versions of node, python and go on your path. ([Chapter 8](08-languages-and-tools.md))
 7. **chezmoi** writes all these tools' config files from `~/Dotfiles`. ([Chapters 2](02-chezmoi-basics.md) and [3](03-how-files-are-made.md))
@@ -113,13 +124,13 @@ The same picture in words, from the outside in:
 ├── config/        Lane 2: configs that apps edit themselves (nvim, vscode, karabiner)
 ├── docs/          These docs
 ├── scripts/       check.sh (test everything), macos-defaults.sh (one-time setup)
-├── Brewfile       Every app and tool to install with Homebrew
-├── install.sh     Sets up a brand-new Mac
+├── Brewfile       Every app and tool to install with Homebrew (Mac-only ones inside `if OS.mac?`)
+├── install.sh     Sets up a new computer: the M2, or an Ubuntu spare
 ├── AGENTS.md      Instructions for AI agents working in this repo
 └── README.md      Short overview
 ```
 
-> **Homebrew**: the standard way to install software on a Mac from the terminal (`brew install …`). The **Brewfile** is a list of everything to install; chezmoi runs it for you when it changes.
+> **Homebrew**: the standard way to install software on a Mac from the terminal (`brew install …`), and on the Ubuntu spares too, as Homebrew on Linux. The **Brewfile** is a list of everything to install; chezmoi runs it for you when it changes.
 
 ## What to learn now, and what can wait
 

@@ -18,7 +18,7 @@ flowchart TB
 
 ## Ghostty: the window
 
-**What it is.** A fast, native macOS terminal app. It replaced WezTerm.
+**What it is.** A fast, native macOS terminal app. It replaced WezTerm. (On the Ubuntu spares you use Ubuntu's own terminal instead; herdr and zsh below work the same there. Copy and paste there are `Ctrl+Shift+C` / `Ctrl+Shift+V`.)
 
 **Why you have it.** It's fast and simple, and it supports the newer terminal features AI agents use: desktop notifications, images, and Shift+Enter for a new line in a prompt. Splits and tabs are herdr's job, so Ghostty's config stays tiny, and switching terminals later would cost little.
 

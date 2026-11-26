@@ -16,7 +16,7 @@ Neovim 0.12 (released March 2026) builds in a lot that used to need plugins: a *
 
 `~/.config/nvim` is a link to `config/nvim/` (lane 2), so edits take effect the next time you start Neovim, with no `chezmoi apply`. Plugins, parsers and other downloaded data live outside the repo, in `~/.local/share/nvim/`.
 
-**On a new Mac:** the first `nvim` start installs the plugins (`vim.pack` asks; answer yes), blink.cmp downloads its fuzzy matcher, and nvim-treesitter builds about 40 parsers in the background (a minute or two). Restart once that's done; after that, starts are fast. Then `:LspCopilotSignIn` once.
+**On a new computer** (the M2 or an Ubuntu spare): the first `nvim` start installs the plugins (`vim.pack` asks; answer yes), blink.cmp downloads its fuzzy matcher, and nvim-treesitter builds about 40 parsers in the background (a minute or two). Restart once that's done; after that, starts are fast. Then `:LspCopilotSignIn` once.
 
 ### Coming from LazyVim
 
@@ -226,7 +226,7 @@ Four places, each optional depending on the language:
 | Who can use the tools | Only Neovim | Neovim, the shell, AI agents, VS Code, scripts |
 | Where versions are recorded | Neovim's data folder, outside the repo | `home/dot_config/mise/config.toml`, in the repo |
 | Updating | A separate `:MasonUpdate` | `mise upgrade` (also in `updater`) |
-| On a new Mac | Reinstalls on first launch | `chezmoi apply` installs everything |
+| On a new computer | Reinstalls on first launch | `chezmoi apply` installs everything |
 
 **The guideline:**
 1. **Language tooling (servers, formatters, linters) goes in `mise/config.toml`**, with the right *backend*: `npm:` for JavaScript-based tools, `go:` for Go tools, `aqua:` for ready-made binaries listed in the aqua registry, and `github:owner/repo` for binaries straight from a project's GitHub releases (when aqua doesn't list it). One file, one updater, readable by agents.
@@ -254,6 +254,7 @@ Run it two or three times and ignore the first (files aren't cached yet). On the
 - **A colour scheme plugin breaks colours in some language:** themes can ship their own tree-sitter rules (an `after/queries` folder), which go stale when parsers change. catppuccin's CSS/JS/TS rules did; `lua/config/themes.lua` drops them. That file is also where a new theme is added.
 - **Completion menu is slow or warns about "Lua fallback":** blink.cmp couldn't download its matcher. Restart with internet access.
 - **No Copilot suggestions:** `:LspCopilotSignIn` in any file.
+- **Yanks don't reach other apps on an Ubuntu spare:** Neovim needs `xclip` or `wl-clipboard` there (`install.sh` installs both on a machine with a desktop). Over SSH there's no desktop clipboard to reach.
 - **Elixir server never starts:** run `elixir-ls` once in a terminal and answer the prompt to install Hex.
 - **A plugin update broke something:** undo it (see [Update plugins](#update-plugins)).
 - **`mise install` says "aube install failed"** for an `npm:` tool: mise installs npm tools with its own package manager, aube, which by default refuses releases (and dependencies) that are only days old, among other safety rules. Run `MISE_VERBOSE=1 mise install <tool>` to see which rule hit; often waiting a few days, or pinning the previous version, fixes it. One rule is the *trust policy*: if an older release of a dependency was published with provenance (a signed record of which source and build produced it) and the chosen release has none, aube refuses it as a possible tampered release. Look at that release first; if it is an ordinary maintainer backport, exempt that one `package@version` with `trust_policy_excludes` on the tool's line in `mise/config.toml` (see the svelte example there). Never exempt a bare package name, and don't use `npm.shell_out`, which turns the check off for everything. A quick check before exempting: `npm view <package>@<version> _npmUser` should show the same publisher as the earlier, trusted releases (for GitHub packages, `GitHub Actions <npm-oidc-no-reply@github.com>`). Packages that ship one build per platform (Mac, Linux, Windows…) are checked for *every* platform, not just yours, so list them all at once with `npm view <parent>@<version> optionalDependencies` and exempt the whole set (the Copilot entry is an example).

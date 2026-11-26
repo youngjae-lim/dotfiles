@@ -47,6 +47,18 @@ wt fix/flaky-test copilot     # second agent, second branch
 wt prune                      # remove finished worktrees
 ```
 
+## Now and then
+
+Not every day, but don't let these slide:
+
+| How often | Where | Do | Why |
+|---|---|---|---|
+| After the external drive changes, or weekly | the M2, drive plugged in | `drive-backup` | New photos are only safe after a run ([chapter 13](13-drive-backup.md)) |
+| Every few months | the M2 | `drive-backup check`, and a small test restore | Proves the backup is readable |
+| After merging a PR | the M2 | `git pull` in `~/Dotfiles`, then `chezmoi apply` | The merged change reaches your home folder |
+| When you sit down at a spare, or every few weeks | each Ubuntu spare | `chezmoi update` | Keeps it in step with `main` ([chapter 14](14-spare-linux.md#keeping-them-current)) |
+| Every week or two | any computer | `updater` | Homebrew, mise, agents, herdr, zsh plugins |
+
 ## Four-week learning plan
 
 Spend about **20 minutes a day**. Don't move on until the current week's tools feel normal.
@@ -82,4 +94,4 @@ Spend about **20 minutes a day**. Don't move on until the current week's tools f
 2. **Health checks:** `chezmoi doctor`, `mise doctor`, `herdr status`, `tailscale status`, `op vault list`, `scripts/check.sh`.
 3. **Undo:** the repo is in git, so `git log` shows every change and `git checkout -- <file>` undoes an uncommitted one. To back out a whole branch you tried, see [Abandoning a branch](02-chezmoi-basics.md#abandoning-a-branch). A full backup of the old setup is at `~/Backups/dotfiles-2026-11-14.tar.gz`.
 4. **Look a word up** in the [glossary](glossary.md).
-5. **Official docs:** [herdr](https://herdr.dev/docs/) · [chezmoi](https://chezmoi.io/user-guide/command-overview/) · [mise](https://mise.jdx.dev/getting-started.html) · [AeroSpace](https://nikitabobko.github.io/AeroSpace/guide) · [Ghostty](https://ghostty.org/docs) · [Claude Code](https://docs.anthropic.com/en/docs/claude-code) · [Copilot CLI](https://docs.github.com/copilot/how-tos/use-copilot-agents/use-copilot-cli) · [Gemini CLI](https://geminicli.com/docs/) · [Ovis](https://github.com/devswha/ovis/blob/main/docs/guide.md)
+5. **Official docs:** [herdr](https://herdr.dev/docs/) · [chezmoi](https://chezmoi.io/user-guide/command-overview/) · [mise](https://mise.jdx.dev/getting-started.html) · [AeroSpace](https://nikitabobko.github.io/AeroSpace/guide) · [Ghostty](https://ghostty.org/docs) · [Claude Code](https://code.claude.com/docs/) · [Copilot CLI](https://docs.github.com/copilot/how-tos/use-copilot-agents/use-copilot-cli) · [Antigravity CLI](https://antigravity.google) (Gemini CLI's replacement) · [Ovis](https://github.com/devswha/ovis/blob/main/docs/guide.md)

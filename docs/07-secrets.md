@@ -4,7 +4,7 @@
 
 > **Secret**: anything that grants access: passwords, API keys, tokens, database connection strings. If it leaks, someone else can act as you.
 
-This repo is **public on GitHub**, so secrets must never be written in it. Instead, they live in 1Password and are copied onto your Mac only when you apply.
+This repo is **public on GitHub**, so secrets must never be written in it. Instead, they live in 1Password and are copied onto a computer only when you apply there.
 
 ```mermaid
 flowchart LR
@@ -62,7 +62,7 @@ Only the `op://` reference was ever in git, never the value, so there's no histo
 
 ## Why does 1Password keep asking?
 
-**Where the popup comes from.** While the secrets template has any `onepasswordRead` line, chezmoi has to fill those in to know what `~/.config/zsh/secrets.zsh` *should* contain. It asks the 1Password CLI, which asks the 1Password app, which asks **you** (Touch ID or your password).
+**Where the popup comes from.** While the secrets template has any `onepasswordRead` line, chezmoi has to fill those in to know what `~/.config/zsh/secrets.zsh` *should* contain. It asks the 1Password CLI, which asks the 1Password app, which asks **you** (Touch ID or your password on the M2; your Ubuntu password on the spares).
 
 | Command | Asks 1Password? |
 |---|---|
@@ -75,7 +75,7 @@ With no secrets in the file (as now), chezmoi never asks.
 **Why only "once in a while".** After you approve, 1Password trusts that terminal for a while:
 - **Per terminal tab:** a new Ghostty tab or herdr pane asks again.
 - **It expires** after about 10 minutes of not using `op`, with a hard limit of about 12 hours.
-- **Locking 1Password** or your Mac ends every session.
+- **Locking 1Password** or the computer ends every session.
 
 **Making it ask less:**
 - **Accept it.** One tap means no secret ever sits in the repo, and nothing (AI agents included) can read your vault without you noticing.
@@ -115,7 +115,7 @@ Every box under your shell got its own copy. `unset API_KEY` removes it from *th
 | herdr panes | **Yes**, until `herdr server stop` | Panes inherit herdr's environment, from whichever shell started herdr. |
 | Tools that print or log their environment (some crash reports, debug modes) | Sometimes | Whatever they log can end up in a file or a bug report. |
 | Anyone watching your screen when you run `env` | Yes | Avoid `env` / `printenv` while screen-sharing. |
-| Other user accounts on the Mac, other people on your network | **No** | Only programs running as *you* can read your programs' environments. |
+| Other user accounts on the computer, other people on your network | **No** | Only programs running as *you* can read your programs' environments. |
 
 **Rules of thumb**, best first:
 
@@ -127,7 +127,7 @@ Every box under your shell got its own copy. `unset API_KEY` removes it from *th
    ```sh
    op run --env-file .env.op -- npm run deploy
    ```
-   As a bonus, `op run` hides the secret's value (`<concealed by 1Password>`) if the command ever prints it.
+   As a bonus, `op run` hides the secret's value (`<concealed by 1Password>`) if the command ever prints it. `drive-backup` works this way: its keys exist only while it runs ([chapter 13](13-drive-backup.md)).
 2. **For one project, use direnv** (next section): the secret is there only while you're inside that project's folder.
 3. **Keep `secrets.zsh` for secrets that really must be everywhere.** Ideally it stays empty, as it is now.
 4. **Starting an agent?** Do it in a shell that never loaded secrets. If you `unset` something or removed it from `secrets.zsh`, open a **new** terminal tab (not `exec zsh`) before starting the agent.
@@ -150,7 +150,8 @@ Scan any other repo with `gitleaks git`.
 
 ## When it breaks
 
-- **1Password errors during `chezmoi apply`**: unlock the 1Password app, then check `op vault list` shows **Dev**. In the app, **Settings → Developer → Integrate with 1Password CLI** must be on.
+- **1Password errors during `chezmoi apply`**: unlock the 1Password app, then check `op vault list` shows **Dev**. In the app, **Settings → Developer → Integrate with 1Password CLI** must be on. On the Ubuntu spares, that setting appears only after **Settings → Security → Unlock using system authentication** is on.
+- **`No accounts configured for use with 1Password CLI`**: the app integration is off (see above). Answer `n` if `op` offers to add an account by hand; that's only for a spare you reach over SSH.
 - **A new secret isn't in your shell**: did you `chezmoi apply` and open a **new** shell?
 - **`"NAME" isn't an item in the "Dev" vault`**: the reference doesn't match the item's title (often still the default, like "API Credential"), or the item is in another vault. `op item list --vault Dev` lists the titles.
 - **gitleaks blocks a commit**: it found something that looks like a secret. Remove it from the staged files (`git restore --staged <file>`), move the value to 1Password, and reference it instead.

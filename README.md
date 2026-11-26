@@ -2,7 +2,7 @@
 
 My macOS setup, built for working with AI coding agents. Managed with [chezmoi](https://chezmoi.io). The same repo also sets up spare Ubuntu machines with the shell, Neovim and agents ([docs](docs/14-spare-linux.md)).
 
-> **New to these tools?** Start with the [docs](docs/README.md): ten short chapters that explain everything from zero, a [glossary](docs/glossary.md) and a [cheat sheet](docs/cheatsheet.md).
+> **New to these tools?** Start with the [docs](docs/README.md): fourteen short chapters that explain everything from zero, a [glossary](docs/glossary.md) and a [cheat sheet](docs/cheatsheet.md).
 
 | Layer | Tool |
 |---|---|
@@ -16,7 +16,7 @@ My macOS setup, built for working with AI coding agents. Managed with [chezmoi](
 | Windows / keys | AeroSpace, Karabiner-Elements, Hammerspoon (Korean input indicator) |
 | Remote / phone | Tailscale + [Ovis](https://ovis.sh) on top of herdr |
 
-## Install (new Mac)
+## Install (a new Mac)
 
 ```sh
 sh -c "$(curl -fsLS https://raw.githubusercontent.com/youngjae-lim/dotfiles/main/install.sh)"

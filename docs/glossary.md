@@ -83,7 +83,7 @@ A scanner that looks for secrets. It runs before every commit in this repo and b
 Git's name for "where you are now": the commit your folder shows. In `git log`, `HEAD -> main` means you're on `main`. ([Chapter 2](02-chezmoi-basics.md#reading-git-log---graph))
 
 ### Home folder (`~`)
-Your personal folder, `/Users/youngjaelim`. `~/.zshrc` means "`.zshrc` in my home folder".
+Your personal folder: `/Users/youngjaelim` on the M2, `/home/youngjae-lim` on the Ubuntu spares. `~/.zshrc` means "`.zshrc` in my home folder".
 
 ### Homebrew (`brew`)
 The usual way to install software on a Mac from the terminal. A **cask** is a Homebrew package that's a full app (Ghostty, Firefox) rather than a command-line tool. **Homebrew on Linux** is the same tool on the spare Ubuntu machines, in `/home/linuxbrew/.linuxbrew`; casks are Mac-only, so they sit inside the Brewfile's `if OS.mac?` block. ([Chapter 14](14-spare-linux.md))
@@ -98,7 +98,7 @@ A command-line tool for reading and changing JSON. The `modify_` scripts use it 
 A text format for settings and data, built from `{"name": "value"}`. Most apps' settings files use it.
 
 ### Lane
-This guide's name for the three ways a file reaches your home folder: copied, linked or generated. ([Chapter 1](01-big-picture.md#three-ways-a-file-gets-to-your-mac))
+This guide's name for the three ways a file reaches your home folder: copied, linked or generated. ([Chapter 1](01-big-picture.md#three-ways-a-file-gets-to-your-home-folder))
 
 ### Language server (LSP)
 A separate program that understands one language (`gopls` for Go, `intelephense` for PHP) and tells the editor about errors, definitions, references and completions. LSP, the Language Server Protocol, is the standard they speak. Yours are installed by mise. ([Chapter 11](11-neovim.md))
@@ -106,11 +106,14 @@ A separate program that understands one language (`gopls` for Go, `intelephense`
 ### Linter, formatter
 A **linter** points out likely mistakes in code (shellcheck for shell scripts). A **formatter** rewrites code into a consistent style (stylua for Lua).
 
+### M2, the Ubuntu spares
+These docs' names for your computers. **The M2** is your M2 MacBook Pro (macOS), the main one, where you change the dotfiles. **The Ubuntu spares** are the old **Mac Pro** and **Mac mini**, running Ubuntu with the shared part of the setup. ([Chapter 1](01-big-picture.md#your-computers), [chapter 14](14-spare-linux.md))
+
 ### Mason
 A Neovim plugin that installs language servers inside Neovim. Not used here: language tools come from mise, so the shell and agents get them too. ([Chapter 11](11-neovim.md#where-language-tools-come-from-mise-not-mason))
 
 ### MCP (Model Context Protocol), MCP server
-A standard way to plug extra tools into an AI agent. An **MCP server** is one such tool: either a web address (`type: http`) or a small program the agent starts on your Mac (`type: stdio`). Yours: `context7` and `time`. ([Chapter 5](05-ai-agents.md#adding-an-mcp-server))
+A standard way to plug extra tools into an AI agent. An **MCP server** is one such tool: either a web address (`type: http`) or a small program the agent starts on your computer (`type: stdio`). Yours: `context7` and `time`. ([Chapter 5](05-ai-agents.md#adding-an-mcp-server))
 
 ### Merge
 Combining one branch's changes into another, usually a feature branch into `main`. A **squash merge** combines all the branch's commits into one new commit first; afterwards `git branch -d` doesn't recognise the branch as merged, so delete it with `-D`. ([Chapter 2](02-chezmoi-basics.md#the-routine-start-to-finish))
@@ -134,7 +137,7 @@ A program that holds many terminals in one window and keeps them running in the 
 An environment variable that tells Neovim which config folder to use (`~/.config/$NVIM_APPNAME`) and where to keep its data. Handy for trying a new config next to the current one; that's how the lean config was trialled (as `vl`) before replacing LazyVim. ([Chapter 11](11-neovim.md#trying-a-different-config-safely))
 
 ### Origin, remote branch
-**origin** is git's name for the copy of the repo on GitHub. A **remote branch** like `origin/main` is your Mac's record of where that branch is on GitHub, updated by `git pull` or `git fetch`. `git branch -r` lists them. ([Chapter 2](02-chezmoi-basics.md#cleaning-up-branches))
+**origin** is git's name for the copy of the repo on GitHub. A **remote branch** like `origin/main` is your copy's record of where that branch is on GitHub, updated by `git pull` or `git fetch`. `git branch -r` lists them. ([Chapter 2](02-chezmoi-basics.md#cleaning-up-branches))
 
 ### Pane, tab, workspace, session (herdr)
 A **pane** is one terminal. A **tab** is a layout of panes. A **workspace** is one project's set of tabs. The **session** is the background server holding them all. ([Chapter 4](04-terminal.md#words-you-need))
@@ -185,13 +188,13 @@ macOS's own virtual desktops, shown along the top of Mission Control. A window i
 A way to open a terminal on another computer over the network, encrypted. An **SSH key** is a pair of files that proves who you are without a password: the private half stays on your device, the public half goes on the computer you log in to. ([Chapter 12](12-notes.md#editing-from-your-android-phone))
 
 ### Switch (`git switch`)
-Change which branch your folder shows. `git switch -c <name>` creates a new branch and switches to it. chezmoi applies whichever branch you've switched to. ([Chapter 2](02-chezmoi-basics.md#the-one-rule-your-mac-follows-the-branch-youre-on))
+Change which branch your folder shows. `git switch -c <name>` creates a new branch and switches to it. chezmoi applies whichever branch you've switched to. ([Chapter 2](02-chezmoi-basics.md#the-one-rule-your-m2-follows-the-branch-youre-on))
 
 ### Symlink (symbolic link)
-A file that points at another file, like a shortcut. `~/.config/nvim` is a symlink to `~/Dotfiles/config/nvim`, so there's only one real copy. ([Chapter 1](01-big-picture.md#three-ways-a-file-gets-to-your-mac))
+A file that points at another file, like a shortcut. `~/.config/nvim` is a symlink to `~/Dotfiles/config/nvim`, so there's only one real copy. ([Chapter 1](01-big-picture.md#three-ways-a-file-gets-to-your-home-folder))
 
 ### Tailscale
-A private network between your own devices (Mac, phone), wherever they are. Your phone reaches Ovis and SSH on your Mac through it, and nobody else can. ([Chapter 9](09-desktop.md#tailscale--ovis-your-agents-on-your-phone))
+A private network between your own devices (the M2, the Ubuntu spares, your phone), wherever they are. Your phone reaches Ovis and SSH on the M2 through it, the M2 reaches the spares, and nobody else can. ([Chapter 9](09-desktop.md#tailscale--ovis-your-agents-on-your-phone))
 
 ### Tap (Homebrew)
 An extra source of Homebrew packages, published by someone other than Homebrew, like `FelixKratz/formulae`. Recent Homebrew refuses a tap's formulas until you trust it; the brew script trusts every tap listed in the Brewfile. ([Chapter 3](03-how-files-are-made.md#scripts-that-run-on-apply))
@@ -203,7 +206,7 @@ A file with blanks (`{{ … }}`) that chezmoi fills in when it applies. Names en
 The app that shows the text window you type commands into. Yours is **Ghostty**. ([Chapter 4](04-terminal.md))
 
 ### Termux
-A terminal app for Android, with Linux tools like `ssh`. Used to open your Mac's terminal from your phone. ([Chapter 12](12-notes.md#editing-from-your-android-phone))
+A terminal app for Android, with Linux tools like `ssh`. Used to open the M2's terminal from your phone. ([Chapter 12](12-notes.md#editing-from-your-android-phone))
 
 ### Tiling window manager
 A program that arranges windows side by side automatically. Yours is **AeroSpace**. ([Chapter 9](09-desktop.md))
