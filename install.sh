@@ -104,8 +104,9 @@ Done. Next:
   2. Sign in once each: gh auth login · claude · copilot · gemini
   3. Tailscale, if this machine is new to it: sudo tailscale up
   4. 1Password, for drive-backup restore:
-       with a desktop: open 1Password, sign in, then Settings → Developer →
-       "Integrate with 1Password CLI"
+       with a desktop: open 1Password and sign in; Settings → Security →
+       "Unlock using system authentication" first, then Settings → Developer
+       → "Integrate with 1Password CLI"; check with: op vault list
        over SSH only:  op account add, then eval "$(op signin)" before using it
   5. Run: herdr
 MSG

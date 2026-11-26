@@ -55,7 +55,7 @@ Then, once:
 1. Log out and back in (or reconnect SSH) so zsh starts.
 2. Sign in to each tool: `gh auth login`, `claude`, `copilot`, `gemini`.
 3. If the machine is new to Tailscale: `sudo tailscale up`.
-4. For `drive-backup restore`: with a desktop, open 1Password, sign in, then **Settings → Developer → Integrate with 1Password CLI**. Over SSH only: `op account add` once, then `eval "$(op signin)"` before using it.
+4. For `drive-backup restore`: with a desktop, open 1Password and sign in, turn on **Settings → Security → Unlock using system authentication** (on Linux the next setting depends on it), then **Settings → Developer → Integrate with 1Password CLI**. `op vault list` should then ask for your Ubuntu password and show the Dev vault. Over SSH only: `op account add` once, then `eval "$(op signin)"` before using it.
 
 **Trying a branch before it's merged** (how this chapter's changes were tested): name the branch in both places.
 
@@ -113,5 +113,6 @@ You don't have to remember to test on a spare: the GitHub check now also applies
 - **Icons show as boxes** (in `eza`, `lf`, the prompt): the terminal's font has no icons. Install a Nerd Font (for example JetBrainsMono Nerd Font) and pick it in the terminal's settings.
 - **`brew bundle` reported failures**: run the command it prints, `brew bundle --file="$HOME/Dotfiles/Brewfile"`, to see which package failed.
 - **mise tools take ages**: some (the Go tools) are compiled on the machine. Let it finish; later updates are quicker.
-- **`op`: no accounts configured, or not signed in**: step 4 of "Then, once" above.
+- **`op`: "No accounts configured"**, or **"Integrate with 1Password CLI" isn't there**: turn on Settings → Security → "Unlock using system authentication" first (step 4 of "Then, once" above). Answer `n` if `op` offers to add an account manually; that's the SSH-only route.
+- **`gemini` won't sign in** ("no longer supported for Gemini Code Assist for individuals"): not a Linux problem. Google stopped serving Gemini CLI to personal accounts in June 2026, on the Mac too; its replacement is Antigravity CLI.
 - **Copilot missing after `updater`**: on Linux it comes from `curl -fsSL https://gh.io/copilot-install | bash`, which `updater` runs for you under "agent CLIs".
