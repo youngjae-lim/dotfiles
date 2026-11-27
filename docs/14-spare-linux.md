@@ -27,6 +27,7 @@ flowchart LR
 | `notes`, zathura | ✓ | ✓ with a desktop (zathura from apt) |
 | `drive-backup` | everything | `ls` and `restore` only (the drive belongs to the M2) |
 | Caps Lock: tap = Esc, hold = Ctrl, Caps+h/j/k/l = arrows | ✓ (Karabiner) | ✓ (keyd, below) |
+| One keyboard and mouse (Deskflow) | ✓ shares its own | ✓ the Mac mini uses the M2's (below) |
 | AeroSpace, Karabiner, Hammerspoon, Ghostty settings, `launcher` | ✓ | — |
 | Postgres, MySQL, Docker, Herd (PHP), VS Code | ✓ | — |
 | Claude's "waiting on you" notifications | ✓ | — (quiet on Linux) |
@@ -107,6 +108,13 @@ It sets itself up: the first `chezmoi update` (or `install.sh`) installs keyd an
 **Seeing what it sends:** `sudo keyd.rvaiya monitor` prints every key press after remapping (Ctrl+C to stop), like Karabiner-EventViewer on the M2. On Ubuntu the `keyd` command is called **`keyd.rvaiya`** (Debian renamed it to avoid a clash with another program); the service is still `keyd`, and web pages that say `keyd …` mean `keyd.rvaiya …` here.
 
 **Stuck keyboard** (a bad mapping): press **Backspace + Escape + Enter** together. That stops keyd and gives you the plain keyboard back.
+
+## One keyboard and mouse: Deskflow
+
+The Mac mini's monitor sits to the right of the M2's, and **Deskflow** lets the M2's keyboard and mouse work on both: move the pointer off the right edge of the M2's screen and it continues on the mini's, with one shared clipboard. The M2 is the **server** (it shares its keyboard and mouse); the mini is the **client**.
+
+- **Installed by the dotfiles:** on the M2 from Deskflow's own Homebrew tap (Brewfile, Mac-only block); on a spare with a desktop by `install.sh` (`apt install deskflow`). On a spare set up before this, run `sudo apt install deskflow` once.
+- **If macOS says Deskflow "is damaged"**: it isn't; the app just isn't signed by Apple. Run `xattr -c /Applications/Deskflow.app` once.
 
 ## Notes on a spare
 

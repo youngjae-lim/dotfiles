@@ -44,7 +44,8 @@ linux() {
     exit 1
   }
   # A desktop (graphical login) also gets the 1Password app, the zathura PDF
-  # reader for notes, and clipboard tools for Neovim. Over SSH it's the same.
+  # reader for notes, clipboard tools for Neovim, and Deskflow (the M2's
+  # keyboard and mouse, docs chapter 14). Over SSH it's the same.
   desktop=false
   [ "$(systemctl get-default 2>/dev/null || true)" = graphical.target ] && desktop=true
 
@@ -53,7 +54,7 @@ linux() {
   # Homebrew's own requirements, plus zsh and gnupg (for the 1Password key)
   sudo apt-get install -y build-essential procps curl file git zsh gnupg
   if $desktop; then
-    sudo apt-get install -y zathura zathura-pdf-poppler xclip wl-clipboard
+    sudo apt-get install -y zathura zathura-pdf-poppler xclip wl-clipboard deskflow
   fi
 
   echo "==> Homebrew"
