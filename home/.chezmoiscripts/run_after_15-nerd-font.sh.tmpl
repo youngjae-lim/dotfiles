@@ -1,0 +1,35 @@
+{{- if eq .chezmoi.os "linux" -}}
+#!/bin/bash
+# Ubuntu spares: install the Nerd Font the M2's Ghostty uses (JetBrainsMono
+# NFM), so the icons in Neovim, eza, lf and the prompt show instead of boxes.
+# The terminal still needs pointing at it once: Preferences → font →
+# "JetBrainsMono Nerd Font Mono" (docs chapter 14). On the M2 this renders
+# empty, so chezmoi skips it.
+#
+# Runs on every apply but returns at once when this version is installed; a
+# failed download (offline) is simply tried again on the next apply.
+set -euo pipefail
+
+version="v3.5.1" # https://github.com/ryanoasis/nerd-fonts/releases
+dir="$HOME/.local/share/fonts/JetBrainsMonoNerd"
+stamp="$dir/.version"
+
+[[ -f $stamp && $(<"$stamp") == "$version" ]] && exit 0
+command -v fc-cache >/dev/null || exit 0 # no fontconfig: no desktop to show fonts
+
+tmp=$(mktemp -d)
+trap 'rm -rf "$tmp"' EXIT
+url="https://github.com/ryanoasis/nerd-fonts/releases/download/$version/JetBrainsMono.tar.xz"
+if ! curl -fsSL "$url" -o "$tmp/font.tar.xz"; then
+	echo "chezmoi: couldn't download the Nerd Font; it's tried again on the next apply" >&2
+	exit 0
+fi
+
+# Only the Mono family (the "NFM" the M2 uses), not all three variants.
+rm -rf "$dir"
+mkdir -p "$dir"
+tar -xJf "$tmp/font.tar.xz" -C "$dir" --wildcards 'JetBrainsMonoNerdFontMono-*' OFL.txt
+fc-cache -f "$dir" >/dev/null
+echo "$version" >"$stamp"
+echo "chezmoi: installed JetBrainsMono Nerd Font Mono $version (pick it in the terminal's preferences)"
+{{- end }}

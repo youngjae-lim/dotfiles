@@ -48,14 +48,16 @@ It asks for your password, then, skipping anything already there:
 4. **Tailscale**, if it's missing.
 5. **Claude Code and Copilot CLI** with their own installers (they keep themselves updated).
 6. **The dotfiles:** `chezmoi init --apply` asks for your name and email once, then installs the Brewfile's shared part and the mise tools. **This is the slow part**: expect half an hour or more on these older machines.
+   The same apply installs the **JetBrainsMono Nerd Font**, the M2's terminal font, so icons can show.
 7. **zsh** becomes your login shell.
 
 Then, once:
 
 1. Log out and back in (or reconnect SSH) so zsh starts.
-2. Sign in to each tool: `gh auth login`, `claude`, `copilot`, `gemini`.
+2. Sign in to each tool: `gh auth login`, `claude`, `copilot`. (Skip `gemini`: it can't sign in with a personal Google account any more, [chapter 5](05-ai-agents.md).)
 3. If the machine is new to Tailscale: `sudo tailscale up`.
 4. For `drive-backup restore`: with a desktop, open 1Password and sign in, turn on **Settings → Security → Unlock using system authentication** (on Linux the next setting depends on it), then **Settings → Developer → Integrate with 1Password CLI**. `op vault list` should then ask for your Ubuntu password and show the Dev vault. Over SSH only: `op account add` once, then `eval "$(op signin)"` before using it.
+5. **Terminal font**, with a desktop: open the terminal's menu (☰) → **Preferences**, turn off **Use System Font**, and pick **JetBrainsMono Nerd Font Mono**, size 11. Open a new window. Without this, Neovim's file tree and `eza` show boxes like `F4 60` instead of icons.
 
 **Trying a branch before it's merged** (how this chapter's changes were tested): name the branch in both places.
 
@@ -114,7 +116,7 @@ You don't have to remember to test on a spare: the GitHub check now also applies
 
 - **`brew: command not found` right after installing**: the shell started before Homebrew existed. Log out and back in, or run `exec zsh`.
 - **Still in bash after logging back in**: `getent passwd $USER` should end in `/usr/bin/zsh`. If not: `sudo chsh -s /usr/bin/zsh $USER`.
-- **Icons show as boxes** (in `eza`, `lf`, the prompt): the terminal's font has no icons. Install a Nerd Font (for example JetBrainsMono Nerd Font) and pick it in the terminal's settings.
+- **Icons show as boxes** (little squares with codes like `F4 60`, in Neovim's file tree, `eza`, `lf` or the prompt): the terminal isn't using the Nerd Font. Pick **JetBrainsMono Nerd Font Mono** in its preferences (step 5 of "Then, once"). If it isn't in the list, check `fc-list | grep -c 'JetBrainsMono NFM'` prints a number above 0; if not, run `chezmoi apply` (the font downloads then, and again on the next apply if you were offline).
 - **`chezmoi apply` says `.config/git/config has changed since chezmoi last wrote it`** after `gh auth login`: gh added its login lines to your git settings. The dotfiles now contain the same lines on Linux, so after `git pull` it's safe to answer `o` (overwrite); `git push` keeps using your GitHub login. (Press `d` first to see the difference.)
 - **`chezmoi status` shows `MM .claude/settings.json`**: herdr added its hook to Claude's settings after chezmoi wrote them (it does when herdr updates, too). Harmless: `chezmoi apply` settles it, and herdr's hook stays (`grep -c herdr ~/.claude/settings.json` prints 1). `install.sh` does this second apply for you.
 - **`brew bundle` reported failures**: run the command it prints, `brew bundle --file="$HOME/Dotfiles/Brewfile"`, to see which package failed.

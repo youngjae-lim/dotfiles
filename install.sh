@@ -109,14 +109,17 @@ linux() {
 
 Done. Next:
   1. Log out and back in (or reconnect SSH) so zsh starts.
-  2. Sign in once each: gh auth login · claude · copilot · gemini
+  2. Sign in once each: gh auth login · claude · copilot
+     (gemini can't sign in with a personal Google account any more)
   3. Tailscale, if this machine is new to it: sudo tailscale up
   4. 1Password, for drive-backup restore:
        with a desktop: open 1Password and sign in; Settings → Security →
        "Unlock using system authentication" first, then Settings → Developer
        → "Integrate with 1Password CLI"; check with: op vault list
        over SSH only:  op account add, then eval "$(op signin)" before using it
-  5. Run: herdr
+  5. With a desktop: in the terminal's Preferences, turn off the system font
+     and pick "JetBrainsMono Nerd Font Mono", size 11 (icons need it)
+  6. Run: herdr
 MSG
 }
 

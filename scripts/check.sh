@@ -41,10 +41,13 @@ if have shellcheck; then
     for os in darwin linux; do
       for t in home/.chezmoiscripts/run_onchange_after_30-agent-integrations.sh.tmpl \
         home/.chezmoiscripts/run_onchange_before_10-brew-bundle.sh.tmpl \
+        home/.chezmoiscripts/run_after_15-nerd-font.sh.tmpl \
         home/dot_claude/hooks/dotfiles/executable_guard-secrets.sh.tmpl; do
         out="$tmp/$os-$(basename "$t" .tmpl)"
         "$CHEZMOI" --source . execute-template --override-data "{\"chezmoi\":{\"os\":\"$os\"}}" \
-          <"$t" >"$out" && files+=("$out")
+          <"$t" >"$out" || continue
+        # A script meant for the other system renders empty; chezmoi skips those.
+        grep -q '[^[:space:]]' "$out" && files+=("$out")
       done
     done
   fi
