@@ -58,6 +58,9 @@ Everything the agent currently has in mind: your messages, files it read, comman
 ### Detach
 Leave herdr without stopping anything; everything keeps running in the background. `Ctrl+B` then `q`. ([Chapter 4](04-terminal.md))
 
+### Deskflow
+Shares one computer's keyboard and mouse with others on the network: push the pointer off the edge of one screen and it continues on the next. The M2 shares its keyboard and mouse with the Mac mini, whose monitor sits to its right. ([Chapter 14](14-spare-linux.md#one-keyboard-and-mouse-deskflow))
+
 ### Diff (`chezmoi diff`, `git diff`)
 A listing of the differences between two versions. `-` lines would be removed, `+` lines added. `chezmoi diff` shows what `apply` would change; `git diff` shows what you haven't committed. ([Chapter 2](02-chezmoi-basics.md))
 

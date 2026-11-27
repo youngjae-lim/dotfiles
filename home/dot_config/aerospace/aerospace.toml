@@ -359,6 +359,12 @@ run = 'layout floating'
 if.app-id = 'com.1password.1password'
 run = 'layout floating'
 
+# Deskflow keeps running in the menu bar after its window closes; floating
+# keeps that window from holding an empty tile.
+[[on-window-detected]]
+if.app-id = 'org.deskflow.deskflow'
+run = 'layout floating'
+
 [[on-window-detected]]
 if.app-id = 'org.pqrs.Karabiner-Elements.Settings'
 run = 'layout floating'

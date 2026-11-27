@@ -14,23 +14,22 @@ Everything in this chapter except the phone part is **on the M2 only**: the Ubun
 
 ```mermaid
 flowchart LR
-    subgraph BIG["32-inch, landscape: windows side by side"]
+    subgraph BIG["32-inch: the M2 (AeroSpace), workspace T"]
         direction TB
         T1["Claude"]:::output
         T2["Ghostty"]:::output
     end
-    subgraph SMALL["27-inch, portrait: windows stacked"]
+    subgraph SMALL["27-inch: the Mac mini (Ubuntu)"]
         direction LR
-        B1["Chrome"]:::output
-        B2["Chrome"]:::output
+        B1["its own windows"]:::output
     end
-    BIG ~~~ SMALL
+    BIG -.->|"pointer and keys<br/>through Deskflow"| SMALL
     classDef output fill:#dcfce7,stroke:#15803d,color:#052e16
     style BIG fill:#f8fafc,stroke:#94a3b8,color:#1e293b
     style SMALL fill:#f8fafc,stroke:#94a3b8,color:#1e293b
 ```
 
-Each monitor shows **one** workspace at a time. Here the 32-inch shows `T` (Claude and Ghostty) and the 27-inch shows `B` (two Chrome windows). Any workspace can go on either monitor.
+The M2 drives the 32-inch, usually with its lid closed (it needs its charger for that), and shows **one** workspace at a time: here `T`, with Claude and Ghostty side by side. The 27-inch to its right belongs to the Mac mini, reached with the same keyboard and mouse through Deskflow ([chapter 14](14-spare-linux.md#one-keyboard-and-mouse-deskflow)); the mini has the same `Alt+letter` workspace keys.
 
 **The 20% you'll use**
 
@@ -65,16 +64,14 @@ Workspaces are named with **letters you can remember**, and most apps open on th
 | **`N`** | **N**otes | Apple Notes |
 | `1`–`9` | scratch | nothing: use for anything temporary |
 
-**Workspaces aren't tied to a monitor.** Any workspace can show on either one:
+**With the lid open, the M2's own screen is a second monitor**, and workspaces aren't tied to either:
 
 - **Go** to a workspace: `Alt+<letter>`. It appears on the monitor you're focused on. If it's already showing on the *other* monitor, your focus jumps there instead.
 - **Send** the current window to a workspace: `Alt+Shift+<letter>`.
 - **Move the whole workspace** to the other monitor: `Alt+Shift+Tab`. Handy for putting the browser, or a Zoom call, on the big screen for a while.
 - **Switch focus between monitors:** keep pressing `Alt+H` / `Alt+L`. At the edge of one monitor, focus carries on to the next, in the direction the monitors are arranged in System Settings → Displays.
 
-A layout that works well: `T` on the 32-inch, `B` or `W` on the 27-inch.
-
-**The portrait 27-inch.** Your config sets `default-root-container-orientation = 'auto'`: on a wide monitor, windows sit side by side; on a tall one, they **stack top and bottom**. So the same workspace looks different depending on which monitor shows it. `Alt+/` flips between side by side and stacked if you want the other arrangement.
+**Wide or tall screens.** Your config sets `default-root-container-orientation = 'auto'`: on a wide monitor, windows sit side by side; on a tall (portrait) one, they **stack top and bottom**. `Alt+/` flips between side by side and stacked if you want the other arrangement.
 
 - **One Ghostty in the Dock.** `Alt+Enter` asks the running Ghostty for a new window (through its AppleScript support, Ghostty 1.3+), so every terminal window belongs to one app. Opening a separate copy of the app each time, as `open -n` did, added a Dock icon per window. The first time, macOS asks whether AeroSpace may control Ghostty: allow it (System Settings → Privacy & Security → Automation, if you need to change it later).
 - **Ghostty has no automatic rule** on purpose. `Alt+Enter` opens a new terminal *where you are*; with a rule, every new terminal would jump to `T`.
@@ -119,8 +116,9 @@ after-startup-command = [
 - An app opens on the wrong workspace: check its bundle ID with `aerospace list-apps` against the rules in `aerospace.toml`. An app with no rule opens wherever you are.
 - **No border.** Is it running? `pgrep -l borders`. If not, restart AeroSpace (see [Focus border](#focus-border)). JankyBorders draws with private macOS interfaces, so a big macOS update can stop it until a fix ships: `brew upgrade borders`.
 - Keys do nothing: grant **Accessibility** permission (System Settings → Privacy & Security → Accessibility → AeroSpace).
-- **A floating window hangs off the edge of the portrait monitor** (1Password, for example): AeroSpace doesn't size floating windows; the app reopens at the size it last had, often set on the wide monitor. Drag it to fit once on the portrait monitor; the app remembers.
-- A window shouldn't tile (e.g. a dialog): it floats automatically for System Settings, 1Password and Karabiner. To add more, add an `[[on-window-detected]]` rule to `aerospace.toml`.
+- **A floating window hangs off the edge of a smaller screen** (1Password on the laptop's own screen, for example): AeroSpace doesn't size floating windows; the app reopens at the size it last had. Drag it to fit once there; the app remembers.
+- **The 32-inch goes dark when you close the lid**: the M2 isn't charging. Closed-lid use needs power (plus a keyboard and mouse).
+- A window shouldn't tile (e.g. a dialog): it floats automatically for System Settings, 1Password, Karabiner and Deskflow. To add more, add an `[[on-window-detected]]` rule to `aerospace.toml`.
 - Run `~/Dotfiles/scripts/macos-defaults.sh` once. It sets the Mission Control options AeroSpace recommends (log out and back in afterwards).
 - **Conflict note:** `Alt+H/J/K/L` belong to AeroSpace everywhere. In Neovim, switch windows with the arrow keys or `Ctrl+W h/j/k/l`.
 

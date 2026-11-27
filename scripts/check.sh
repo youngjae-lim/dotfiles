@@ -43,6 +43,7 @@ if have shellcheck; then
         home/.chezmoiscripts/run_onchange_before_10-brew-bundle.sh.tmpl \
         home/.chezmoiscripts/run_onchange_after_15-nerd-font.sh.tmpl \
         home/.chezmoiscripts/run_onchange_after_16-keyd.sh.tmpl \
+        home/.chezmoiscripts/run_onchange_after_17-gnome-keys.sh.tmpl \
         home/dot_claude/hooks/dotfiles/executable_guard-secrets.sh.tmpl; do
         out="$tmp/$os-$(basename "$t" .tmpl)"
         "$CHEZMOI" --source . execute-template --override-data "{\"chezmoi\":{\"os\":\"$os\"}}" \
