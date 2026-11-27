@@ -123,6 +123,14 @@ The Mac mini's monitor sits to the right of the M2's, and **Deskflow** lets the 
 3. **M2, layout:** **Configure Server**, drag a new screen from the top right into the cell **right of the M2**, and double-click it: its name must match the screen name the mini's Deskflow window shows, exactly. In the same dialog, under the modifier keys, set **Super → Ctrl** (so ⌘C / ⌘V copy and paste on the mini) and leave **Ctrl** as Ctrl (your Caps Lock arrives as Ctrl). OK, then Start.
 4. **Mini, client:** choose *use another computer's keyboard and mouse* (the client), enter the M2's **home-network address** as the server, and start. Allow Ubuntu's remote-input permission window (tick "remember"), and accept the M2's fingerprint the first time.
 5. **Try it:** pointer off the M2's right edge, type on the mini, ⌘C / ⌘V, Caps+h/j/k/l.
+6. **Mini, quiet start (optional):** Deskflow's **Settings** → *When the application starts* → **Send to background**, so it opens as an icon in the top bar instead of a window each time you log in.
+
+**At login:** the dotfiles add Deskflow to the mini's login apps (`~/.config/autostart/deskflow.desktop`), and Deskflow restarts the client by itself if it was running when it last closed. So once step 4 works, logging in is enough: no clicking Start. The entry only opens Deskflow where it has been used, so the Mac Pro stays quiet.
+
+**But not at the login screen.** Deskflow runs inside your desktop session, so before you log in (after a restart, or after logging out) the M2's keyboard and mouse don't reach the mini. Two ways round it:
+
+- **Log in with the mini's own mouse:** click the accessibility icon (the person in a circle, top right of the login screen) → **Screen Keyboard**, and type your password on it.
+- **Skip the login screen:** Settings → System → Users → unlock → **Automatic Login** on. The mini then goes straight to your desktop after a restart, and Deskflow starts. The trade-off: anyone at the mini gets your desktop without a password, so only do this if it stays at home. (Logging out still lands on the login screen; restart instead, or use the Screen Keyboard.)
 
 **Things to know:**
 
@@ -181,6 +189,8 @@ You don't have to remember to test on a spare: the GitHub check now also applies
 - **Still in bash after logging back in**: `getent passwd $USER` should end in `/usr/bin/zsh`. If not: `sudo chsh -s /usr/bin/zsh $USER`.
 - **`Alt+T` etc. do nothing on a spare**: check `chezmoi status`; if it shows ` R .chezmoiscripts/17-gnome-keys.sh`, run `chezmoi apply` while logged in at the desktop.
 - **Browsers don't open on `B`**: `sudo apt install gnome-shell-extensions` (spares set up before it was in `install.sh`), `chezmoi apply`, then log out and in.
+- **Can't type on the mini after a restart or logging out** (Deskflow): you're at the login screen, where Deskflow doesn't run yet. Log in with the Screen Keyboard (accessibility icon, top right), or turn on Automatic Login: see "But not at the login screen" above.
+- **Deskflow doesn't open by itself after logging in** on the mini: it only does if the client was running when it last closed. Open Deskflow, press **Start** once, and it will from then on. If it still doesn't, check `ls ~/.config/autostart` lists `deskflow.desktop`; if not, `chezmoi apply`.
 - **The mouse lags or stutters on the mini** (Deskflow): see "Things to know" above: the M2's pointer speed, the home-network address, and an Ethernet cable on the M2.
 - **Caps Lock does nothing special** (no Esc, no arrows): check `systemctl is-active keyd` says `active`, then `sudo systemctl restart keyd` (keyd reads its mapping only when it starts). If `chezmoi status` shows ` R .chezmoiscripts/16-keyd.sh`, run `chezmoi apply` to finish the setup.
 - **`sudo: 'keyd': command not found`**: on Ubuntu the command is `keyd.rvaiya`.
