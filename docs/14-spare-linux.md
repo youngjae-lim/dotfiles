@@ -102,9 +102,9 @@ One difference from the M2: there, the real `Ctrl` key plus h/j/k/l also gives a
 
 It sets itself up: the first `chezmoi update` (or `install.sh`) installs keyd and copies the mapping into place, asking for your Ubuntu password once. It asks again only when the mapping changes.
 
-**Changing it:** edit `config/keyd/default.conf` on the M2 (comments in it explain each line), commit, push, then `chezmoi update` on the spare. To try a change on a spare first: `sudo cp ~/Dotfiles/config/keyd/default.conf /etc/keyd/default.conf && sudo keyd reload`.
+**Changing it:** edit `config/keyd/default.conf` on the M2 (comments in it explain each line), commit, push, then `chezmoi update` on the spare. To try a change on a spare first: `sudo cp ~/Dotfiles/config/keyd/default.conf /etc/keyd/default.conf && sudo systemctl restart keyd`.
 
-**Seeing what it sends:** `sudo keyd monitor` prints every key press after remapping (Ctrl+C to stop), like Karabiner-EventViewer on the M2.
+**Seeing what it sends:** `sudo keyd.rvaiya monitor` prints every key press after remapping (Ctrl+C to stop), like Karabiner-EventViewer on the M2. On Ubuntu the `keyd` command is called **`keyd.rvaiya`** (Debian renamed it to avoid a clash with another program); the service is still `keyd`, and web pages that say `keyd …` mean `keyd.rvaiya …` here.
 
 **Stuck keyboard** (a bad mapping): press **Backspace + Escape + Enter** together. That stops keyd and gives you the plain keyboard back.
 
@@ -137,7 +137,8 @@ You don't have to remember to test on a spare: the GitHub check now also applies
 
 - **`brew: command not found` right after installing**: the shell started before Homebrew existed. Log out and back in, or run `exec zsh`.
 - **Still in bash after logging back in**: `getent passwd $USER` should end in `/usr/bin/zsh`. If not: `sudo chsh -s /usr/bin/zsh $USER`.
-- **Caps Lock does nothing special** (no Esc, no arrows): check `systemctl is-active keyd` says `active`. If not, run `chezmoi apply` (it installs and starts keyd, asking for your password), or `sudo systemctl enable --now keyd`.
+- **Caps Lock does nothing special** (no Esc, no arrows): check `systemctl is-active keyd` says `active`, then `sudo systemctl restart keyd` (keyd reads its mapping only when it starts). If `chezmoi status` shows ` R .chezmoiscripts/16-keyd.sh`, run `chezmoi apply` to finish the setup.
+- **`sudo: 'keyd': command not found`**: on Ubuntu the command is `keyd.rvaiya`.
 - **Icons show as boxes** (little squares with codes like `F4 60`, in Neovim's file tree, `eza`, `lf` or the prompt): the terminal isn't using the Nerd Font. Pick **JetBrainsMono Nerd Font Mono** in its preferences (step 5 of "Then, once"). If it isn't in the list, check `fc-list | grep -c 'JetBrainsMono NFM'` prints a number above 0; if not, run `chezmoi apply` (the font downloads then; if you were offline, `chezmoi status` shows ` R .chezmoiscripts/15-nerd-font.sh` until an apply succeeds).
 - **`chezmoi apply` says `.config/git/config has changed since chezmoi last wrote it`** after `gh auth login`: gh added its login lines to your git settings. The dotfiles now contain the same lines on Linux, so after `git pull` it's safe to answer `o` (overwrite); `git push` keeps using your GitHub login. (Press `d` first to see the difference.)
 - **`chezmoi status` shows `MM .claude/settings.json`**: herdr added its hook to Claude's settings after chezmoi wrote them (it does when herdr updates, too). Harmless: `chezmoi apply` settles it, and herdr's hook stays (`grep -c herdr ~/.claude/settings.json` prints 1). `install.sh` does this second apply for you.
