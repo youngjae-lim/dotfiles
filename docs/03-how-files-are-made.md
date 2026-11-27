@@ -95,6 +95,7 @@ Three rules follow from this:
 | `Brewfile` | Trusts every `tap` listed in the Brewfile, then `brew bundle` (installs new apps and tools). On the spare Ubuntu machines it skips the Mac-only part ([chapter 14](14-spare-linux.md)) | It prints the exact command to rerun. Apps that need your password (like Tailscale) must be installed by you in a terminal. |
 | `home/dot_config/mise/config.toml` | `mise install` | `mise doctor` |
 | MCP servers in `agents.yaml` | Registers them with Claude Code, and removes ones you deleted | `claude mcp list` |
+| Nothing (it checks itself every apply) | On the Ubuntu spares only: installs the JetBrainsMono Nerd Font if it's missing or a newer version is set in the script | `fc-list \| grep -c 'JetBrainsMono NFM'` |
 
 The same script also connects Claude and Copilot to herdr ([chapter 4](04-terminal.md)).
 
