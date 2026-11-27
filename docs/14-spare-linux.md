@@ -110,6 +110,21 @@ It sets itself up: the first `chezmoi update` (or `install.sh`) installs keyd an
 
 **Stuck keyboard** (a bad mapping): press **Backspace + Escape + Enter** together. That stops keyd and gives you the plain keyboard back.
 
+## The Mac mini's monitor
+
+The mini drives the 27" monitor, turned to portrait. Set it once in **Settings → Displays**:
+
+- **Resolution 2560 × 1440 at 60 Hz.** The 2014 mini can only run 4K at 30 Hz, which makes the pointer and scrolling feel sluggish.
+- **Orientation: Portrait**, the way the monitor stands.
+
+**The login screen has its own display settings**, so it comes up landscape until you give it yours. Copy them into GNOME's machine-wide file, which every user reads, the login screen included:
+
+```sh
+sudo install -m 644 ~/.config/monitors.xml /etc/xdg/monitors.xml
+```
+
+Run it again whenever you change the display. (Older guides copy the file into `/var/lib/gdm3/.config/` instead; on Ubuntu 26.04 the login screen ignored that.)
+
 ## One keyboard and mouse: Deskflow
 
 The Mac mini's monitor sits to the right of the M2's, and **Deskflow** lets the M2's keyboard and mouse work on both: push the pointer off the right edge of the M2's screen and it carries on onto the mini's, with one shared clipboard. The M2 is the **server** (it shares its keyboard and mouse); the mini is the **client**.
@@ -121,7 +136,7 @@ The Mac mini's monitor sits to the right of the M2's, and **Deskflow** lets the 
 1. **M2, permissions:** System Settings → Privacy & Security → turn Deskflow on under **Accessibility** (both entries, the app and the `deskflow` process), **Input Monitoring** if it's listed, and **Local Network**. Reopen Deskflow afterwards.
 2. **M2, server:** choose *use this computer's keyboard and mouse* (the server). Note the home-network address its window shows (`192.168.…`).
 3. **M2, layout:** **Configure Server**, drag a new screen from the top right into the cell **right of the M2**, and double-click it: its name must match the screen name the mini's Deskflow window shows, exactly. In the same dialog, under the modifier keys, set **Super → Ctrl** (so ⌘C / ⌘V copy and paste on the mini) and leave **Ctrl** as Ctrl (your Caps Lock arrives as Ctrl). OK, then Start.
-4. **Mini, client:** choose *use another computer's keyboard and mouse* (the client), enter the M2's **home-network address** as the server, and start. Allow Ubuntu's remote-input permission window (tick "remember"), and accept the M2's fingerprint the first time.
+4. **Mini, client:** choose *use another computer's keyboard and mouse* (the client), enter the M2's **home-network address** as the server, and start. Accept the M2's fingerprint the first time. Ubuntu then shows a **Remote Desktop** window asking whether Deskflow may control this computer: turn **Allow Remote Interaction on** (it starts off, and off means Deskflow can only watch, so the M2's keyboard does nothing), keep **Remember This Selection** ticked, and click **Share**. Use the mini's own mouse for this.
 5. **Try it:** pointer off the M2's right edge, type on the mini, ⌘C / ⌘V, Caps+h/j/k/l.
 6. **Mini, quiet start (optional):** Deskflow's **Settings** → *When the application starts* → **Send to background**, so it opens as an icon in the top bar instead of a window each time you log in.
 
@@ -190,6 +205,8 @@ You don't have to remember to test on a spare: the GitHub check now also applies
 - **`Alt+T` etc. do nothing on a spare**: check `chezmoi status`; if it shows ` R .chezmoiscripts/17-gnome-keys.sh`, run `chezmoi apply` while logged in at the desktop.
 - **`Alt+T` etc. do nothing and Settings → Multitasking still says *Dynamic Workspaces*** (but `gsettings get org.gnome.mutter dynamic-workspaces` says `false`): the settings went to Homebrew's copy of `gsettings`, which saves to a private file GNOME never reads (`~/.config/glib-2.0/settings/keyfile`). Fixed in the dotfiles: `chezmoi update` at the desktop writes them again with Ubuntu's. When you run `gsettings` yourself, use `/usr/bin/gsettings`.
 - **Browsers don't open on `B`**: `sudo apt install gnome-shell-extensions` (spares set up before it was in `install.sh`), `chezmoi apply`, then log out and in.
+- **The login screen is landscape** (or the wrong resolution) though your desktop is right: it has its own display settings. Copy yours: see "The Mac mini's monitor" above.
+- **A "Remote Desktop" window after logging in on the mini** (Deskflow): turn **Allow Remote Interaction on**, keep "Remember This Selection" ticked, **Share**. Until you do, the M2's keyboard does nothing there. With "Remember" ticked it shouldn't ask again; if it asks at every login, that's worth looking into.
 - **Can't type on the mini after a restart or logging out** (Deskflow): you're at the login screen, where Deskflow doesn't run yet. Log in with the Screen Keyboard (accessibility icon, top right), or turn on Automatic Login: see "But not at the login screen" above.
 - **Deskflow doesn't open by itself after logging in** on the mini: it only does if the client was running when it last closed. Open Deskflow, press **Start** once, and it will from then on. If it still doesn't, check `ls ~/.config/autostart` lists `deskflow.desktop`; if not, `chezmoi apply`.
 - **The mouse lags or stutters on the mini** (Deskflow): see "Things to know" above: the M2's pointer speed, the home-network address, and an Ethernet cable on the M2.
