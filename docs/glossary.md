@@ -97,6 +97,9 @@ A command-line tool for reading and changing JSON. The `modify_` scripts use it 
 ### JSON
 A text format for settings and data, built from `{"name": "value"}`. Most apps' settings files use it.
 
+### keyd
+A small Linux service that remaps keys for the whole system. On the Ubuntu spares it makes Caps Lock behave as on the M2 (tap = Esc, hold = Ctrl, Caps+h/j/k/l = arrows). Its settings: `config/keyd/default.conf`. ([Chapter 14](14-spare-linux.md#keyboard-caps-lock-as-on-the-m2))
+
 ### Lane
 This guide's name for the three ways a file reaches your home folder: copied, linked or generated. ([Chapter 1](01-big-picture.md#three-ways-a-file-gets-to-your-home-folder))
 

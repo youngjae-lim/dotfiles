@@ -136,6 +136,8 @@ after-startup-command = [
 
   Left `Cmd` is untouched, so `Cmd+C`, `Cmd+Tab` and friends work as usual. Ghostty sends `Option` to the terminal as `Alt` (`macos-option-as-alt = true` in its config), so `Alt` shortcuts in herdr and the shell work too. Because `Ctrl+H/J/K/L` turn into arrows before any app sees them, Neovim can't use those keys (or `Ctrl+K`), which is why its windows are switched with the arrow keys.
   To see what Karabiner sends, open **Karabiner-EventViewer** and press keys: it shows them *after* remapping.
+
+  On the Ubuntu spares, **keyd** gives you the Caps Lock part (tap = Esc, hold = Ctrl, Caps+h/j/k/l = arrows) ([chapter 14](14-spare-linux.md#keyboard-caps-lock-as-on-the-m2)).
 - **Hammerspoon** runs small Lua scripts that automate macOS. Yours shows a green bar while Korean input is active, and switches to English when you press `Esc` in Vim. Config: `home/dot_hammerspoon/` (lane 1). Reload it from its menu-bar icon → Reload Config.
 
 ## Tailscale + Ovis: your agents on your phone
