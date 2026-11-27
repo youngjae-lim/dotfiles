@@ -1,0 +1,94 @@
+{{- if eq .chezmoi.os "linux" -}}
+#!/bin/bash
+# Ubuntu spares: GNOME workspaces and keys that match AeroSpace on the M2
+# (docs chapter 14). GNOME has key slots for 12 workspaces, so the M2's
+# letters map to numbered workspaces in this order:
+#
+#   T C D B W R M Z N 1 2 3   →   GNOME workspaces 1–12
+#
+#   Alt+<key>        go to that workspace        (AeroSpace: workspace <key>)
+#   Alt+Shift+<key>  send the window there       (move-node-to-workspace)
+#   Alt+Enter        new terminal                (ghostty-new-window)
+#   Alt+Shift+Enter  full screen on/off          (fullscreen)
+#   Alt+Shift+H / L  snap to the left / right half  (move left / right)
+#   Alt+Shift+K / J  maximize / restore
+#   Chrome, Firefox  open on B                   (on-window-detected)
+#
+# These are your GNOME settings (dconf), written with gsettings; no sudo. On
+# the M2 this renders empty. Changing a key here re-runs it on the next apply.
+set -euo pipefail
+
+command -v gsettings >/dev/null || exit 0
+gsettings list-schemas | grep -qx org.gnome.desktop.wm.keybindings || exit 0 # not GNOME
+
+# gsettings needs your session's message bus to save anything (without it, it
+# silently keeps the values in memory). Over SSH it isn't in the environment,
+# but it exists whenever you're logged in; otherwise fail, so chezmoi retries.
+if [[ -z ${DBUS_SESSION_BUS_ADDRESS:-} ]]; then
+	bus="/run/user/$(id -u)/bus"
+	if [[ ! -S $bus ]]; then
+		echo "chezmoi: GNOME keys not set (no session bus); run chezmoi apply at the desktop" >&2
+		exit 1
+	fi
+	export DBUS_SESSION_BUS_ADDRESS="unix:path=$bus"
+fi
+
+wm=org.gnome.desktop.wm.keybindings
+keys=(t c d b w r m z n 1 2 3)
+
+# add <schema> <key> <binding>: add a binding to a key's list, keeping
+# whatever is already there (GNOME's and Ubuntu's own keys stay).
+add() {
+	local now
+	now=$(gsettings get "$1" "$2")
+	[[ $now == *"'$3'"* ]] && return 0
+	gsettings set "$1" "$2" "$(python3 -c '
+import ast, sys
+print(ast.literal_eval(sys.argv[1].removeprefix("@as ")) + [sys.argv[2]])' "$now" "$3")"
+}
+
+# A fixed set of 12 workspaces, instead of GNOME's grow-as-you-go row.
+gsettings set org.gnome.mutter dynamic-workspaces false
+gsettings set org.gnome.desktop.wm.preferences num-workspaces "${#keys[@]}"
+
+for i in "${!keys[@]}"; do
+	n=$((i + 1))
+	gsettings set "$wm" "switch-to-workspace-$n" "['<Alt>${keys[i]}']"
+	gsettings set "$wm" "move-to-workspace-$n" "['<Shift><Alt>${keys[i]}']"
+done
+
+add "$wm" toggle-fullscreen '<Shift><Alt>Return'
+add org.gnome.settings-daemon.plugins.media-keys terminal '<Alt>Return' # Ctrl+Alt+T stays
+
+# Snapping: Ubuntu's Tiling Assistant owns Super+arrows when it's on, so add
+# Alt+Shift+H/L/K/J to its keys; plain GNOME's otherwise. (From the M2's
+# keyboard through Deskflow there's no Super key: ⌘ arrives as Ctrl.)
+ta=org.gnome.shell.extensions.tiling-assistant
+if gsettings list-keys "$ta" 2>/dev/null | grep -qx tile-left-half; then
+	add "$ta" tile-left-half '<Shift><Alt>h'
+	add "$ta" tile-right-half '<Shift><Alt>l'
+	add "$ta" tile-maximize '<Shift><Alt>k'
+	add "$ta" restore-window '<Shift><Alt>j'
+else
+	add org.gnome.mutter.keybindings toggle-tiled-left '<Shift><Alt>h'
+	add org.gnome.mutter.keybindings toggle-tiled-right '<Shift><Alt>l'
+	add "$wm" maximize '<Shift><Alt>k'
+	add "$wm" unmaximize '<Shift><Alt>j'
+fi
+
+# Browsers open on B (workspace 4), through GNOME's Auto Move Windows
+# extension (apt package gnome-shell-extensions; install.sh installs it).
+amw=org.gnome.shell.extensions.auto-move-windows
+uuid=auto-move-windows@gnome-shell-extensions.gcampax.github.com
+if gsettings list-schemas | grep -qx "$amw"; then
+	gsettings set "$amw" application-list "['google-chrome.desktop:4', 'firefox_firefox.desktop:4', 'firefox.desktop:4']"
+	if [[ $(gsettings get org.gnome.shell enabled-extensions) != *"'$uuid'"* ]]; then
+		add org.gnome.shell enabled-extensions "$uuid"
+		echo "chezmoi: enabled Auto Move Windows (log out and in once if browsers don't move yet)"
+	fi
+else
+	echo "chezmoi: Auto Move Windows isn't installed (sudo apt install gnome-shell-extensions); browsers won't move to B" >&2
+fi
+
+echo "chezmoi: GNOME keys set: Alt+T C D B W R M Z N 1 2 3 = workspaces 1–12, Alt+Enter = terminal"
+{{- end }}

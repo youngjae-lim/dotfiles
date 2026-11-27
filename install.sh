@@ -44,8 +44,9 @@ linux() {
     exit 1
   }
   # A desktop (graphical login) also gets the 1Password app, the zathura PDF
-  # reader for notes, clipboard tools for Neovim, and Deskflow (the M2's
-  # keyboard and mouse, docs chapter 14). Over SSH it's the same.
+  # reader for notes, clipboard tools for Neovim, Deskflow (the M2's keyboard
+  # and mouse), GNOME's extensions (Auto Move Windows) and Chrome (docs
+  # chapter 14). Over SSH it's the same.
   desktop=false
   [ "$(systemctl get-default 2>/dev/null || true)" = graphical.target ] && desktop=true
 
@@ -54,7 +55,15 @@ linux() {
   # Homebrew's own requirements, plus zsh and gnupg (for the 1Password key)
   sudo apt-get install -y build-essential procps curl file git zsh gnupg
   if $desktop; then
-    sudo apt-get install -y zathura zathura-pdf-poppler xclip wl-clipboard deskflow
+    sudo apt-get install -y zathura zathura-pdf-poppler xclip wl-clipboard deskflow gnome-shell-extensions
+    # Chrome, as on the M2. Google's package also adds its apt repository, so
+    # `sudo apt upgrade` keeps it updated.
+    if ! command -v google-chrome >/dev/null 2>&1 && [ "$(dpkg --print-architecture)" = amd64 ]; then
+      deb=$(mktemp -d)/google-chrome.deb
+      curl -fsSL -o "$deb" https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+      sudo apt-get install -y "$deb"
+      rm -f "$deb"
+    fi
   fi
 
   echo "==> Homebrew"

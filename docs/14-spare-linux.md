@@ -28,6 +28,7 @@ flowchart LR
 | `drive-backup` | everything | `ls` and `restore` only (the drive belongs to the M2) |
 | Caps Lock: tap = Esc, hold = Ctrl, Caps+h/j/k/l = arrows | ✓ (Karabiner) | ✓ (keyd, below) |
 | One keyboard and mouse (Deskflow) | ✓ shares its own | ✓ the Mac mini uses the M2's (below) |
+| Workspace keys: `Alt+T`, `Alt+B`… | ✓ (AeroSpace, tiling) | ✓ (GNOME, same keys, no tiling; below) |
 | AeroSpace, Karabiner, Hammerspoon, Ghostty settings, `launcher` | ✓ | — |
 | Postgres, MySQL, Docker, Herd (PHP), VS Code | ✓ | — |
 | Claude's "waiting on you" notifications | ✓ | — (quiet on Linux) |
@@ -80,7 +81,7 @@ Do it when you sit down at one, or every few weeks. If you ever change something
 
 ## Reaching them from the M2
 
-They're on Tailscale (the Mac Pro is `100.70.94.76`), so the simplest way in is **Tailscale SSH**: no SSH server to set up and no keys to manage.
+They're on Tailscale, so the simplest way in is **Tailscale SSH**: no SSH server to set up and no keys to manage. Use each machine's **Tailscale name** (`tailscale status` lists them): the numeric addresses change when a machine is reinstalled, the names stay if you keep the hostname.
 
 ```sh
 sudo tailscale set --ssh          # once, on the spare
@@ -111,10 +112,43 @@ It sets itself up: the first `chezmoi update` (or `install.sh`) installs keyd an
 
 ## One keyboard and mouse: Deskflow
 
-The Mac mini's monitor sits to the right of the M2's, and **Deskflow** lets the M2's keyboard and mouse work on both: move the pointer off the right edge of the M2's screen and it continues on the mini's, with one shared clipboard. The M2 is the **server** (it shares its keyboard and mouse); the mini is the **client**.
+The Mac mini's monitor sits to the right of the M2's, and **Deskflow** lets the M2's keyboard and mouse work on both: push the pointer off the right edge of the M2's screen and it carries on onto the mini's, with one shared clipboard. The M2 is the **server** (it shares its keyboard and mouse); the mini is the **client**.
 
-- **Installed by the dotfiles:** on the M2 from Deskflow's own Homebrew tap (Brewfile, Mac-only block); on a spare with a desktop by `install.sh` (`apt install deskflow`). On a spare set up before this, run `sudo apt install deskflow` once.
-- **If macOS says Deskflow "is damaged"**: it isn't; the app just isn't signed by Apple. Run `xattr -c /Applications/Deskflow.app` once.
+**Installed by the dotfiles:** on the M2 from Deskflow's own Homebrew tap (Brewfile, Mac-only block); on a spare with a desktop by `install.sh`. If macOS says Deskflow "is damaged", it isn't (the app just isn't signed by Apple): `xattr -c /Applications/Deskflow.app` once.
+
+**Setting it up (once per computer; the mini's side again after a reinstall):**
+
+1. **M2, permissions:** System Settings → Privacy & Security → turn Deskflow on under **Accessibility** (both entries, the app and the `deskflow` process), **Input Monitoring** if it's listed, and **Local Network**. Reopen Deskflow afterwards.
+2. **M2, server:** choose *use this computer's keyboard and mouse* (the server). Note the home-network address its window shows (`192.168.…`).
+3. **M2, layout:** **Configure Server**, drag a new screen from the top right into the cell **right of the M2**, and double-click it: its name must match the screen name the mini's Deskflow window shows, exactly. In the same dialog, under the modifier keys, set **Super → Ctrl** (so ⌘C / ⌘V copy and paste on the mini) and leave **Ctrl** as Ctrl (your Caps Lock arrives as Ctrl). OK, then Start.
+4. **Mini, client:** choose *use another computer's keyboard and mouse* (the client), enter the M2's **home-network address** as the server, and start. Allow Ubuntu's remote-input permission window (tick "remember"), and accept the M2's fingerprint the first time.
+5. **Try it:** pointer off the M2's right edge, type on the mini, ⌘C / ⌘V, Caps+h/j/k/l.
+
+**Things to know:**
+
+- **Pointer speed comes from the M2**: Deskflow replays the M2's mouse movement, so the M2's tracking speed (System Settings → Mouse) applies on the mini's screen too. If the pointer feels slow on the mini, raise it there.
+- **Use the home-network address, not Tailscale's**, for the server: Tailscale encrypts every movement and may route it through a relay.
+- **The keys reach the mini**: with the pointer on the mini, `Alt+letter` goes to the mini, not to AeroSpace on the M2 (tested), so the mini uses the same workspace keys (next section).
+- **Occasional stutter is the M2's Wi-Fi.** It dozes between transmissions, so replies *to* the M2 wait up to ~100 ms (measured: the mini's Wi-Fi is steady, pings to the M2 spike). An Ethernet cable on the M2 (the hub, or a USB-C adapter) removes it.
+
+## Workspaces and keys: like AeroSpace
+
+GNOME has no tiling like AeroSpace, but the spares get **the same workspace keys** as the M2, set by a Linux-only chezmoi script (`run_onchange_after_17-gnome-keys.sh.tmpl`). GNOME has room for twelve workspace keys, so the M2's letters become twelve fixed workspaces, in this order:
+
+| Keys | GNOME workspace | Same as the M2 |
+|---|---|---|
+| `Alt+T` `Alt+C` `Alt+D` `Alt+B` `Alt+W` `Alt+R` `Alt+M` `Alt+Z` `Alt+N` | 1–9 | **T**erminal, **C**ode, **D**ata, **B**rowser, **W**ork, **R**eading, **M**essages, **Z**oom, **N**otes |
+| `Alt+1` `Alt+2` `Alt+3` | 10–12 | scratch |
+| `Alt+Shift+<key>` | sends the window there | ✓ |
+| `Alt+Enter` | new terminal (`Ctrl+Alt+T` still works) | ✓ |
+| `Alt+Shift+Enter` | full screen on/off | ✓ |
+| `Alt+Shift+H` / `Alt+Shift+L` | snap the window to the left / right half | ≈ move left / right |
+| `Alt+Shift+K` / `Alt+Shift+J` | maximize / restore | |
+| Chrome, Firefox | open on `B` (GNOME's **Auto Move Windows** extension) | ✓ (Chrome's Work profile can't be told apart here, so it lands on `B` too: `Alt+Shift+W`) |
+
+**What's different:** windows don't tile themselves; snap them with `Alt+Shift+H/L` instead (Ubuntu's own `Super+arrow` keys still work on a keyboard plugged into the mini, but through Deskflow ⌘ arrives as Ctrl, so the M2's keyboard has no Super key there). `Alt+H/J/K/L` focus and `Alt+Tab` back-and-forth don't exist here: `Alt+Tab` is GNOME's app switcher. To see all twelve workspaces, push the pointer into the top-left corner, or click **Activities**.
+
+The script asks nothing (no password), and runs on the next `chezmoi apply` **at the desktop** (over SSH with nobody logged in, it waits, showing ` R .chezmoiscripts/17-gnome-keys.sh`). The first time, log out and back in once so Auto Move Windows starts.
 
 ## Notes on a spare
 
@@ -145,6 +179,9 @@ You don't have to remember to test on a spare: the GitHub check now also applies
 
 - **`brew: command not found` right after installing**: the shell started before Homebrew existed. Log out and back in, or run `exec zsh`.
 - **Still in bash after logging back in**: `getent passwd $USER` should end in `/usr/bin/zsh`. If not: `sudo chsh -s /usr/bin/zsh $USER`.
+- **`Alt+T` etc. do nothing on a spare**: check `chezmoi status`; if it shows ` R .chezmoiscripts/17-gnome-keys.sh`, run `chezmoi apply` while logged in at the desktop.
+- **Browsers don't open on `B`**: `sudo apt install gnome-shell-extensions` (spares set up before it was in `install.sh`), `chezmoi apply`, then log out and in.
+- **The mouse lags or stutters on the mini** (Deskflow): see "Things to know" above: the M2's pointer speed, the home-network address, and an Ethernet cable on the M2.
 - **Caps Lock does nothing special** (no Esc, no arrows): check `systemctl is-active keyd` says `active`, then `sudo systemctl restart keyd` (keyd reads its mapping only when it starts). If `chezmoi status` shows ` R .chezmoiscripts/16-keyd.sh`, run `chezmoi apply` to finish the setup.
 - **`sudo: 'keyd': command not found`**: on Ubuntu the command is `keyd.rvaiya`.
 - **Icons show as boxes** (little squares with codes like `F4 60`, in Neovim's file tree, `eza`, `lf` or the prompt): the terminal isn't using the Nerd Font. Pick **JetBrainsMono Nerd Font Mono** in its preferences (step 5 of "Then, once"). If it isn't in the list, check `fc-list | grep -c 'JetBrainsMono NFM'` prints a number above 0; if not, run `chezmoi apply` (the font downloads then; if you were offline, `chezmoi status` shows ` R .chezmoiscripts/15-nerd-font.sh` until an apply succeeds).

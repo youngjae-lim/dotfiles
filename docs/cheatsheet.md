@@ -77,6 +77,8 @@ DRIVE BACKUP  (the M2, drive plugged in)    UBUNTU SPARES  (Mac Pro, Mac mini)
   drive-backup        back up what changed    updater          same menu as the M2
   drive-backup check  every few months        drive-backup ls · restore "<path>"
   drive-backup ls · restore "<path>"          notes sync first, notes save last
+                                              Alt+T C D B W R M Z N 1 2 3  workspaces
+                                              Alt+Shift+H/L snap · Alt+Enter terminal
 ```
 
 Chapters: [drive backup](13-drive-backup.md) · [spares](14-spare-linux.md)
