@@ -16,7 +16,7 @@ Youngjae's macOS dotfiles, managed by **chezmoi**. The same repo sets up spare *
 | `home/dot_agents/skills/` | Agent skills → `~/.agents/skills` (Copilot + Gemini read it; `~/.claude/skills` symlinks to it). |
 | `home/.chezmoiscripts/` | `run_onchange_*` scripts: brew bundle, mise install, herdr integrations + Claude MCP. |
 | `config/nvim/` | Neovim config on 0.12's built-in `vim.pack` (no LazyVim). Plugins listed only in `lua/config/pack.lua`; language tools come from mise, never Mason. See `docs/11-neovim.md`. |
-| `config/` | Configs that apps rewrite themselves (nvim, karabiner, VS Code settings/keybindings). `~` symlinks **into** this dir, so in-app edits appear in `git diff`. VS Code's `mcp.json` is the exception: generated from `agents.yaml`. |
+| `config/` | Configs that apps rewrite themselves (nvim, karabiner, VS Code settings/keybindings). `~` symlinks **into** this dir, so in-app edits appear in `git diff`. VS Code's `mcp.json` is the exception: generated from `agents.yaml`. `config/keyd/` is copied, not linked: a Linux-only chezmoi script installs it into `/etc/keyd/` on the Ubuntu spares. |
 | `Brewfile` | All Homebrew packages; applied automatically when it changes, on the Mac and on Linux (Homebrew on Linux). Casks, taps and Mac-only tools go **inside** the `if OS.mac?` block. |
 | `scripts/` | `check.sh` (validate everything), `check-agents.py` (agent-config parity), `macos-defaults.sh` (manual). |
 | `.github/workflows/check.yml` | CI: runs `scripts/check.sh` on every push, and applies the dotfiles into an empty Ubuntu home folder (`linux-apply`). |

@@ -26,6 +26,7 @@ flowchart LR
 | git, gh, lazygit, fzf, ripgrep, lf… (the Brewfile's shared part) | ✓ | ✓ |
 | `notes`, zathura | ✓ | ✓ with a desktop (zathura from apt) |
 | `drive-backup` | everything | `ls` and `restore` only (the drive belongs to the M2) |
+| Caps Lock: tap = Esc, hold = Ctrl, Caps+h/j/k/l = arrows | ✓ (Karabiner) | ✓ (keyd, below) |
 | AeroSpace, Karabiner, Hammerspoon, Ghostty settings, `launcher` | ✓ | — |
 | Postgres, MySQL, Docker, Herd (PHP), VS Code | ✓ | — |
 | Claude's "waiting on you" notifications | ✓ | — (quiet on Linux) |
@@ -87,6 +88,26 @@ ssh <your-ubuntu-username>@<spare's Tailscale name>   # from the M2
 
 Who may log in is set by the `ssh` section of your tailnet's access policy in the Tailscale admin console; if the connection is refused, look there. If that rule uses "check" mode, Tailscale asks you to confirm in the browser now and then. Inside, run `herdr` as usual; agents keep running when you disconnect (detach with `Ctrl+B` then `q`).
 
+## Keyboard: Caps Lock as on the M2
+
+**keyd**, a small system service, gives the spares the M2's most-used Karabiner keys:
+
+| Key | Does |
+|---|---|
+| Tap Caps Lock | `Esc` |
+| Hold Caps Lock | `Ctrl` (so `Caps+B` is still herdr's prefix, `Caps+Tab` still switches browser tabs) |
+| Caps + `h` `j` `k` `l` | ← ↓ ↑ → (add Shift to select) |
+
+One difference from the M2: there, the real `Ctrl` key plus h/j/k/l also gives arrows. Here only Caps Lock does, so ordinary `Ctrl` shortcuts (`Ctrl+L` clears the screen, `Ctrl+K`…) keep working.
+
+It sets itself up: the first `chezmoi update` (or `install.sh`) installs keyd and copies the mapping into place, asking for your Ubuntu password once. It asks again only when the mapping changes.
+
+**Changing it:** edit `config/keyd/default.conf` on the M2 (comments in it explain each line), commit, push, then `chezmoi update` on the spare. To try a change on a spare first: `sudo cp ~/Dotfiles/config/keyd/default.conf /etc/keyd/default.conf && sudo keyd reload`.
+
+**Seeing what it sends:** `sudo keyd monitor` prints every key press after remapping (Ctrl+C to stop), like Karabiner-EventViewer on the M2.
+
+**Stuck keyboard** (a bad mapping): press **Backspace + Escape + Enter** together. That stops keyd and gives you the plain keyboard back.
+
 ## Notes on a spare
 
 The `notes` command is there, but your notes aren't: clone them once with `gh repo clone notes ~/Notes`, then `notes sync` when you sit down and `notes save` before you leave ([chapter 12](12-notes.md#notes-on-an-ubuntu-spare)).
@@ -116,6 +137,7 @@ You don't have to remember to test on a spare: the GitHub check now also applies
 
 - **`brew: command not found` right after installing**: the shell started before Homebrew existed. Log out and back in, or run `exec zsh`.
 - **Still in bash after logging back in**: `getent passwd $USER` should end in `/usr/bin/zsh`. If not: `sudo chsh -s /usr/bin/zsh $USER`.
+- **Caps Lock does nothing special** (no Esc, no arrows): check `systemctl is-active keyd` says `active`. If not, run `chezmoi apply` (it installs and starts keyd, asking for your password), or `sudo systemctl enable --now keyd`.
 - **Icons show as boxes** (little squares with codes like `F4 60`, in Neovim's file tree, `eza`, `lf` or the prompt): the terminal isn't using the Nerd Font. Pick **JetBrainsMono Nerd Font Mono** in its preferences (step 5 of "Then, once"). If it isn't in the list, check `fc-list | grep -c 'JetBrainsMono NFM'` prints a number above 0; if not, run `chezmoi apply` (the font downloads then; if you were offline, `chezmoi status` shows ` R .chezmoiscripts/15-nerd-font.sh` until an apply succeeds).
 - **`chezmoi apply` says `.config/git/config has changed since chezmoi last wrote it`** after `gh auth login`: gh added its login lines to your git settings. The dotfiles now contain the same lines on Linux, so after `git pull` it's safe to answer `o` (overwrite); `git push` keeps using your GitHub login. (Press `d` first to see the difference.)
 - **`chezmoi status` shows `MM .claude/settings.json`**: herdr added its hook to Claude's settings after chezmoi wrote them (it does when herdr updates, too). Harmless: `chezmoi apply` settles it, and herdr's hook stays (`grep -c herdr ~/.claude/settings.json` prints 1). `install.sh` does this second apply for you.

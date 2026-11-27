@@ -26,7 +26,7 @@ WORKSPACES   T terminal · C code · D data · B browser · W work (Chrome + Tea
              M messages · Z zoom · N notes · 1-9 scratch
              any monitor; Alt+Shift+Tab moves a workspace to the other one
 
-KEYBOARD (Karabiner, on the M2)
+KEYBOARD (Karabiner on the M2; on the spares, keyd does the Caps Lock lines)
   Caps Lock   tap = Esc, hold = Ctrl       Right Cmd = Option (Alt)
   Ctrl+H/J/K/L = arrow keys, everywhere    Left Cmd unchanged
   Caps+Tab / Caps+Shift+Tab = next / previous tab (Chrome, most apps)
