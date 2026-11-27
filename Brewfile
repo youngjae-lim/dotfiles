@@ -57,6 +57,7 @@ if OS.mac?
   tap "nikitabobko/tap"
   tap "homebrew-zathura/zathura"
   tap "FelixKratz/formulae"
+  tap "deskflow/tap"
 
   # Agents & terminal workflow (on Linux: install.sh installs Copilot with its
   # own script, and 1Password and Tailscale from their apt repositories)
@@ -88,4 +89,5 @@ if OS.mac?
   cask "stats"
   cask "dbeaver-community"
   cask "beekeeper-studio"
+  cask "deskflow/tap/deskflow" # one keyboard and mouse for the M2 and the Mac mini (docs chapter 14)
 end
