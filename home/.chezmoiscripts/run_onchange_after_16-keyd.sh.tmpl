@@ -4,27 +4,24 @@
 # arrows) through keyd, a system service. Installs keyd if needed and copies
 # config/keyd/default.conf to /etc/keyd/, so it asks for your Ubuntu password,
 # but only when that file changes. On the M2 this renders empty (Karabiner
-# does the same there).
+# does the same there). Ubuntu's package renames the keyd command to
+# keyd.rvaiya, so this uses only the service (systemctl), never the command.
 # config sha256: {{ joinPath .chezmoi.workingTree "config/keyd/default.conf" | include | sha256sum }}
 set -euo pipefail
 
 src={{ joinPath .chezmoi.workingTree "config/keyd/default.conf" | quote }}
 dst=/etc/keyd/default.conf
 
-if ! command -v keyd >/dev/null; then
+if ! systemctl cat keyd.service >/dev/null 2>&1; then
 	echo "chezmoi: installing keyd for the Caps Lock keys (asks for your Ubuntu password)"
 	sudo apt-get install -y keyd
 fi
-if cmp -s "$src" "$dst" && systemctl is-active --quiet keyd; then
-	exit 0
-fi
 
+# chezmoi runs this only when the mapping (or this script) changed, so always
+# copy and restart: keyd reads its config only when it starts.
 echo "chezmoi: updating the keyboard mapping in $dst (asks for your Ubuntu password)"
 sudo install -D -m 644 "$src" "$dst"
-if systemctl is-active --quiet keyd; then
-	sudo keyd reload
-else
-	sudo systemctl enable --now keyd
-fi
+sudo systemctl enable keyd >/dev/null 2>&1
+sudo systemctl restart keyd
 echo "chezmoi: keyd active: Caps Lock tap = Esc, hold = Ctrl, Caps+h/j/k/l = arrows"
 {{- end }}
