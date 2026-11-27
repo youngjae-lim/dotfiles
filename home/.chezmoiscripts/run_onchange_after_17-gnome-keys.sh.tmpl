@@ -18,6 +18,11 @@
 # the M2 this renders empty. Changing a key here re-runs it on the next apply.
 set -euo pipefail
 
+# Ubuntu's own gsettings, not Homebrew's: Homebrew's (it comes with glib,
+# ahead in PATH) can't reach GNOME's settings store, so it quietly saves to
+# ~/.config/glib-2.0/settings/keyfile, which GNOME never reads.
+export PATH="/usr/bin:/bin:$PATH"
+
 command -v gsettings >/dev/null || exit 0
 gsettings list-schemas | grep -qx org.gnome.desktop.wm.keybindings || exit 0 # not GNOME
 
@@ -83,7 +88,9 @@ uuid=auto-move-windows@gnome-shell-extensions.gcampax.github.com
 if gsettings list-schemas | grep -qx "$amw"; then
 	gsettings set "$amw" application-list "['google-chrome.desktop:4', 'firefox_firefox.desktop:4', 'firefox.desktop:4']"
 	if [[ $(gsettings get org.gnome.shell enabled-extensions) != *"'$uuid'"* ]]; then
-		add org.gnome.shell enabled-extensions "$uuid"
+		# gnome-extensions asks the running desktop, which also switches it on
+		# now; the list alone is the fallback (it takes effect at next login).
+		gnome-extensions enable "$uuid" 2>/dev/null || add org.gnome.shell enabled-extensions "$uuid"
 		echo "chezmoi: enabled Auto Move Windows (log out and in once if browsers don't move yet)"
 	fi
 else
