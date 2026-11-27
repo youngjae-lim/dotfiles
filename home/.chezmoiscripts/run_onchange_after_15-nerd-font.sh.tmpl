@@ -6,8 +6,9 @@
 # "JetBrainsMono Nerd Font Mono" (docs chapter 14). On the M2 this renders
 # empty, so chezmoi skips it.
 #
-# Runs on every apply but returns at once when this version is installed; a
-# failed download (offline) is simply tried again on the next apply.
+# run_onchange: runs again when this file changes (a new version below). A
+# failed download exits non-zero, so chezmoi doesn't record it as done and
+# the next apply tries again; until then `chezmoi status` shows it as R.
 set -euo pipefail
 
 version="v3.5.1" # https://github.com/ryanoasis/nerd-fonts/releases
@@ -21,8 +22,8 @@ tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
 url="https://github.com/ryanoasis/nerd-fonts/releases/download/$version/JetBrainsMono.tar.xz"
 if ! curl -fsSL "$url" -o "$tmp/font.tar.xz"; then
-	echo "chezmoi: couldn't download the Nerd Font; it's tried again on the next apply" >&2
-	exit 0
+	echo "chezmoi: couldn't download the Nerd Font (offline?); run chezmoi apply again later" >&2
+	exit 1
 fi
 
 # Only the Mono family (the "NFM" the M2 uses), not all three variants.
