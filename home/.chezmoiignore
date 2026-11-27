@@ -10,4 +10,7 @@ Library
 .local/bin/ghostty-new-window
 .local/bin/launcher
 .local/bin/zathura-link-plugins
+{{ else }}
+# Linux-only: apps GNOME opens at login (Deskflow on the mini)
+.config/autostart
 {{ end }}

@@ -1,0 +1,15 @@
+[Desktop Entry]
+# Opens Deskflow when you log in to a spare (docs chapter 14), so the M2's
+# keyboard and mouse reach it without touching the mini's own. Only where
+# Deskflow was running when it last closed: it records that itself
+# (startCoreWithGui=true) and then starts the client again on its own.
+# A spare that never used Deskflow (the Mac Pro) opens nothing.
+Type=Application
+Name=Deskflow
+Comment=Share the M2's keyboard and mouse
+TryExec=deskflow
+Exec=sh -c "grep -qsx startCoreWithGui=true {{ .chezmoi.homeDir }}/.config/Deskflow/Deskflow.conf && exec deskflow"
+Icon=org.deskflow.deskflow
+Terminal=false
+X-GNOME-Autostart-enabled=true
+X-GNOME-Autostart-Delay=3
