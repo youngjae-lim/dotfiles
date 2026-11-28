@@ -11,7 +11,7 @@
 #   Alt+Enter        new terminal                (ghostty-new-window)
 #   Alt+Shift+Enter  full screen on/off          (fullscreen)
 #   Alt+Shift+H / L  snap to the left / right half  (move left / right)
-#   Alt+Shift+K / J  maximize / restore
+#   Alt+Shift+K / J  snap to the top / bottom half  (move up / down)
 #   Chrome, Firefox  open on B                   (on-window-detected)
 #
 # These are your GNOME settings (dconf), written with gsettings; no sudo. On
@@ -52,6 +52,17 @@ import ast, sys
 print(ast.literal_eval(sys.argv[1].removeprefix("@as ")) + [sys.argv[2]])' "$now" "$3")"
 }
 
+# drop <schema> <key> <binding>: take a binding back out of a key's list
+# (for keys an earlier version of this script added).
+drop() {
+	local now
+	now=$(gsettings get "$1" "$2")
+	[[ $now == *"'$3'"* ]] || return 0
+	gsettings set "$1" "$2" "$(python3 -c '
+import ast, sys
+print([k for k in ast.literal_eval(sys.argv[1].removeprefix("@as ")) if k != sys.argv[2]])' "$now" "$3")"
+}
+
 # A fixed set of 12 workspaces, instead of GNOME's grow-as-you-go row.
 gsettings set org.gnome.mutter dynamic-workspaces false
 gsettings set org.gnome.desktop.wm.preferences num-workspaces "${#keys[@]}"
@@ -66,14 +77,19 @@ add "$wm" toggle-fullscreen '<Shift><Alt>Return'
 add org.gnome.settings-daemon.plugins.media-keys terminal '<Alt>Return' # Ctrl+Alt+T stays
 
 # Snapping: Ubuntu's Tiling Assistant owns Super+arrows when it's on, so add
-# Alt+Shift+H/L/K/J to its keys; plain GNOME's otherwise. (From the M2's
+# Alt+Shift+H/L/K/J to its keys: halves in AeroSpace's directions (K/J are
+# top/bottom, which suit the mini's portrait monitor). Plain GNOME has no
+# top/bottom halves, so there K/J maximize / restore. (From the M2's
 # keyboard through Deskflow there's no Super key: ⌘ arrives as Ctrl.)
 ta=org.gnome.shell.extensions.tiling-assistant
-if gsettings list-keys "$ta" 2>/dev/null | grep -qx tile-left-half; then
+if gsettings list-keys "$ta" 2>/dev/null | grep -qx tile-top-half; then
 	add "$ta" tile-left-half '<Shift><Alt>h'
 	add "$ta" tile-right-half '<Shift><Alt>l'
-	add "$ta" tile-maximize '<Shift><Alt>k'
-	add "$ta" restore-window '<Shift><Alt>j'
+	add "$ta" tile-top-half '<Shift><Alt>k'
+	add "$ta" tile-bottom-half '<Shift><Alt>j'
+	# K/J used to maximize / restore: take those back out
+	drop "$ta" tile-maximize '<Shift><Alt>k'
+	drop "$ta" restore-window '<Shift><Alt>j'
 else
 	add org.gnome.mutter.keybindings toggle-tiled-left '<Shift><Alt>h'
 	add org.gnome.mutter.keybindings toggle-tiled-right '<Shift><Alt>l'
