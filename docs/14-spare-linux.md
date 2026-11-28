@@ -166,10 +166,10 @@ GNOME has no tiling like AeroSpace, but the spares get **the same workspace keys
 | `Alt+Enter` | new terminal (`Ctrl+Alt+T` still works) | ✓ |
 | `Alt+Shift+Enter` | full screen on/off | ✓ |
 | `Alt+Shift+H` / `Alt+Shift+L` | snap the window to the left / right half | ≈ move left / right |
-| `Alt+Shift+K` / `Alt+Shift+J` | maximize / restore | |
+| `Alt+Shift+K` / `Alt+Shift+J` | snap the window to the top / bottom half (handy on the mini's portrait monitor) | ≈ move up / down |
 | Chrome, Firefox | open on `B` (GNOME's **Auto Move Windows** extension) | ✓ (Chrome's Work profile can't be told apart here, so it lands on `B` too: `Alt+Shift+W`) |
 
-**What's different:** windows don't tile themselves; snap them with `Alt+Shift+H/L` instead (Ubuntu's own `Super+arrow` keys still work on a keyboard plugged into the mini, but through Deskflow ⌘ arrives as Ctrl, so the M2's keyboard has no Super key there). `Alt+H/J/K/L` focus and `Alt+Tab` back-and-forth don't exist here: `Alt+Tab` is GNOME's app switcher. To see all twelve workspaces, push the pointer into the top-left corner, or click **Activities**.
+**What's different:** windows don't tile themselves; snap them to a half with `Alt+Shift+H/J/K/L` instead. To fill the screen, double-click the title bar (or `Alt+Shift+Enter` for full screen). (Ubuntu's own `Super+arrow` keys still work on a keyboard plugged into the mini, but through Deskflow ⌘ arrives as Ctrl, so the M2's keyboard has no Super key there.) `Alt+H/J/K/L` focus doesn't exist here: switch with `Alt+Tab` (apps; a quick press goes back to the last one), ``Alt+` `` (windows of the same app) or `Alt+Esc` (every window, no popup). To see all twelve workspaces, push the pointer into the top-left corner, or click **Activities**.
 
 The script asks nothing (no password), and runs on the next `chezmoi apply` **at the desktop** (over SSH with nobody logged in, it waits, showing ` R .chezmoiscripts/17-gnome-keys.sh`). The first time, log out and back in once so Auto Move Windows starts.
 
